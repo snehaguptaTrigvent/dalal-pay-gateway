@@ -47,12 +47,14 @@ const Navigation = () => {
               <Globe className="w-4 h-4" />
               <span>{language === "en" ? "العربية" : "English"}</span>
             </Button>
-            <Button variant="outline" size="sm">
-              {language === "en" ? "Login" : "تسجيل الدخول"}
-            </Button>
-            <Button variant="hero" size="sm">
-              {language === "en" ? "Get Started" : "ابدأ الآن"}
-            </Button>
+              <Button variant="outline" size="sm">
+                {language === "en" ? "Login" : "تسجيل الدخول"}
+              </Button>
+              <Button variant="hero" size="sm" asChild>
+                <a href="/merchant/register">
+                  {language === "en" ? "Get Started" : "ابدأ الآن"}
+                </a>
+              </Button>
           </div>
 
           {/* Mobile menu button */}
