@@ -82,6 +82,7 @@ const KYCOnboarding = () => {
 
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [touched, setTouched] = useState<{[key: string]: boolean}>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
@@ -150,9 +151,8 @@ const KYCOnboarding = () => {
     setTouched({...touched, [field]: true});
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const stepErrors = validateStep(currentStep);
-    
     if (Object.keys(stepErrors).length > 0) {
       setErrors({...errors, ...stepErrors});
       toast({
@@ -162,19 +162,39 @@ const KYCOnboarding = () => {
       });
       return;
     }
-    
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Final step - submit
-      toast({
-        title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
-        description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
+      // Final step - submit to API
+      setSubmitting(true);
+      const formPayload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formPayload.append(key, value);
+        }
       });
-      
-      setTimeout(() => {
-        navigate("/merchant/dashboard");
-      }, 2000);
+      try {
+        const response = await fetch("https://api.dalal-pay.com/api/kyc-onboarding", {
+          method: "POST",
+          body: formPayload
+        });
+        if (!response.ok) throw new Error("Submission failed");
+        toast({
+          title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
+          description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
+        });
+        setTimeout(() => {
+          navigate("/merchant/dashboard");
+        }, 2000);
+      } catch (err) {
+        toast({
+          title: language === "en" ? "Submission Error" : "خطأ في الإرسال",
+          description: language === "en" ? "There was a problem submitting your application. Please try again." : "حدثت مشكلة أثناء إرسال طلبك. يرجى المحاولة مرة أخرى.",
+          variant: "destructive"
+        });
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -598,6 +618,11 @@ const KYCOnboarding = () => {
     </div>
   );
 
+  const handleFileChange = (key: string, file: File | null) => {
+    setFormData((prev) => ({ ...prev, [key]: file }));
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
   const renderDocumentation = () => (
     <div className="space-y-6">
       <div className="flex items-center mb-6">
@@ -626,9 +651,26 @@ const KYCOnboarding = () => {
                   <div className="text-xs text-muted-foreground">{t.supportedFormats}</div>
                 </div>
               </div>
-              <Button variant="outline" size="sm">
-                {t.uploadFile}
-              </Button>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="file"
+                  id={doc.key}
+                  style={{ display: "none" }}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={e => handleFileChange(doc.key, e.target.files?.[0] || null)}
+                />
+                <label htmlFor={doc.key}>
+                  <Button asChild variant="outline" size="sm">
+                    <span>{t.uploadFile}</span>
+                  </Button>
+                </label>
+                {formData[doc.key] && (
+                  <span className="text-xs ml-2">{formData[doc.key]?.name}</span>
+                )}
+                {errors[doc.key] && (
+                  <span className="text-xs text-destructive ml-2">{errors[doc.key]}</span>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -740,8 +782,11 @@ const KYCOnboarding = () => {
             <Button
               onClick={handleNext}
               className="flex items-center bg-primary hover:bg-primary/90"
+              disabled={submitting}
             >
-              {currentStep === totalSteps ? "Submit Application" : t.nextStep}
+              {submitting
+                ? (currentStep === totalSteps ? "Submitting..." : t.nextStep)
+                : (currentStep === totalSteps ? "Submit Application" : t.nextStep)}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
