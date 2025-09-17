@@ -4,12 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
-  User, 
   Building, 
   CreditCard, 
   FileText, 
@@ -18,9 +14,9 @@ import {
   ArrowRight,
   Upload,
   Globe,
-  MapPin,
-  Calendar,
-  Briefcase
+  User,
+  Phone,
+  Mail
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,42 +26,36 @@ const KYCOnboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const totalSteps = 5;
-  const progress = (currentStep / totalSteps) * 100;
+  const totalSteps = 4;
 
   // Form data state
   const [formData, setFormData] = useState({
-    // Personal Info
-    firstName: "",
-    lastName: "",
-    dateOfBirth: "",
-    nationality: "",
-    idNumber: "",
-    address: "",
-    city: "",
-    country: "",
-    
-    // Business Info
+    // Step 1: Business Information
+    businessName: "",
     businessType: "",
-    businessCategory: "",
-    businessDescription: "",
+    registrationNumber: "",
+    taxId: "",
     businessAddress: "",
-    businessCity: "",
-    businessCountry: "",
-    taxNumber: "",
+    businessDescription: "",
     
-    // Bank Details
+    // Step 2: Contact Details
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    contactPosition: "",
+    
+    // Step 3: Banking Information
     bankName: "",
     accountNumber: "",
     iban: "",
     swiftCode: "",
     accountHolder: "",
     
-    // Documents
-    idDocument: null,
+    // Step 4: Documents
     businessLicense: null,
+    taxCertificate: null,
     bankStatement: null,
-    additionalDocs: null
+    ownershipDocs: null
   });
 
   const toggleLanguage = () => {
@@ -74,118 +64,124 @@ const KYCOnboarding = () => {
 
   const content = {
     en: {
-      title: "KYC Verification",
-      subtitle: "Complete your verification to start accepting payments",
       steps: [
-        "Personal Information",
-        "Business Details", 
-        "Bank Account",
-        "Document Upload",
-        "Review & Submit"
+        { title: "Business Information", subtitle: "Tell us about your business" },
+        { title: "Contact Details", subtitle: "Primary contact information" },
+        { title: "Banking Information", subtitle: "Account details for payouts" },
+        { title: "Documentation", subtitle: "Upload required documents" }
       ],
-      continue: "Continue",
-      back: "Back",
-      submit: "Submit for Review",
-      complete: "Complete KYC",
-      
-      // Personal Info
-      personalTitle: "Personal Information",
-      personalSubtitle: "Tell us about yourself",
-      firstName: "First Name",
-      lastName: "Last Name",
-      dateOfBirth: "Date of Birth",
-      nationality: "Nationality",
-      idNumber: "ID Number",
-      address: "Address",
-      city: "City",
-      country: "Country",
+      previous: "Previous",
+      nextStep: "Next Step",
       
       // Business Info
-      businessTitle: "Business Information",
-      businessSubtitle: "Tell us about your business",
+      businessName: "Business Name",
+      businessNamePlaceholder: "Enter your business name",
       businessType: "Business Type",
-      businessCategory: "Business Category",
-      businessDescription: "Business Description",
+      businessTypePlaceholder: "e.g. E-commerce, Retail",
+      registrationNumber: "Registration Number",
+      registrationPlaceholder: "Business registration number",
+      taxId: "Tax ID",
+      taxIdPlaceholder: "Tax identification number",
       businessAddress: "Business Address",
-      taxNumber: "Tax Registration Number",
+      addressPlaceholder: "Full business address",
+      businessDescription: "Business Description",
+      descriptionPlaceholder: "Describe your business activities",
       
-      // Bank Details
-      bankTitle: "Bank Account Details",
-      bankSubtitle: "Where you'll receive your payments",
+      // Contact Details
+      contactTitle: "Contact Details",
+      contactSubtitle: "Primary contact information",
+      contactName: "Contact Person Name",
+      contactNamePlaceholder: "Full name of primary contact",
+      contactEmail: "Contact Email",
+      contactEmailPlaceholder: "Primary business email",
+      contactPhone: "Contact Phone",
+      contactPhonePlaceholder: "Business phone number",
+      contactPosition: "Position/Role",
+      positionPlaceholder: "e.g. CEO, Manager, Owner",
+      
+      // Banking Info
+      bankingTitle: "Banking Information",
+      bankingSubtitle: "Account details for payouts",
       bankName: "Bank Name",
+      bankNamePlaceholder: "Your bank name",
       accountNumber: "Account Number",
+      accountPlaceholder: "Bank account number",
       iban: "IBAN",
+      ibanPlaceholder: "International bank account number",
       swiftCode: "SWIFT/BIC Code",
+      swiftPlaceholder: "Bank identifier code",
       accountHolder: "Account Holder Name",
+      holderPlaceholder: "Name on bank account",
       
       // Documents
-      docsTitle: "Document Upload",
-      docsSubtitle: "Upload required documents for verification",
-      idDocument: "Government ID",
+      docsTitle: "Documentation",
+      docsSubtitle: "Upload required documents",
       businessLicense: "Business License",
+      taxCertificate: "Tax Certificate",
       bankStatement: "Bank Statement",
-      additionalDocs: "Additional Documents",
-      
-      // Review
-      reviewTitle: "Review Your Information",
-      reviewSubtitle: "Please review all information before submission"
+      ownershipDocs: "Ownership Documents",
+      uploadFile: "Upload File",
+      supportedFormats: "Supported: PDF, JPG, PNG (Max 5MB)"
     },
     ar: {
-      title: "التحقق من الهوية",
-      subtitle: "أكمل التحقق من هويتك لبدء قبول المدفوعات",
       steps: [
-        "المعلومات الشخصية",
-        "تفاصيل الأعمال",
-        "الحساب المصرفي", 
-        "تحميل المستندات",
-        "المراجعة والإرسال"
+        { title: "معلومات الأعمال", subtitle: "أخبرنا عن عملك" },
+        { title: "تفاصيل الاتصال", subtitle: "معلومات الاتصال الأساسية" },
+        { title: "المعلومات المصرفية", subtitle: "تفاصيل الحساب للمدفوعات" },
+        { title: "الوثائق", subtitle: "رفع الوثائق المطلوبة" }
       ],
-      continue: "متابعة",
-      back: "رجوع",
-      submit: "إرسال للمراجعة",
-      complete: "إكمال التحقق",
-      
-      // Personal Info
-      personalTitle: "المعلومات الشخصية",
-      personalSubtitle: "أخبرنا عن نفسك",
-      firstName: "الاسم الأول",
-      lastName: "الاسم الأخير",
-      dateOfBirth: "تاريخ الميلاد",
-      nationality: "الجنسية",
-      idNumber: "رقم الهوية",
-      address: "العنوان",
-      city: "المدينة", 
-      country: "البلد",
+      previous: "السابق",
+      nextStep: "الخطوة التالية",
       
       // Business Info
-      businessTitle: "معلومات الأعمال",
-      businessSubtitle: "أخبرنا عن عملك",
-      businessType: "نوع العمل",
-      businessCategory: "فئة العمل",
-      businessDescription: "وصف العمل",
-      businessAddress: "عنوان العمل",
-      taxNumber: "رقم التسجيل الضريبي",
+      businessName: "اسم النشاط التجاري",
+      businessNamePlaceholder: "أدخل اسم نشاطك التجاري",
+      businessType: "نوع النشاط التجاري",
+      businessTypePlaceholder: "مثال: التجارة الإلكترونية، التجزئة",
+      registrationNumber: "رقم التسجيل",
+      registrationPlaceholder: "رقم تسجيل النشاط التجاري",
+      taxId: "الرقم الضريبي",
+      taxIdPlaceholder: "رقم الهوية الضريبية",
+      businessAddress: "عنوان النشاط التجاري",
+      addressPlaceholder: "العنوان الكامل للنشاط التجاري",
+      businessDescription: "وصف النشاط التجاري",
+      descriptionPlaceholder: "صف أنشطة عملك",
       
-      // Bank Details
-      bankTitle: "تفاصيل الحساب المصرفي",
-      bankSubtitle: "حيث ستتلقى مدفوعاتك",
+      // Contact Details
+      contactTitle: "تفاصيل الاتصال",
+      contactSubtitle: "معلومات الاتصال الأساسية",
+      contactName: "اسم جهة الاتصال",
+      contactNamePlaceholder: "الاسم الكامل لجهة الاتصال الأساسية",
+      contactEmail: "بريد جهة الاتصال",
+      contactEmailPlaceholder: "البريد الإلكتروني للعمل الأساسي",
+      contactPhone: "هاتف جهة الاتصال",
+      contactPhonePlaceholder: "رقم هاتف العمل",
+      contactPosition: "المنصب/الدور",
+      positionPlaceholder: "مثال: الرئيس التنفيذي، المدير، المالك",
+      
+      // Banking Info
+      bankingTitle: "المعلومات المصرفية",
+      bankingSubtitle: "تفاصيل الحساب للمدفوعات",
       bankName: "اسم البنك",
+      bankNamePlaceholder: "اسم البنك الخاص بك",
       accountNumber: "رقم الحساب",
-      iban: "الآيبان",
+      accountPlaceholder: "رقم الحساب المصرفي",
+      iban: "رقم الآيبان",
+      ibanPlaceholder: "رقم الحساب المصرفي الدولي",
       swiftCode: "رمز السويفت",
+      swiftPlaceholder: "رمز تعريف البنك",
       accountHolder: "اسم صاحب الحساب",
+      holderPlaceholder: "الاسم في الحساب المصرفي",
       
       // Documents
-      docsTitle: "تحميل المستندات",
-      docsSubtitle: "حمّل المستندات المطلوبة للتحقق",
-      idDocument: "هوية حكومية",
+      docsTitle: "الوثائق",
+      docsSubtitle: "رفع الوثائق المطلوبة",
       businessLicense: "رخصة العمل",
+      taxCertificate: "شهادة ضريبية",
       bankStatement: "كشف حساب مصرفي",
-      additionalDocs: "مستندات إضافية",
-      
-      // Review
-      reviewTitle: "راجع معلوماتك",
-      reviewSubtitle: "يرجى مراجعة جميع المعلومات قبل الإرسال"
+      ownershipDocs: "وثائق الملكية",
+      uploadFile: "رفع ملف",
+      supportedFormats: "المدعوم: PDF, JPG, PNG (حد أقصى 5 ميجا)"
     }
   };
 
@@ -194,6 +190,16 @@ const KYCOnboarding = () => {
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+    } else {
+      // Final step - submit
+      toast({
+        title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
+        description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
+      });
+      
+      setTimeout(() => {
+        navigate("/merchant/dashboard");
+      }, 2000);
     }
   };
 
@@ -203,426 +209,405 @@ const KYCOnboarding = () => {
     }
   };
 
-  const handleSubmit = () => {
-    toast({
-      title: language === "en" ? "KYC Submitted Successfully" : "تم إرسال التحقق بنجاح",
-      description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
-    });
-    
-    setTimeout(() => {
-      navigate("/merchant/dashboard");
-    }, 2000);
-  };
-
-  const renderPersonalInfo = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <User className="w-12 h-12 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.personalTitle}</h2>
-        <p className="text-muted-foreground">{t.personalSubtitle}</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Label className="text-foreground font-medium">{t.firstName}</Label>
-          <Input
-            value={formData.firstName}
-            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.lastName}</Label>
-          <Input
-            value={formData.lastName}
-            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.dateOfBirth}</Label>
-          <Input
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.nationality}</Label>
-          <Select onValueChange={(value) => setFormData({...formData, nationality: value})}>
-            <SelectTrigger className="mt-2 bg-muted/30 border-border focus:border-primary">
-              <SelectValue placeholder="Select nationality" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ae">UAE</SelectItem>
-              <SelectItem value="sa">Saudi Arabia</SelectItem>
-              <SelectItem value="eg">Egypt</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.idNumber}</Label>
-          <Input
-            value={formData.idNumber}
-            onChange={(e) => setFormData({...formData, idNumber: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.country}</Label>
-          <Select onValueChange={(value) => setFormData({...formData, country: value})}>
-            <SelectTrigger className="mt-2 bg-muted/30 border-border focus:border-primary">
-              <SelectValue placeholder="Select country" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ae">United Arab Emirates</SelectItem>
-              <SelectItem value="sa">Saudi Arabia</SelectItem>
-              <SelectItem value="eg">Egypt</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div>
-        <Label className="text-foreground font-medium">{t.address}</Label>
-        <Textarea
-          value={formData.address}
-          onChange={(e) => setFormData({...formData, address: e.target.value})}
-          className="mt-2 bg-muted/30 border-border focus:border-primary resize-none"
-          rows={3}
-        />
-      </div>
-    </div>
-  );
-
   const renderBusinessInfo = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <Building className="w-12 h-12 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.businessTitle}</h2>
-        <p className="text-muted-foreground">{t.businessSubtitle}</p>
+      <div className="flex items-center mb-6">
+        <Building className="w-6 h-6 text-primary mr-3" />
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Step 1: Business Information</h2>
+          <p className="text-sm text-muted-foreground">Tell us about your business</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label className="text-foreground font-medium">{t.businessType}</Label>
-          <Select onValueChange={(value) => setFormData({...formData, businessType: value})}>
-            <SelectTrigger className="mt-2 bg-muted/30 border-border focus:border-primary">
-              <SelectValue placeholder="Select business type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="llc">LLC</SelectItem>
-              <SelectItem value="corporation">Corporation</SelectItem>
-              <SelectItem value="partnership">Partnership</SelectItem>
-              <SelectItem value="sole">Sole Proprietorship</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="businessName" className="text-foreground font-medium">
+            {t.businessName} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="businessName"
+            value={formData.businessName}
+            onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+            placeholder={t.businessNamePlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
         </div>
+
         <div>
-          <Label className="text-foreground font-medium">{t.businessCategory}</Label>
-          <Select onValueChange={(value) => setFormData({...formData, businessCategory: value})}>
-            <SelectTrigger className="mt-2 bg-muted/30 border-border focus:border-primary">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="retail">Retail</SelectItem>
-              <SelectItem value="services">Services</SelectItem>
-              <SelectItem value="ecommerce">E-commerce</SelectItem>
-              <SelectItem value="software">Software</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="businessType" className="text-foreground font-medium">
+            {t.businessType} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="businessType"
+            value={formData.businessType}
+            onChange={(e) => setFormData({...formData, businessType: e.target.value})}
+            placeholder={t.businessTypePlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="registrationNumber" className="text-foreground font-medium">
+            {t.registrationNumber} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="registrationNumber"
+            value={formData.registrationNumber}
+            onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})}
+            placeholder={t.registrationPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="taxId" className="text-foreground font-medium">
+            {t.taxId}
+          </Label>
+          <Input
+            id="taxId"
+            value={formData.taxId}
+            onChange={(e) => setFormData({...formData, taxId: e.target.value})}
+            placeholder={t.taxIdPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+          />
         </div>
       </div>
 
       <div>
-        <Label className="text-foreground font-medium">{t.businessDescription}</Label>
+        <Label htmlFor="businessAddress" className="text-foreground font-medium">
+          {t.businessAddress} <span className="text-destructive">*</span>
+        </Label>
         <Textarea
-          value={formData.businessDescription}
-          onChange={(e) => setFormData({...formData, businessDescription: e.target.value})}
-          className="mt-2 bg-muted/30 border-border focus:border-primary resize-none"
-          rows={4}
-          placeholder="Describe your business activities..."
-        />
-      </div>
-
-      <div>
-        <Label className="text-foreground font-medium">{t.businessAddress}</Label>
-        <Textarea
+          id="businessAddress"
           value={formData.businessAddress}
           onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
-          className="mt-2 bg-muted/30 border-border focus:border-primary resize-none"
+          placeholder={t.addressPlaceholder}
+          className="mt-2 bg-background border-input focus:border-primary resize-none"
           rows={3}
+          required
         />
       </div>
 
       <div>
-        <Label className="text-foreground font-medium">{t.taxNumber}</Label>
-        <Input
-          value={formData.taxNumber}
-          onChange={(e) => setFormData({...formData, taxNumber: e.target.value})}
-          className="mt-2 bg-muted/30 border-border focus:border-primary"
+        <Label htmlFor="businessDescription" className="text-foreground font-medium">
+          {t.businessDescription} <span className="text-destructive">*</span>
+        </Label>
+        <Textarea
+          id="businessDescription"
+          value={formData.businessDescription}
+          onChange={(e) => setFormData({...formData, businessDescription: e.target.value})}
+          placeholder={t.descriptionPlaceholder}
+          className="mt-2 bg-background border-input focus:border-primary resize-none"
+          rows={4}
+          required
         />
       </div>
     </div>
   );
 
-  const renderBankDetails = () => (
+  const renderContactDetails = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <CreditCard className="w-12 h-12 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.bankTitle}</h2>
-        <p className="text-muted-foreground">{t.bankSubtitle}</p>
+      <div className="flex items-center mb-6">
+        <User className="w-6 h-6 text-primary mr-3" />
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Step 2: Contact Details</h2>
+          <p className="text-sm text-muted-foreground">Primary contact information</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label className="text-foreground font-medium">{t.bankName}</Label>
+          <Label htmlFor="contactName" className="text-foreground font-medium">
+            {t.contactName} <span className="text-destructive">*</span>
+          </Label>
           <Input
-            value={formData.bankName}
-            onChange={(e) => setFormData({...formData, bankName: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
+            id="contactName"
+            value={formData.contactName}
+            onChange={(e) => setFormData({...formData, contactName: e.target.value})}
+            placeholder={t.contactNamePlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
           />
         </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.accountHolder}</Label>
-          <Input
-            value={formData.accountHolder}
-            onChange={(e) => setFormData({...formData, accountHolder: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.accountNumber}</Label>
-          <Input
-            value={formData.accountNumber}
-            onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-        <div>
-          <Label className="text-foreground font-medium">{t.iban}</Label>
-          <Input
-            value={formData.iban}
-            onChange={(e) => setFormData({...formData, iban: e.target.value})}
-            className="mt-2 bg-muted/30 border-border focus:border-primary"
-          />
-        </div>
-      </div>
 
-      <div>
-        <Label className="text-foreground font-medium">{t.swiftCode}</Label>
-        <Input
-          value={formData.swiftCode}
-          onChange={(e) => setFormData({...formData, swiftCode: e.target.value})}
-          className="mt-2 bg-muted/30 border-border focus:border-primary"
-        />
+        <div>
+          <Label htmlFor="contactPosition" className="text-foreground font-medium">
+            {t.contactPosition} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="contactPosition"
+            value={formData.contactPosition}
+            onChange={(e) => setFormData({...formData, contactPosition: e.target.value})}
+            placeholder={t.positionPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="contactEmail" className="text-foreground font-medium">
+            {t.contactEmail} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="contactEmail"
+            type="email"
+            value={formData.contactEmail}
+            onChange={(e) => setFormData({...formData, contactEmail: e.target.value})}
+            placeholder={t.contactEmailPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="contactPhone" className="text-foreground font-medium">
+            {t.contactPhone} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="contactPhone"
+            type="tel"
+            value={formData.contactPhone}
+            onChange={(e) => setFormData({...formData, contactPhone: e.target.value})}
+            placeholder={t.contactPhonePlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
       </div>
     </div>
   );
 
-  const renderDocuments = () => (
+  const renderBankingInfo = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <FileText className="w-12 h-12 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.docsTitle}</h2>
-        <p className="text-muted-foreground">{t.docsSubtitle}</p>
+      <div className="flex items-center mb-6">
+        <CreditCard className="w-6 h-6 text-primary mr-3" />
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Step 3: Banking Information</h2>
+          <p className="text-sm text-muted-foreground">Account details for payouts</p>
+        </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Label htmlFor="bankName" className="text-foreground font-medium">
+            {t.bankName} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="bankName"
+            value={formData.bankName}
+            onChange={(e) => setFormData({...formData, bankName: e.target.value})}
+            placeholder={t.bankNamePlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="accountHolder" className="text-foreground font-medium">
+            {t.accountHolder} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="accountHolder"
+            value={formData.accountHolder}
+            onChange={(e) => setFormData({...formData, accountHolder: e.target.value})}
+            placeholder={t.holderPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="accountNumber" className="text-foreground font-medium">
+            {t.accountNumber} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="accountNumber"
+            value={formData.accountNumber}
+            onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
+            placeholder={t.accountPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="iban" className="text-foreground font-medium">
+            {t.iban}
+          </Label>
+          <Input
+            id="iban"
+            value={formData.iban}
+            onChange={(e) => setFormData({...formData, iban: e.target.value})}
+            placeholder={t.ibanPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <Label htmlFor="swiftCode" className="text-foreground font-medium">
+            {t.swiftCode}
+          </Label>
+          <Input
+            id="swiftCode"
+            value={formData.swiftCode}
+            onChange={(e) => setFormData({...formData, swiftCode: e.target.value})}
+            placeholder={t.swiftPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDocumentation = () => (
+    <div className="space-y-6">
+      <div className="flex items-center mb-6">
+        <FileText className="w-6 h-6 text-primary mr-3" />
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Step 4: Documentation</h2>
+          <p className="text-sm text-muted-foreground">Upload required documents</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
         {[
-          { key: "idDocument", label: t.idDocument, required: true },
           { key: "businessLicense", label: t.businessLicense, required: true },
+          { key: "taxCertificate", label: t.taxCertificate, required: false },
           { key: "bankStatement", label: t.bankStatement, required: true },
-          { key: "additionalDocs", label: t.additionalDocs, required: false }
+          { key: "ownershipDocs", label: t.ownershipDocs, required: false }
         ].map((doc) => (
-          <div key={doc.key} className="border-2 border-dashed border-border rounded-lg p-6 hover:border-primary/50 transition-smooth">
-            <div className="flex items-center justify-between mb-4">
+          <div key={doc.key} className="border-2 border-dashed border-border rounded-lg p-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Upload className="w-6 h-6 text-primary" />
+                <Upload className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <div className="font-medium text-foreground">{doc.label}</div>
-                  {doc.required && <Badge variant="destructive" className="text-xs">Required</Badge>}
+                  <div className="font-medium text-foreground">
+                    {doc.label} {doc.required && <span className="text-destructive">*</span>}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{t.supportedFormats}</div>
                 </div>
               </div>
-              <Button variant="outline">
-                Upload File
+              <Button variant="outline" size="sm">
+                {t.uploadFile}
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Supported formats: PDF, JPG, PNG (Max 5MB)
-            </p>
           </div>
         ))}
       </div>
     </div>
   );
 
-  const renderReview = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.reviewTitle}</h2>
-        <p className="text-muted-foreground">{t.reviewSubtitle}</p>
-      </div>
-
-      <div className="space-y-6">
-        {/* Personal Info Summary */}
-        <Card className="p-6 bg-gradient-card border-0">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center">
-            <User className="w-5 h-5 mr-2 text-primary" />
-            {t.personalTitle}
-          </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Name:</span>
-              <div className="font-medium">{formData.firstName} {formData.lastName}</div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Nationality:</span>
-              <div className="font-medium">{formData.nationality || "Not specified"}</div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Business Info Summary */}
-        <Card className="p-6 bg-gradient-card border-0">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center">
-            <Building className="w-5 h-5 mr-2 text-primary" />
-            {t.businessTitle}
-          </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Type:</span>
-              <div className="font-medium">{formData.businessType || "Not specified"}</div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Category:</span>
-              <div className="font-medium">{formData.businessCategory || "Not specified"}</div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Bank Details Summary */}
-        <Card className="p-6 bg-gradient-card border-0">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center">
-            <CreditCard className="w-5 h-5 mr-2 text-primary" />
-            {t.bankTitle}
-          </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Bank:</span>
-              <div className="font-medium">{formData.bankName || "Not specified"}</div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Account Holder:</span>
-              <div className="font-medium">{formData.accountHolder || "Not specified"}</div>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-
-  const renderCurrentStep = () => {
+  const getCurrentStepComponent = () => {
     switch (currentStep) {
-      case 1: return renderPersonalInfo();
-      case 2: return renderBusinessInfo();
-      case 3: return renderBankDetails();
-      case 4: return renderDocuments();
-      case 5: return renderReview();
-      default: return renderPersonalInfo();
+      case 1:
+        return renderBusinessInfo();
+      case 2:
+        return renderContactDetails();
+      case 3:
+        return renderBankingInfo();
+      case 4:
+        return renderDocumentation();
+      default:
+        return renderBusinessInfo();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="border-b border-border bg-card">
+        <div className="container max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Dalal Pay
+            <Link to="/" className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <Building className="w-5 h-5 text-primary-foreground" />
               </div>
-              <Badge variant="secondary">{t.title}</Badge>
-            </div>
+              <div className="text-xl font-bold text-foreground">Dalal Pay</div>
+            </Link>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleLanguage}
-            >
-              <Globe className="w-4 h-4 mr-2" />
-              {language === "en" ? "العربية" : "English"}
-            </Button>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-muted-foreground">Merchant Onboarding</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleLanguage}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                {language === "en" ? "العربية" : "English"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="bg-background/50 backdrop-blur-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-foreground">
-                Step {currentStep} of {totalSteps}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {Math.round(progress)}% Complete
-              </span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-          
-          {/* Step Labels */}
-          <div className="grid grid-cols-5 gap-2">
+      {/* Progress Steps */}
+      <div className="bg-muted/30 border-b border-border">
+        <div className="container max-w-5xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-center space-x-8">
             {t.steps.map((step, index) => (
-              <div 
-                key={index}
-                className={`text-center p-2 rounded-lg transition-smooth ${
-                  index + 1 === currentStep 
-                    ? "bg-primary/10 text-primary" 
-                    : index + 1 < currentStep 
-                    ? "bg-success/10 text-success"
-                    : "text-muted-foreground"
-                }`}
-              >
-                <div className="text-xs font-medium">{step}</div>
+              <div key={index} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all ${
+                    index + 1 === currentStep
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : index + 1 < currentStep
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background text-muted-foreground border-muted-foreground/30'
+                  }`}>
+                    {index + 1 < currentStep ? <CheckCircle className="w-5 h-5" /> : index + 1}
+                  </div>
+                  <div className="mt-2 text-center">
+                    <div className={`text-sm font-medium ${
+                      index + 1 <= currentStep ? 'text-foreground' : 'text-muted-foreground'
+                    }`}>
+                      {step.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {step.subtitle}
+                    </div>
+                  </div>
+                </div>
+                {index < t.steps.length - 1 && (
+                  <div className={`w-16 h-0.5 mx-4 mt-[-20px] ${
+                    index + 1 < currentStep ? 'bg-primary' : 'bg-muted-foreground/30'
+                  }`} />
+                )}
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0">
-          {renderCurrentStep()}
-          
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-border">
+      {/* Form Content */}
+      <div className="container max-w-3xl mx-auto px-6 py-12">
+        <Card className="border-0 shadow-lg">
+          <div className="p-8">
+            {getCurrentStepComponent()}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between p-8 pt-0">
             <Button
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 1}
+              className="flex items-center"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              {t.back}
+              {t.previous}
             </Button>
-            
-            {currentStep === totalSteps ? (
-              <Button variant="gradient" onClick={handleSubmit}>
-                {t.complete}
-                <CheckCircle className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button variant="gradient" onClick={handleNext}>
-                {t.continue}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
+
+            <Button
+              onClick={handleNext}
+              className="flex items-center bg-primary hover:bg-primary/90"
+            >
+              {currentStep === totalSteps ? "Submit Application" : t.nextStep}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         </Card>
       </div>

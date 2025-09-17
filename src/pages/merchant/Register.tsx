@@ -358,7 +358,7 @@ const MerchantRegister = () => {
               {t.hasAccount}{" "}
               <Link 
                 to="/merchant/login" 
-                className="text-primary font-medium hover:underline"
+                className="text-primary font-medium hover:underline transition-smooth"
               >
                 {t.signIn}
               </Link>
