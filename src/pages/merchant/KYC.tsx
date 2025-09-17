@@ -20,6 +20,28 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+interface FormData {
+  businessName: string;
+  businessType: string;
+  registrationNumber: string;
+  taxId: string;
+  businessAddress: string;
+  businessDescription: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactPosition: string;
+  bankName: string;
+  accountNumber: string;
+  iban: string;
+  swiftCode: string;
+  accountHolder: string;
+  businessLicense: File | null;
+  taxCertificate: File | null;
+  bankStatement: File | null;
+  ownershipDocs: File | null;
+}
+
 const KYCOnboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [language, setLanguage] = useState("en");
@@ -29,7 +51,7 @@ const KYCOnboarding = () => {
   const totalSteps = 4;
 
   // Form data state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     // Step 1: Business Information
     businessName: "",
     businessType: "",
@@ -58,8 +80,102 @@ const KYCOnboarding = () => {
     ownershipDocs: null
   });
 
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [touched, setTouched] = useState<{[key: string]: boolean}>({});
+
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
+  const validateStep = (step: number) => {
+    const newErrors: {[key: string]: string} = {};
+    
+    switch (step) {
+      case 1:
+        if (!formData.businessName.trim()) newErrors.businessName = "Business name is required";
+        if (!formData.businessType.trim()) newErrors.businessType = "Business type is required";
+        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = "Registration number is required";
+        if (!formData.businessAddress.trim()) newErrors.businessAddress = "Business address is required";
+        if (!formData.businessDescription.trim()) newErrors.businessDescription = "Business description is required";
+        break;
+        
+      case 2:
+        if (!formData.contactName.trim()) newErrors.contactName = "Contact name is required";
+        if (!formData.contactEmail.trim()) {
+          newErrors.contactEmail = "Contact email is required";
+        } else if (!validateEmail(formData.contactEmail)) {
+          newErrors.contactEmail = "Please enter a valid email address";
+        }
+        if (!formData.contactPhone.trim()) {
+          newErrors.contactPhone = "Contact phone is required";
+        } else if (!validatePhone(formData.contactPhone)) {
+          newErrors.contactPhone = "Please enter a valid phone number";
+        }
+        if (!formData.contactPosition.trim()) newErrors.contactPosition = "Position is required";
+        break;
+        
+      case 3:
+        if (!formData.bankName.trim()) newErrors.bankName = "Bank name is required";
+        if (!formData.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
+        if (!formData.accountHolder.trim()) newErrors.accountHolder = "Account holder name is required";
+        break;
+        
+      case 4:
+        if (!formData.businessLicense) newErrors.businessLicense = "Business license is required";
+        if (!formData.bankStatement) newErrors.bankStatement = "Bank statement is required";
+        break;
+    }
+    
+    return newErrors;
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData({...formData, [field]: value});
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors({...errors, [field]: null});
+    }
+    
+    setTouched({...touched, [field]: true});
+  };
+
+  const handleNext = () => {
+    const stepErrors = validateStep(currentStep);
+    
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors({...errors, ...stepErrors});
+      toast({
+        title: language === "en" ? "Validation Error" : "خطأ في التحقق",
+        description: language === "en" ? "Please fill in all required fields correctly." : "يرجى ملء جميع الحقول المطلوبة بشكل صحيح.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Final step - submit
+      toast({
+        title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
+        description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
+      });
+      
+      setTimeout(() => {
+        navigate("/merchant/dashboard");
+      }, 2000);
+    }
   };
 
   const content = {
@@ -187,22 +303,6 @@ const KYCOnboarding = () => {
 
   const t = content[language];
 
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Final step - submit
-      toast({
-        title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
-        description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
-      });
-      
-      setTimeout(() => {
-        navigate("/merchant/dashboard");
-      }, 2000);
-    }
-  };
-
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -227,11 +327,14 @@ const KYCOnboarding = () => {
           <Input
             id="businessName"
             value={formData.businessName}
-            onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+            onChange={(e) => handleInputChange('businessName', e.target.value)}
             placeholder={t.businessNamePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.businessName && (
+            <p className="text-sm text-destructive mt-1">{errors.businessName}</p>
+          )}
         </div>
 
         <div>
@@ -241,11 +344,14 @@ const KYCOnboarding = () => {
           <Input
             id="businessType"
             value={formData.businessType}
-            onChange={(e) => setFormData({...formData, businessType: e.target.value})}
+            onChange={(e) => handleInputChange('businessType', e.target.value)}
             placeholder={t.businessTypePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.businessType && (
+            <p className="text-sm text-destructive mt-1">{errors.businessType}</p>
+          )}
         </div>
 
         <div>
@@ -255,11 +361,14 @@ const KYCOnboarding = () => {
           <Input
             id="registrationNumber"
             value={formData.registrationNumber}
-            onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})}
+            onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
             placeholder={t.registrationPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.registrationNumber && (
+            <p className="text-sm text-destructive mt-1">{errors.registrationNumber}</p>
+          )}
         </div>
 
         <div>
@@ -269,7 +378,7 @@ const KYCOnboarding = () => {
           <Input
             id="taxId"
             value={formData.taxId}
-            onChange={(e) => setFormData({...formData, taxId: e.target.value})}
+            onChange={(e) => handleInputChange('taxId', e.target.value)}
             placeholder={t.taxIdPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
           />
@@ -283,12 +392,15 @@ const KYCOnboarding = () => {
         <Textarea
           id="businessAddress"
           value={formData.businessAddress}
-          onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
+          onChange={(e) => handleInputChange('businessAddress', e.target.value)}
           placeholder={t.addressPlaceholder}
           className="mt-2 bg-background border-input focus:border-primary resize-none"
           rows={3}
           required
         />
+        {errors.businessAddress && (
+          <p className="text-sm text-destructive mt-1">{errors.businessAddress}</p>
+        )}
       </div>
 
       <div>
@@ -298,12 +410,15 @@ const KYCOnboarding = () => {
         <Textarea
           id="businessDescription"
           value={formData.businessDescription}
-          onChange={(e) => setFormData({...formData, businessDescription: e.target.value})}
+          onChange={(e) => handleInputChange('businessDescription', e.target.value)}
           placeholder={t.descriptionPlaceholder}
           className="mt-2 bg-background border-input focus:border-primary resize-none"
           rows={4}
           required
         />
+        {errors.businessDescription && (
+          <p className="text-sm text-destructive mt-1">{errors.businessDescription}</p>
+        )}
       </div>
     </div>
   );
@@ -326,11 +441,14 @@ const KYCOnboarding = () => {
           <Input
             id="contactName"
             value={formData.contactName}
-            onChange={(e) => setFormData({...formData, contactName: e.target.value})}
+            onChange={(e) => handleInputChange('contactName', e.target.value)}
             placeholder={t.contactNamePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.contactName && (
+            <p className="text-sm text-destructive mt-1">{errors.contactName}</p>
+          )}
         </div>
 
         <div>
@@ -340,11 +458,14 @@ const KYCOnboarding = () => {
           <Input
             id="contactPosition"
             value={formData.contactPosition}
-            onChange={(e) => setFormData({...formData, contactPosition: e.target.value})}
+            onChange={(e) => handleInputChange('contactPosition', e.target.value)}
             placeholder={t.positionPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.contactPosition && (
+            <p className="text-sm text-destructive mt-1">{errors.contactPosition}</p>
+          )}
         </div>
 
         <div>
@@ -355,11 +476,14 @@ const KYCOnboarding = () => {
             id="contactEmail"
             type="email"
             value={formData.contactEmail}
-            onChange={(e) => setFormData({...formData, contactEmail: e.target.value})}
+            onChange={(e) => handleInputChange('contactEmail', e.target.value)}
             placeholder={t.contactEmailPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.contactEmail && (
+            <p className="text-sm text-destructive mt-1">{errors.contactEmail}</p>
+          )}
         </div>
 
         <div>
@@ -370,11 +494,14 @@ const KYCOnboarding = () => {
             id="contactPhone"
             type="tel"
             value={formData.contactPhone}
-            onChange={(e) => setFormData({...formData, contactPhone: e.target.value})}
+            onChange={(e) => handleInputChange('contactPhone', e.target.value)}
             placeholder={t.contactPhonePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.contactPhone && (
+            <p className="text-sm text-destructive mt-1">{errors.contactPhone}</p>
+          )}
         </div>
       </div>
     </div>
@@ -398,11 +525,14 @@ const KYCOnboarding = () => {
           <Input
             id="bankName"
             value={formData.bankName}
-            onChange={(e) => setFormData({...formData, bankName: e.target.value})}
+            onChange={(e) => handleInputChange('bankName', e.target.value)}
             placeholder={t.bankNamePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.bankName && (
+            <p className="text-sm text-destructive mt-1">{errors.bankName}</p>
+          )}
         </div>
 
         <div>
@@ -412,11 +542,14 @@ const KYCOnboarding = () => {
           <Input
             id="accountHolder"
             value={formData.accountHolder}
-            onChange={(e) => setFormData({...formData, accountHolder: e.target.value})}
+            onChange={(e) => handleInputChange('accountHolder', e.target.value)}
             placeholder={t.holderPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.accountHolder && (
+            <p className="text-sm text-destructive mt-1">{errors.accountHolder}</p>
+          )}
         </div>
 
         <div>
@@ -426,11 +559,14 @@ const KYCOnboarding = () => {
           <Input
             id="accountNumber"
             value={formData.accountNumber}
-            onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
+            onChange={(e) => handleInputChange('accountNumber', e.target.value)}
             placeholder={t.accountPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
+          {errors.accountNumber && (
+            <p className="text-sm text-destructive mt-1">{errors.accountNumber}</p>
+          )}
         </div>
 
         <div>
@@ -440,7 +576,7 @@ const KYCOnboarding = () => {
           <Input
             id="iban"
             value={formData.iban}
-            onChange={(e) => setFormData({...formData, iban: e.target.value})}
+            onChange={(e) => handleInputChange('iban', e.target.value)}
             placeholder={t.ibanPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
           />
@@ -453,7 +589,7 @@ const KYCOnboarding = () => {
           <Input
             id="swiftCode"
             value={formData.swiftCode}
-            onChange={(e) => setFormData({...formData, swiftCode: e.target.value})}
+            onChange={(e) => handleInputChange('swiftCode', e.target.value)}
             placeholder={t.swiftPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
           />
