@@ -21,25 +21,42 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
-  businessName: string;
-  businessType: string;
-  registrationNumber: string;
-  taxId: string;
-  businessAddress: string;
-  businessDescription: string;
-  contactName: string;
-  contactEmail: string;
-  contactPhone: string;
-  contactPosition: string;
-  bankName: string;
-  accountNumber: string;
-  iban: string;
-  swiftCode: string;
-  accountHolder: string;
-  businessLicense: File | null;
-  taxCertificate: File | null;
-  bankStatement: File | null;
-  ownershipDocs: File | null;
+  // Basic Information
+  type: string;
+  country: string;
+  email: string;
+  business_type: string;
+  business_profile_url: string;
+  business_profile_mcc: string;
+  statement_descriptor: string;
+  
+  // Individual Information
+  individual_first_name: string;
+  individual_last_name: string;
+  individual_email: string;
+  individual_phone: string;
+  individual_id_number: string;
+  individual_dob_day: string;
+  individual_dob_month: string;
+  individual_dob_year: string;
+  individual_address_line1: string;
+  individual_address_city: string;
+  individual_address_state: string;
+  individual_address_postal_code: string;
+  individual_address_country: string;
+  
+  // Banking Information
+  external_account_object: string;
+  external_account_country: string;
+  external_account_currency: string;
+  external_account_account_number: string;
+  external_account_routing_number: string;
+  external_account_account_holder_name: string;
+  
+  // Verification & Documents
+  individual_verification_document_front: File | null;
+  tos_acceptance_date: string;
+  tos_acceptance_ip: string;
 }
 
 const KYCOnboarding = () => {
@@ -52,32 +69,42 @@ const KYCOnboarding = () => {
 
   // Form data state
   const [formData, setFormData] = useState<FormData>({
-    // Step 1: Business Information
-    businessName: "",
-    businessType: "",
-    registrationNumber: "",
-    taxId: "",
-    businessAddress: "",
-    businessDescription: "",
+    // Step 1: Basic Information
+    type: "custom",
+    country: "US",
+    email: "",
+    business_type: "individual",
+    business_profile_url: "",
+    business_profile_mcc: "5734",
+    statement_descriptor: "",
     
-    // Step 2: Contact Details
-    contactName: "",
-    contactEmail: "",
-    contactPhone: "",
-    contactPosition: "",
+    // Step 2: Individual Information
+    individual_first_name: "",
+    individual_last_name: "",
+    individual_email: "",
+    individual_phone: "",
+    individual_id_number: "",
+    individual_dob_day: "",
+    individual_dob_month: "",
+    individual_dob_year: "",
+    individual_address_line1: "",
+    individual_address_city: "",
+    individual_address_state: "",
+    individual_address_postal_code: "",
+    individual_address_country: "US",
     
     // Step 3: Banking Information
-    bankName: "",
-    accountNumber: "",
-    iban: "",
-    swiftCode: "",
-    accountHolder: "",
+    external_account_object: "bank_account",
+    external_account_country: "US",
+    external_account_currency: "usd",
+    external_account_account_number: "",
+    external_account_routing_number: "",
+    external_account_account_holder_name: "",
     
-    // Step 4: Documents
-    businessLicense: null,
-    taxCertificate: null,
-    bankStatement: null,
-    ownershipDocs: null
+    // Step 4: Verification & Documents
+    individual_verification_document_front: null,
+    tos_acceptance_date: "",
+    tos_acceptance_ip: ""
   });
 
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -103,37 +130,46 @@ const KYCOnboarding = () => {
     
     switch (step) {
       case 1:
-        if (!formData.businessName.trim()) newErrors.businessName = "Business name is required";
-        if (!formData.businessType.trim()) newErrors.businessType = "Business type is required";
-        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = "Registration number is required";
-        if (!formData.businessAddress.trim()) newErrors.businessAddress = "Business address is required";
-        if (!formData.businessDescription.trim()) newErrors.businessDescription = "Business description is required";
+        if (!formData.email.trim()) {
+          newErrors.email = "Email is required";
+        } else if (!validateEmail(formData.email)) {
+          newErrors.email = "Please enter a valid email address";
+        }
+        if (!formData.business_profile_url.trim()) newErrors.business_profile_url = "Business URL is required";
+        if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = "Statement descriptor is required";
         break;
         
       case 2:
-        if (!formData.contactName.trim()) newErrors.contactName = "Contact name is required";
-        if (!formData.contactEmail.trim()) {
-          newErrors.contactEmail = "Contact email is required";
-        } else if (!validateEmail(formData.contactEmail)) {
-          newErrors.contactEmail = "Please enter a valid email address";
+        if (!formData.individual_first_name.trim()) newErrors.individual_first_name = "First name is required";
+        if (!formData.individual_last_name.trim()) newErrors.individual_last_name = "Last name is required";
+        if (!formData.individual_email.trim()) {
+          newErrors.individual_email = "Email is required";
+        } else if (!validateEmail(formData.individual_email)) {
+          newErrors.individual_email = "Please enter a valid email address";
         }
-        if (!formData.contactPhone.trim()) {
-          newErrors.contactPhone = "Contact phone is required";
-        } else if (!validatePhone(formData.contactPhone)) {
-          newErrors.contactPhone = "Please enter a valid phone number";
+        if (!formData.individual_phone.trim()) {
+          newErrors.individual_phone = "Phone number is required";
+        } else if (!validatePhone(formData.individual_phone)) {
+          newErrors.individual_phone = "Please enter a valid phone number";
         }
-        if (!formData.contactPosition.trim()) newErrors.contactPosition = "Position is required";
+        if (!formData.individual_id_number.trim()) newErrors.individual_id_number = "ID number is required";
+        if (!formData.individual_dob_day.trim()) newErrors.individual_dob_day = "Birth day is required";
+        if (!formData.individual_dob_month.trim()) newErrors.individual_dob_month = "Birth month is required";
+        if (!formData.individual_dob_year.trim()) newErrors.individual_dob_year = "Birth year is required";
+        if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = "Address is required";
+        if (!formData.individual_address_city.trim()) newErrors.individual_address_city = "City is required";
+        if (!formData.individual_address_state.trim()) newErrors.individual_address_state = "State is required";
+        if (!formData.individual_address_postal_code.trim()) newErrors.individual_address_postal_code = "Postal code is required";
         break;
         
       case 3:
-        if (!formData.bankName.trim()) newErrors.bankName = "Bank name is required";
-        if (!formData.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
-        if (!formData.accountHolder.trim()) newErrors.accountHolder = "Account holder name is required";
+        if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = "Account number is required";
+        if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = "Routing number is required";
+        if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = "Account holder name is required";
         break;
         
       case 4:
-        if (!formData.businessLicense) newErrors.businessLicense = "Business license is required";
-        if (!formData.bankStatement) newErrors.bankStatement = "Bank statement is required";
+        if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = "Identity document is required";
         break;
     }
     
@@ -165,7 +201,7 @@ const KYCOnboarding = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Final step - submit to API
+      // Final step - submit to Stripe Connect API
       setSubmitting(true);
       const formPayload = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -173,8 +209,15 @@ const KYCOnboarding = () => {
           formPayload.append(key, value);
         }
       });
+      
+      // Add automatic fields for Stripe
+      formPayload.append('capabilities[card_payments][requested]', 'true');
+      formPayload.append('capabilities[transfers][requested]', 'true');
+      formPayload.append('tos_acceptance[date]', Math.floor(Date.now() / 1000).toString());
+      formPayload.append('tos_acceptance[ip]', '127.0.0.1'); // You should get the real IP
+      
       try {
-        const response = await fetch("https://api.dalal-pay.com/api/kyc-onboarding", {
+        const response = await fetch("https://api.dalal-pay.com/api/stripe-connect-account", {
           method: "POST",
           body: formPayload
         });
@@ -201,123 +244,121 @@ const KYCOnboarding = () => {
   const content = {
     en: {
       steps: [
-        { title: "Business Information", subtitle: "Tell us about your business" },
-        { title: "Contact Details", subtitle: "Primary contact information" },
-        { title: "Banking Information", subtitle: "Account details for payouts" },
-        { title: "Documentation", subtitle: "Upload required documents" }
+        { title: "Basic Information", subtitle: "Account and business details" },
+        { title: "Personal Information", subtitle: "Individual information and address" },
+        { title: "Banking Information", subtitle: "Bank account for payouts" },
+        { title: "Verification", subtitle: "Identity verification and terms" }
       ],
       previous: "Previous",
       nextStep: "Next Step",
+      submit: "Submit Application",
       
-      // Business Info
-      businessName: "Business Name",
-      businessNamePlaceholder: "Enter your business name",
-      businessType: "Business Type",
-      businessTypePlaceholder: "e.g. E-commerce, Retail",
-      registrationNumber: "Registration Number",
-      registrationPlaceholder: "Business registration number",
-      taxId: "Tax ID",
-      taxIdPlaceholder: "Tax identification number",
-      businessAddress: "Business Address",
-      addressPlaceholder: "Full business address",
-      businessDescription: "Business Description",
-      descriptionPlaceholder: "Describe your business activities",
+      // Basic Info
+      email: "Email Address",
+      emailPlaceholder: "your@email.com",
+      businessUrl: "Business Website URL",
+      urlPlaceholder: "https://your-business.com",
+      statementDescriptor: "Statement Descriptor",
+      descriptorPlaceholder: "How your business appears on customer statements",
       
-      // Contact Details
-      contactTitle: "Contact Details",
-      contactSubtitle: "Primary contact information",
-      contactName: "Contact Person Name",
-      contactNamePlaceholder: "Full name of primary contact",
-      contactEmail: "Contact Email",
-      contactEmailPlaceholder: "Primary business email",
-      contactPhone: "Contact Phone",
-      contactPhonePlaceholder: "Business phone number",
-      contactPosition: "Position/Role",
-      positionPlaceholder: "e.g. CEO, Manager, Owner",
+      // Personal Info
+      firstName: "First Name",
+      firstNamePlaceholder: "Enter your first name",
+      lastName: "Last Name",
+      lastNamePlaceholder: "Enter your last name",
+      personalEmail: "Personal Email",
+      personalEmailPlaceholder: "your.personal@email.com",
+      phoneNumber: "Phone Number",
+      phonePlaceholder: "+1 555 123 4567",
+      idNumber: "ID Number",
+      idPlaceholder: "Social Security Number or Tax ID",
+      dateOfBirth: "Date of Birth",
+      day: "Day",
+      month: "Month",
+      year: "Year",
+      address: "Address",
+      addressLine1: "Street Address",
+      addressPlaceholder: "123 Main Street",
+      city: "City",
+      cityPlaceholder: "Enter city",
+      state: "State",
+      statePlaceholder: "Select state",
+      postalCode: "Postal Code",
+      postalPlaceholder: "Enter postal code",
       
       // Banking Info
-      bankingTitle: "Banking Information",
-      bankingSubtitle: "Account details for payouts",
-      bankName: "Bank Name",
-      bankNamePlaceholder: "Your bank name",
-      accountNumber: "Account Number",
-      accountPlaceholder: "Bank account number",
-      iban: "IBAN",
-      ibanPlaceholder: "International bank account number",
-      swiftCode: "SWIFT/BIC Code",
-      swiftPlaceholder: "Bank identifier code",
+      accountNumber: "Bank Account Number",
+      accountPlaceholder: "Enter account number",
+      routingNumber: "Routing Number",
+      routingPlaceholder: "Enter routing number",
       accountHolder: "Account Holder Name",
       holderPlaceholder: "Name on bank account",
       
-      // Documents
-      docsTitle: "Documentation",
-      docsSubtitle: "Upload required documents",
-      businessLicense: "Business License",
-      taxCertificate: "Tax Certificate",
-      bankStatement: "Bank Statement",
-      ownershipDocs: "Ownership Documents",
-      uploadFile: "Upload File",
-      supportedFormats: "Supported: PDF, JPG, PNG (Max 5MB)"
+      // Verification
+      identityDocument: "Identity Document",
+      uploadDocument: "Upload Document",
+      supportedFormats: "Supported: PDF, JPG, PNG (Max 5MB)",
+      termsAcceptance: "Terms of Service",
+      acceptTerms: "I accept the Terms of Service and Privacy Policy"
     },
     ar: {
       steps: [
-        { title: "معلومات الأعمال", subtitle: "أخبرنا عن عملك" },
-        { title: "تفاصيل الاتصال", subtitle: "معلومات الاتصال الأساسية" },
-        { title: "المعلومات المصرفية", subtitle: "تفاصيل الحساب للمدفوعات" },
-        { title: "الوثائق", subtitle: "رفع الوثائق المطلوبة" }
+        { title: "المعلومات الأساسية", subtitle: "تفاصيل الحساب والعمل" },
+        { title: "المعلومات الشخصية", subtitle: "المعلومات الفردية والعنوان" },
+        { title: "المعلومات المصرفية", subtitle: "الحساب المصرفي للمدفوعات" },
+        { title: "التحقق", subtitle: "التحقق من الهوية والشروط" }
       ],
       previous: "السابق",
       nextStep: "الخطوة التالية",
+      submit: "إرسال الطلب",
       
-      // Business Info
-      businessName: "اسم النشاط التجاري",
-      businessNamePlaceholder: "أدخل اسم نشاطك التجاري",
-      businessType: "نوع النشاط التجاري",
-      businessTypePlaceholder: "مثال: التجارة الإلكترونية، التجزئة",
-      registrationNumber: "رقم التسجيل",
-      registrationPlaceholder: "رقم تسجيل النشاط التجاري",
-      taxId: "الرقم الضريبي",
-      taxIdPlaceholder: "رقم الهوية الضريبية",
-      businessAddress: "عنوان النشاط التجاري",
-      addressPlaceholder: "العنوان الكامل للنشاط التجاري",
-      businessDescription: "وصف النشاط التجاري",
-      descriptionPlaceholder: "صف أنشطة عملك",
+      // Basic Info
+      email: "عنوان البريد الإلكتروني",
+      emailPlaceholder: "your@email.com",
+      businessUrl: "رابط الموقع التجاري",
+      urlPlaceholder: "https://your-business.com",
+      statementDescriptor: "وصف الكشف",
+      descriptorPlaceholder: "كيف يظهر عملك في كشوف العملاء",
       
-      // Contact Details
-      contactTitle: "تفاصيل الاتصال",
-      contactSubtitle: "معلومات الاتصال الأساسية",
-      contactName: "اسم جهة الاتصال",
-      contactNamePlaceholder: "الاسم الكامل لجهة الاتصال الأساسية",
-      contactEmail: "بريد جهة الاتصال",
-      contactEmailPlaceholder: "البريد الإلكتروني للعمل الأساسي",
-      contactPhone: "هاتف جهة الاتصال",
-      contactPhonePlaceholder: "رقم هاتف العمل",
-      contactPosition: "المنصب/الدور",
-      positionPlaceholder: "مثال: الرئيس التنفيذي، المدير، المالك",
+      // Personal Info
+      firstName: "الاسم الأول",
+      firstNamePlaceholder: "أدخل اسمك الأول",
+      lastName: "اسم العائلة",
+      lastNamePlaceholder: "أدخل اسم عائلتك",
+      personalEmail: "البريد الإلكتروني الشخصي",
+      personalEmailPlaceholder: "your.personal@email.com",
+      phoneNumber: "رقم الهاتف",
+      phonePlaceholder: "+1 555 123 4567",
+      idNumber: "رقم الهوية",
+      idPlaceholder: "رقم الضمان الاجتماعي أو الرقم الضريبي",
+      dateOfBirth: "تاريخ الميلاد",
+      day: "اليوم",
+      month: "الشهر",
+      year: "السنة",
+      address: "العنوان",
+      addressLine1: "عنوان الشارع",
+      addressPlaceholder: "123 الشارع الرئيسي",
+      city: "المدينة",
+      cityPlaceholder: "أدخل المدينة",
+      state: "الولاية",
+      statePlaceholder: "اختر الولاية",
+      postalCode: "الرمز البريدي",
+      postalPlaceholder: "أدخل الرمز البريدي",
       
       // Banking Info
-      bankingTitle: "المعلومات المصرفية",
-      bankingSubtitle: "تفاصيل الحساب للمدفوعات",
-      bankName: "اسم البنك",
-      bankNamePlaceholder: "اسم البنك الخاص بك",
-      accountNumber: "رقم الحساب",
-      accountPlaceholder: "رقم الحساب المصرفي",
-      iban: "رقم الآيبان",
-      ibanPlaceholder: "رقم الحساب المصرفي الدولي",
-      swiftCode: "رمز السويفت",
-      swiftPlaceholder: "رمز تعريف البنك",
+      accountNumber: "رقم الحساب المصرفي",
+      accountPlaceholder: "أدخل رقم الحساب",
+      routingNumber: "رقم التوجيه",
+      routingPlaceholder: "أدخل رقم التوجيه",
       accountHolder: "اسم صاحب الحساب",
       holderPlaceholder: "الاسم في الحساب المصرفي",
       
-      // Documents
-      docsTitle: "الوثائق",
-      docsSubtitle: "رفع الوثائق المطلوبة",
-      businessLicense: "رخصة العمل",
-      taxCertificate: "شهادة ضريبية",
-      bankStatement: "كشف حساب مصرفي",
-      ownershipDocs: "وثائق الملكية",
-      uploadFile: "رفع ملف",
-      supportedFormats: "المدعوم: PDF, JPG, PNG (حد أقصى 5 ميجا)"
+      // Verification
+      identityDocument: "وثيقة الهوية",
+      uploadDocument: "رفع الوثيقة",
+      supportedFormats: "المدعوم: PDF, JPG, PNG (حد أقصى 5 ميجا)",
+      termsAcceptance: "شروط الخدمة",
+      acceptTerms: "أوافق على شروط الخدمة وسياسة الخصوصية"
     }
   };
 
@@ -329,199 +370,300 @@ const KYCOnboarding = () => {
     }
   };
 
-  const renderBusinessInfo = () => (
+  const renderBasicInfo = () => (
     <div className="space-y-6">
       <div className="flex items-center mb-6">
         <Building className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Step 1: Business Information</h2>
-          <p className="text-sm text-muted-foreground">Tell us about your business</p>
+          <h2 className="text-xl font-semibold text-foreground">Step 1: Basic Information</h2>
+          <p className="text-sm text-muted-foreground">Account and business details</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="businessName" className="text-foreground font-medium">
-            {t.businessName} <span className="text-destructive">*</span>
+          <Label htmlFor="email" className="text-foreground font-medium">
+            {t.email} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="businessName"
-            value={formData.businessName}
-            onChange={(e) => handleInputChange('businessName', e.target.value)}
-            placeholder={t.businessNamePlaceholder}
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            placeholder={t.emailPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.businessName && (
-            <p className="text-sm text-destructive mt-1">{errors.businessName}</p>
+          {errors.email && (
+            <p className="text-sm text-destructive mt-1">{errors.email}</p>
           )}
         </div>
 
         <div>
-          <Label htmlFor="businessType" className="text-foreground font-medium">
-            {t.businessType} <span className="text-destructive">*</span>
+          <Label htmlFor="business_profile_url" className="text-foreground font-medium">
+            {t.businessUrl} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="businessType"
-            value={formData.businessType}
-            onChange={(e) => handleInputChange('businessType', e.target.value)}
-            placeholder={t.businessTypePlaceholder}
+            id="business_profile_url"
+            type="url"
+            value={formData.business_profile_url}
+            onChange={(e) => handleInputChange('business_profile_url', e.target.value)}
+            placeholder={t.urlPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.businessType && (
-            <p className="text-sm text-destructive mt-1">{errors.businessType}</p>
+          {errors.business_profile_url && (
+            <p className="text-sm text-destructive mt-1">{errors.business_profile_url}</p>
           )}
-        </div>
-
-        <div>
-          <Label htmlFor="registrationNumber" className="text-foreground font-medium">
-            {t.registrationNumber} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="registrationNumber"
-            value={formData.registrationNumber}
-            onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
-            placeholder={t.registrationPlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.registrationNumber && (
-            <p className="text-sm text-destructive mt-1">{errors.registrationNumber}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="taxId" className="text-foreground font-medium">
-            {t.taxId}
-          </Label>
-          <Input
-            id="taxId"
-            value={formData.taxId}
-            onChange={(e) => handleInputChange('taxId', e.target.value)}
-            placeholder={t.taxIdPlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-          />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="businessAddress" className="text-foreground font-medium">
-          {t.businessAddress} <span className="text-destructive">*</span>
+        <Label htmlFor="statement_descriptor" className="text-foreground font-medium">
+          {t.statementDescriptor} <span className="text-destructive">*</span>
         </Label>
-        <Textarea
-          id="businessAddress"
-          value={formData.businessAddress}
-          onChange={(e) => handleInputChange('businessAddress', e.target.value)}
-          placeholder={t.addressPlaceholder}
-          className="mt-2 bg-background border-input focus:border-primary resize-none"
-          rows={3}
+        <Input
+          id="statement_descriptor"
+          value={formData.statement_descriptor}
+          onChange={(e) => handleInputChange('statement_descriptor', e.target.value)}
+          placeholder={t.descriptorPlaceholder}
+          className="mt-2 bg-background border-input focus:border-primary"
+          maxLength={22}
           required
         />
-        {errors.businessAddress && (
-          <p className="text-sm text-destructive mt-1">{errors.businessAddress}</p>
+        {errors.statement_descriptor && (
+          <p className="text-sm text-destructive mt-1">{errors.statement_descriptor}</p>
         )}
+        <p className="text-xs text-muted-foreground mt-1">Maximum 22 characters</p>
       </div>
 
-      <div>
-        <Label htmlFor="businessDescription" className="text-foreground font-medium">
-          {t.businessDescription} <span className="text-destructive">*</span>
-        </Label>
-        <Textarea
-          id="businessDescription"
-          value={formData.businessDescription}
-          onChange={(e) => handleInputChange('businessDescription', e.target.value)}
-          placeholder={t.descriptionPlaceholder}
-          className="mt-2 bg-background border-input focus:border-primary resize-none"
-          rows={4}
-          required
-        />
-        {errors.businessDescription && (
-          <p className="text-sm text-destructive mt-1">{errors.businessDescription}</p>
-        )}
+      <div className="bg-muted/50 p-4 rounded-lg">
+        <p className="text-sm text-muted-foreground">
+          <strong>Account Type:</strong> Individual Business Account<br/>
+          <strong>Country:</strong> United States<br/>
+          <strong>Capabilities:</strong> Card Payments, Transfers
+        </p>
       </div>
     </div>
   );
 
-  const renderContactDetails = () => (
+  const renderPersonalInfo = () => (
     <div className="space-y-6">
       <div className="flex items-center mb-6">
         <User className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Step 2: Contact Details</h2>
-          <p className="text-sm text-muted-foreground">Primary contact information</p>
+          <h2 className="text-xl font-semibold text-foreground">Step 2: Personal Information</h2>
+          <p className="text-sm text-muted-foreground">Individual information and address</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="contactName" className="text-foreground font-medium">
-            {t.contactName} <span className="text-destructive">*</span>
+          <Label htmlFor="individual_first_name" className="text-foreground font-medium">
+            {t.firstName} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="contactName"
-            value={formData.contactName}
-            onChange={(e) => handleInputChange('contactName', e.target.value)}
-            placeholder={t.contactNamePlaceholder}
+            id="individual_first_name"
+            value={formData.individual_first_name}
+            onChange={(e) => handleInputChange('individual_first_name', e.target.value)}
+            placeholder={t.firstNamePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.contactName && (
-            <p className="text-sm text-destructive mt-1">{errors.contactName}</p>
+          {errors.individual_first_name && (
+            <p className="text-sm text-destructive mt-1">{errors.individual_first_name}</p>
           )}
         </div>
 
         <div>
-          <Label htmlFor="contactPosition" className="text-foreground font-medium">
-            {t.contactPosition} <span className="text-destructive">*</span>
+          <Label htmlFor="individual_last_name" className="text-foreground font-medium">
+            {t.lastName} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="contactPosition"
-            value={formData.contactPosition}
-            onChange={(e) => handleInputChange('contactPosition', e.target.value)}
-            placeholder={t.positionPlaceholder}
+            id="individual_last_name"
+            value={formData.individual_last_name}
+            onChange={(e) => handleInputChange('individual_last_name', e.target.value)}
+            placeholder={t.lastNamePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.contactPosition && (
-            <p className="text-sm text-destructive mt-1">{errors.contactPosition}</p>
+          {errors.individual_last_name && (
+            <p className="text-sm text-destructive mt-1">{errors.individual_last_name}</p>
           )}
         </div>
 
         <div>
-          <Label htmlFor="contactEmail" className="text-foreground font-medium">
-            {t.contactEmail} <span className="text-destructive">*</span>
+          <Label htmlFor="individual_email" className="text-foreground font-medium">
+            {t.personalEmail} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="contactEmail"
+            id="individual_email"
             type="email"
-            value={formData.contactEmail}
-            onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-            placeholder={t.contactEmailPlaceholder}
+            value={formData.individual_email}
+            onChange={(e) => handleInputChange('individual_email', e.target.value)}
+            placeholder={t.personalEmailPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.contactEmail && (
-            <p className="text-sm text-destructive mt-1">{errors.contactEmail}</p>
+          {errors.individual_email && (
+            <p className="text-sm text-destructive mt-1">{errors.individual_email}</p>
           )}
         </div>
 
         <div>
-          <Label htmlFor="contactPhone" className="text-foreground font-medium">
-            {t.contactPhone} <span className="text-destructive">*</span>
+          <Label htmlFor="individual_phone" className="text-foreground font-medium">
+            {t.phoneNumber} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="contactPhone"
+            id="individual_phone"
             type="tel"
-            value={formData.contactPhone}
-            onChange={(e) => handleInputChange('contactPhone', e.target.value)}
-            placeholder={t.contactPhonePlaceholder}
+            value={formData.individual_phone}
+            onChange={(e) => handleInputChange('individual_phone', e.target.value)}
+            placeholder={t.phonePlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.contactPhone && (
-            <p className="text-sm text-destructive mt-1">{errors.contactPhone}</p>
+          {errors.individual_phone && (
+            <p className="text-sm text-destructive mt-1">{errors.individual_phone}</p>
           )}
+        </div>
+
+        <div>
+          <Label htmlFor="individual_id_number" className="text-foreground font-medium">
+            {t.idNumber} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="individual_id_number"
+            value={formData.individual_id_number}
+            onChange={(e) => handleInputChange('individual_id_number', e.target.value)}
+            placeholder={t.idPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            required
+          />
+          {errors.individual_id_number && (
+            <p className="text-sm text-destructive mt-1">{errors.individual_id_number}</p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-foreground font-medium">
+          {t.dateOfBirth} <span className="text-destructive">*</span>
+        </Label>
+        <div className="grid grid-cols-3 gap-4 mt-2">
+          <div>
+            <Label htmlFor="individual_dob_day" className="text-sm text-muted-foreground">{t.day}</Label>
+            <Input
+              id="individual_dob_day"
+              type="number"
+              min="1"
+              max="31"
+              value={formData.individual_dob_day}
+              onChange={(e) => handleInputChange('individual_dob_day', e.target.value)}
+              placeholder="29"
+              className="mt-1 bg-background border-input focus:border-primary"
+              required
+            />
+            {errors.individual_dob_day && (
+              <p className="text-sm text-destructive mt-1">{errors.individual_dob_day}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="individual_dob_month" className="text-sm text-muted-foreground">{t.month}</Label>
+            <Input
+              id="individual_dob_month"
+              type="number"
+              min="1"
+              max="12"
+              value={formData.individual_dob_month}
+              onChange={(e) => handleInputChange('individual_dob_month', e.target.value)}
+              placeholder="01"
+              className="mt-1 bg-background border-input focus:border-primary"
+              required
+            />
+            {errors.individual_dob_month && (
+              <p className="text-sm text-destructive mt-1">{errors.individual_dob_month}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="individual_dob_year" className="text-sm text-muted-foreground">{t.year}</Label>
+            <Input
+              id="individual_dob_year"
+              type="number"
+              min="1900"
+              max="2005"
+              value={formData.individual_dob_year}
+              onChange={(e) => handleInputChange('individual_dob_year', e.target.value)}
+              placeholder="1990"
+              className="mt-1 bg-background border-input focus:border-primary"
+              required
+            />
+            {errors.individual_dob_year && (
+              <p className="text-sm text-destructive mt-1">{errors.individual_dob_year}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-foreground font-medium">
+          {t.address} <span className="text-destructive">*</span>
+        </Label>
+        <div className="space-y-4 mt-2">
+          <div>
+            <Input
+              id="individual_address_line1"
+              value={formData.individual_address_line1}
+              onChange={(e) => handleInputChange('individual_address_line1', e.target.value)}
+              placeholder={t.addressPlaceholder}
+              className="bg-background border-input focus:border-primary"
+              required
+            />
+            {errors.individual_address_line1 && (
+              <p className="text-sm text-destructive mt-1">{errors.individual_address_line1}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Input
+                id="individual_address_city"
+                value={formData.individual_address_city}
+                onChange={(e) => handleInputChange('individual_address_city', e.target.value)}
+                placeholder={t.cityPlaceholder}
+                className="bg-background border-input focus:border-primary"
+                required
+              />
+              {errors.individual_address_city && (
+                <p className="text-sm text-destructive mt-1">{errors.individual_address_city}</p>
+              )}
+            </div>
+            <div>
+              <Input
+                id="individual_address_state"
+                value={formData.individual_address_state}
+                onChange={(e) => handleInputChange('individual_address_state', e.target.value)}
+                placeholder={t.statePlaceholder}
+                className="bg-background border-input focus:border-primary"
+                required
+              />
+              {errors.individual_address_state && (
+                <p className="text-sm text-destructive mt-1">{errors.individual_address_state}</p>
+              )}
+            </div>
+            <div>
+              <Input
+                id="individual_address_postal_code"
+                value={formData.individual_address_postal_code}
+                onChange={(e) => handleInputChange('individual_address_postal_code', e.target.value)}
+                placeholder={t.postalPlaceholder}
+                className="bg-background border-input focus:border-primary"
+                required
+              />
+              {errors.individual_address_postal_code && (
+                <p className="text-sm text-destructive mt-1">{errors.individual_address_postal_code}</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -533,163 +675,167 @@ const KYCOnboarding = () => {
         <CreditCard className="w-6 h-6 text-primary mr-3" />
         <div>
           <h2 className="text-xl font-semibold text-foreground">Step 3: Banking Information</h2>
-          <p className="text-sm text-muted-foreground">Account details for payouts</p>
+          <p className="text-sm text-muted-foreground">Bank account for payouts</p>
         </div>
+      </div>
+
+      <div className="bg-muted/50 p-4 rounded-lg mb-6">
+        <p className="text-sm text-muted-foreground">
+          <strong>Account Type:</strong> US Bank Account<br/>
+          <strong>Currency:</strong> USD
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="bankName" className="text-foreground font-medium">
-            {t.bankName} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="bankName"
-            value={formData.bankName}
-            onChange={(e) => handleInputChange('bankName', e.target.value)}
-            placeholder={t.bankNamePlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.bankName && (
-            <p className="text-sm text-destructive mt-1">{errors.bankName}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="accountHolder" className="text-foreground font-medium">
-            {t.accountHolder} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="accountHolder"
-            value={formData.accountHolder}
-            onChange={(e) => handleInputChange('accountHolder', e.target.value)}
-            placeholder={t.holderPlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.accountHolder && (
-            <p className="text-sm text-destructive mt-1">{errors.accountHolder}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="accountNumber" className="text-foreground font-medium">
+          <Label htmlFor="external_account_account_number" className="text-foreground font-medium">
             {t.accountNumber} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="accountNumber"
-            value={formData.accountNumber}
-            onChange={(e) => handleInputChange('accountNumber', e.target.value)}
+            id="external_account_account_number"
+            value={formData.external_account_account_number}
+            onChange={(e) => handleInputChange('external_account_account_number', e.target.value)}
             placeholder={t.accountPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
-          {errors.accountNumber && (
-            <p className="text-sm text-destructive mt-1">{errors.accountNumber}</p>
+          {errors.external_account_account_number && (
+            <p className="text-sm text-destructive mt-1">{errors.external_account_account_number}</p>
           )}
         </div>
 
         <div>
-          <Label htmlFor="iban" className="text-foreground font-medium">
-            {t.iban}
+          <Label htmlFor="external_account_routing_number" className="text-foreground font-medium">
+            {t.routingNumber} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="iban"
-            value={formData.iban}
-            onChange={(e) => handleInputChange('iban', e.target.value)}
-            placeholder={t.ibanPlaceholder}
+            id="external_account_routing_number"
+            value={formData.external_account_routing_number}
+            onChange={(e) => handleInputChange('external_account_routing_number', e.target.value)}
+            placeholder={t.routingPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
+            required
           />
+          {errors.external_account_routing_number && (
+            <p className="text-sm text-destructive mt-1">{errors.external_account_routing_number}</p>
+          )}
         </div>
 
         <div className="md:col-span-2">
-          <Label htmlFor="swiftCode" className="text-foreground font-medium">
-            {t.swiftCode}
+          <Label htmlFor="external_account_account_holder_name" className="text-foreground font-medium">
+            {t.accountHolder} <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="swiftCode"
-            value={formData.swiftCode}
-            onChange={(e) => handleInputChange('swiftCode', e.target.value)}
-            placeholder={t.swiftPlaceholder}
+            id="external_account_account_holder_name"
+            value={formData.external_account_account_holder_name}
+            onChange={(e) => handleInputChange('external_account_account_holder_name', e.target.value)}
+            placeholder={t.holderPlaceholder}
             className="mt-2 bg-background border-input focus:border-primary"
+            required
           />
+          {errors.external_account_account_holder_name && (
+            <p className="text-sm text-destructive mt-1">{errors.external_account_account_holder_name}</p>
+          )}
         </div>
       </div>
     </div>
   );
 
-  const handleFileChange = (key: string, file: File | null) => {
-    setFormData((prev) => ({ ...prev, [key]: file }));
-    setErrors((prev) => ({ ...prev, [key]: undefined }));
-  };
+  const renderVerification = () => {
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        handleInputChange('individual_verification_document_front', file);
+      }
+    };
 
-  const renderDocumentation = () => (
-    <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <FileText className="w-6 h-6 text-primary mr-3" />
-        <div>
-          <h2 className="text-xl font-semibold text-foreground">Step 4: Documentation</h2>
-          <p className="text-sm text-muted-foreground">Upload required documents</p>
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center mb-6">
+          <FileText className="w-6 h-6 text-primary mr-3" />
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">Step 4: Verification</h2>
+            <p className="text-sm text-muted-foreground">Identity verification and terms</p>
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-4">
-        {[
-          { key: "businessLicense", label: t.businessLicense, required: true },
-          { key: "taxCertificate", label: t.taxCertificate, required: false },
-          { key: "bankStatement", label: t.bankStatement, required: true },
-          { key: "ownershipDocs", label: t.ownershipDocs, required: false }
-        ].map((doc) => (
-          <div key={doc.key} className="border-2 border-dashed border-border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Upload className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <div className="font-medium text-foreground">
-                    {doc.label} {doc.required && <span className="text-destructive">*</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground">{t.supportedFormats}</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="file"
-                  id={doc.key}
-                  style={{ display: "none" }}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={e => handleFileChange(doc.key, e.target.files?.[0] || null)}
-                />
-                <label htmlFor={doc.key}>
-                  <Button asChild variant="outline" size="sm">
-                    <span>{t.uploadFile}</span>
-                  </Button>
-                </label>
-                {formData[doc.key] && (
-                  <span className="text-xs ml-2">{formData[doc.key]?.name}</span>
-                )}
-                {errors[doc.key] && (
-                  <span className="text-xs text-destructive ml-2">{errors[doc.key]}</span>
-                )}
-              </div>
+        <div>
+          <Label htmlFor="individual_verification_document_front" className="text-foreground font-medium">
+            {t.identityDocument} <span className="text-destructive">*</span>
+          </Label>
+          <div className="mt-2">
+            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground mb-2">
+                Upload a photo of your government-issued ID (front side)
+              </p>
+              <Input
+                id="individual_verification_document_front"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleFileChange}
+                className="hidden"
+                required
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('individual_verification_document_front')?.click()}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {t.uploadDocument}
+              </Button>
+              {formData.individual_verification_document_front && (
+                <p className="text-sm text-primary mt-2">
+                  ✓ {formData.individual_verification_document_front.name}
+                </p>
+              )}
+            </div>
+            {errors.individual_verification_document_front && (
+              <p className="text-sm text-destructive mt-1">{errors.individual_verification_document_front}</p>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">{t.supportedFormats}</p>
+          </div>
+        </div>
+
+        <div className="bg-muted/50 p-4 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <Label className="text-foreground font-medium">
+                {t.termsAcceptance}
+              </Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t.acceptTerms}
+              </p>
             </div>
           </div>
-        ))}
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>Next Steps:</strong><br/>
+            • Your application will be reviewed within 1-2 business days<br/>
+            • We may request additional documentation if needed<br/>
+            • You'll receive an email notification once your account is approved
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const getCurrentStepComponent = () => {
     switch (currentStep) {
       case 1:
-        return renderBusinessInfo();
+        return renderBasicInfo();
       case 2:
-        return renderContactDetails();
+        return renderPersonalInfo();
       case 3:
         return renderBankingInfo();
       case 4:
-        return renderDocumentation();
+        return renderVerification();
       default:
-        return renderBusinessInfo();
+        return renderBasicInfo();
     }
   };
 
@@ -700,59 +846,73 @@ const KYCOnboarding = () => {
         <div className="container max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                <Building className="w-5 h-5 text-primary-foreground" />
+              <ArrowLeft className="w-5 h-5" />
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {language === "en" ? "Merchant Onboarding" : "تسجيل التاجر"}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {language === "en" ? "Complete your KYC verification to start accepting payments" : "أكمل عملية التحقق من الهوية لبدء قبول الدفعات"}
+                </p>
               </div>
-              <div className="text-xl font-bold text-foreground">Dalal Pay</div>
             </Link>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">Merchant Onboarding</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleLanguage}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Globe className="w-4 h-4 mr-2" />
-                {language === "en" ? "العربية" : "English"}
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleLanguage}
+              className="flex items-center space-x-2"
+            >
+              <Globe className="w-4 h-4" />
+              <span>{language === "en" ? "العربية" : "English"}</span>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Progress Steps */}
-      <div className="bg-muted/30 border-b border-border">
-        <div className="container max-w-5xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-center space-x-8">
+      {/* Progress Bar */}
+      <div className="border-b border-border bg-card">
+        <div className="container max-w-5xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             {t.steps.map((step, index) => (
-              <div key={index} className="flex items-center">
-                <div className="flex flex-col items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all ${
-                    index + 1 === currentStep
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : index + 1 < currentStep
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background text-muted-foreground border-muted-foreground/30'
-                  }`}>
-                    {index + 1 < currentStep ? <CheckCircle className="w-5 h-5" /> : index + 1}
+              <div
+                key={index}
+                className={`flex items-center ${
+                  index < t.steps.length - 1 ? "flex-1" : ""
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                      currentStep > index + 1
+                        ? "bg-green-500 text-white"
+                        : currentStep === index + 1
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {currentStep > index + 1 ? (
+                      <CheckCircle className="w-4 h-4" />
+                    ) : (
+                      index + 1
+                    )}
                   </div>
-                  <div className="mt-2 text-center">
-                    <div className={`text-sm font-medium ${
-                      index + 1 <= currentStep ? 'text-foreground' : 'text-muted-foreground'
-                    }`}>
+                  <div className={`${language === "ar" ? "text-right" : "text-left"}`}>
+                    <div
+                      className={`text-sm font-medium ${
+                        currentStep >= index + 1
+                          ? "text-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       {step.title}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">
+                    <div className="text-xs text-muted-foreground">
                       {step.subtitle}
                     </div>
                   </div>
                 </div>
                 {index < t.steps.length - 1 && (
-                  <div className={`w-16 h-0.5 mx-4 mt-[-20px] ${
-                    index + 1 < currentStep ? 'bg-primary' : 'bg-muted-foreground/30'
-                  }`} />
+                  <div className="flex-1 h-px bg-border mx-4" />
                 )}
               </div>
             ))}
@@ -760,34 +920,35 @@ const KYCOnboarding = () => {
         </div>
       </div>
 
-      {/* Form Content */}
-      <div className="container max-w-3xl mx-auto px-6 py-12">
-        <Card className="border-0 shadow-lg">
-          <div className="p-8">
-            {getCurrentStepComponent()}
-          </div>
+      {/* Main Content */}
+      <div className="container max-w-3xl mx-auto px-6 py-8">
+        <Card className="p-8">
+          {getCurrentStepComponent()}
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between p-8 pt-0">
+          {/* Navigation Buttons */}
+          <div className="flex justify-between mt-8 pt-6 border-t border-border">
             <Button
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 1}
-              className="flex items-center"
+              className="flex items-center space-x-2"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t.previous}
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t.previous}</span>
             </Button>
 
             <Button
               onClick={handleNext}
-              className="flex items-center bg-primary hover:bg-primary/90"
               disabled={submitting}
+              className="flex items-center space-x-2"
             >
-              {submitting
-                ? (currentStep === totalSteps ? "Submitting..." : t.nextStep)
-                : (currentStep === totalSteps ? "Submit Application" : t.nextStep)}
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <span>
+                {currentStep === totalSteps 
+                  ? (submitting ? "Submitting..." : t.submit || "Submit Application")
+                  : t.nextStep
+                }
+              </span>
+              {currentStep < totalSteps && <ArrowRight className="w-4 h-4" />}
             </Button>
           </div>
         </Card>
