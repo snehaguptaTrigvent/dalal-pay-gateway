@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe } from "lucide-react";
+import dalalLogo from "@/assets/dalal-logo.png";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,9 +17,11 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Dalal Pay
-            </div>
+            <img 
+              src={dalalLogo} 
+              alt="Dalal Pay" 
+              className="h-8 w-auto"
+            />
           </div>
 
           {/* Desktop Navigation */}
