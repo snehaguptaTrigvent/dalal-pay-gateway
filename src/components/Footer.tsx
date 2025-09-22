@@ -67,7 +67,7 @@ const Footer = () => {
             <img 
               src={dalalLogo} 
               alt="Dalal Pay" 
-              className="h-10 w-auto brightness-0 invert"
+              className="h-10 w-auto"
             />
             <p className="text-background/70 leading-relaxed">
               Simplifying payments for businesses worldwide with secure, scalable, 
