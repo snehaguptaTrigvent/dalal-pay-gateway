@@ -9,6 +9,7 @@ import {
   FileText,
   ExternalLink
 } from "lucide-react";
+import dalalLogo from "@/assets/dalal-logo.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -63,9 +64,11 @@ const Footer = () => {
         <div className="grid lg:grid-cols-5 gap-8 mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Dalal Pay
-            </div>
+            <img 
+              src={dalalLogo} 
+              alt="Dalal Pay" 
+              className="h-10 w-auto brightness-0 invert"
+            />
             <p className="text-background/70 leading-relaxed">
               Simplifying payments for businesses worldwide with secure, scalable, 
               and reliable payment processing solutions.
