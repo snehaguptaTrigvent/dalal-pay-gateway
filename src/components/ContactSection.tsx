@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "@/hooks/useTranslation";
 import { 
   Mail, 
   Phone, 
@@ -14,20 +15,20 @@ import {
 } from "lucide-react";
 
 const ContactSection = () => {
+  const { t } = useTranslation();
   return (
     <section id="contact" className="py-20 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            <span className="text-foreground">Ready to</span>{" "}
+            <span className="text-foreground">{t('contact.title')}</span>{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
               Get Started?
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Join hundreds of businesses already using Dalal Pay to streamline their payment operations. 
-            Our team is ready to help you integrate and scale.
+            {t('contact.subtitle')}
           </p>
         </div>
 
@@ -84,11 +85,11 @@ const ContactSection = () => {
             <div className="space-y-4 animate-fade-in">
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <MessageCircle className="mr-3 w-5 h-5" />
-                Start Live Chat
+                {t('contact.startToday')}
               </Button>
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <Headphones className="mr-3 w-5 h-5" />
-                Schedule a Call
+                {t('contact.talkToExpert')}
               </Button>
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <BookOpen className="mr-3 w-5 h-5" />
@@ -173,17 +174,17 @@ const ContactSection = () => {
         <div className="mt-16 text-center animate-fade-in">
           <Card className="p-12 bg-gradient-hero text-center shadow-strong">
             <h3 className="text-3xl font-bold mb-4 text-primary-foreground">
-              Ready to Transform Your Payment Experience?
+              {t('contact.title')}
             </h3>
             <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Join the Dalal Pay ecosystem today and unlock powerful payment capabilities for your business.
+              {t('contact.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="secondary" size="lg" className="bg-background text-foreground hover:bg-background/90">
-                Get Started Now
+                {t('contact.startToday')}
               </Button>
               <Button variant="outline" size="lg" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
-                Request Demo
+                {t('contact.talkToExpert')}
               </Button>
             </div>
           </Card>

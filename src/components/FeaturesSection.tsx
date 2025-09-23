@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { 
   Shield, 
   Zap, 
@@ -12,52 +13,53 @@ import {
 } from "lucide-react";
 
 const FeaturesSection = () => {
+  const { t } = useTranslation();
+  
   const features = [
     {
       icon: Shield,
-      title: "KYC-First Onboarding",
-      description: "Comprehensive merchant verification and compliance management with encrypted data storage.",
+      title: t('features.kycFirst'),
+      description: t('features.kycFirstDesc'),
       color: "text-primary"
     },
     {
       icon: Zap,
-      title: "Real-time Processing",
-      description: "Lightning-fast payment processing with instant confirmations and real-time status updates.",
+      title: t('features.realTimeReporting'),
+      description: t('features.realTimeReportingDesc'),
       color: "text-secondary"
     },
     {
       icon: Globe,
-      title: "Multi-Language Support",
-      description: "Native Arabic and English support with culturally-adapted payment flows.",
+      title: t('features.multiCurrency'),
+      description: t('features.multiCurrencyDesc'),
       color: "text-success"
     },
     {
       icon: Users,
-      title: "Unified API Gateway",
-      description: "Single integration point for all payment operations, abstracting complex backend systems.",
+      title: t('features.unifiedApi'),
+      description: t('features.unifiedApiDesc'),
       color: "text-primary"
     },
     {
       icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Comprehensive merchant dashboards with transaction insights and performance metrics.",
+      title: t('features.customizableFlows'),
+      description: t('features.customizableFlowsDesc'),
       color: "text-secondary"
     },
     {
       icon: Lock,
-      title: "Enterprise Security",
-      description: "Bank-grade security with 256-bit SSL encryption and compliance with international standards.",
+      title: t('features.automaticReconciliation'),
+      description: t('features.automaticReconciliationDesc'),
       color: "text-success"
     }
   ];
 
   const benefits = [
-    "Reduced integration complexity",
-    "Faster time to market", 
-    "Comprehensive dispute management",
-    "Automated compliance checks",
-    "24/7 technical support",
-    "Scalable infrastructure"
+    t('features.fastIntegration'),
+    t('features.enterpriseSecurity'), 
+    t('features.247Support'),
+    t('features.competitiveRates'),
+    t('features.scalableInfrastructure')
   ];
 
   return (
@@ -66,14 +68,13 @@ const FeaturesSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            <span className="text-foreground">Everything You Need</span>{" "}
+            <span className="text-foreground">{t('features.title')}</span>{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              To Scale
+              {t('features.subtitle')}
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Built for merchants who demand reliability, security, and simplicity. 
-            Our platform handles the complexity so you can focus on growing your business.
+            {t('features.whyChooseUs')}
           </p>
         </div>
 
@@ -119,11 +120,10 @@ const FeaturesSection = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Simple Integration
+                {t('features.apiIntegration')}
               </h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Get started with just a few lines of code. Our SDK handles authentication, 
-                error handling, and provides real-time status updates.
+                {t('features.fastIntegration')}
               </p>
               <div className="flex items-center space-x-4">
                 <CreditCard className="w-8 h-8 text-primary" />

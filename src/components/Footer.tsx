@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
 import { 
   Twitter, 
   Linkedin, 
@@ -12,46 +13,47 @@ import {
 import dalalLogo from "@/assets/dalal-logo.png";
 
 const Footer = () => {
+  const { t, language } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerSections = [
     {
-      title: "Product",
+      title: t('footer.product'),
       links: [
-        { name: "Features", href: "#features" },
-        { name: "Security", href: "#security" },
-        { name: "Pricing", href: "#pricing" },
-        { name: "API Documentation", href: "/docs", external: true },
-        { name: "Integration Guide", href: "/integration", external: true }
+        { name: t('nav.features'), href: "#features" },
+        { name: t('nav.security'), href: "#security" },
+        { name: t('footer.pricing'), href: "#pricing" },
+        { name: t('footer.apiDocumentation'), href: "/docs", external: true },
+        { name: t('footer.merchantOnboarding'), href: "/integration", external: true }
       ]
     },
     {
-      title: "Company",
+      title: t('footer.company'),
       links: [
-        { name: "About Us", href: "/about" },
-        { name: "Blog", href: "/blog" },
-        { name: "Careers", href: "/careers" },
-        { name: "Press Kit", href: "/press" },
-        { name: "Contact", href: "#contact" }
+        { name: t('footer.aboutUs'), href: "/about" },
+        { name: t('footer.blog'), href: "/blog" },
+        { name: t('footer.careers'), href: "/careers" },
+        { name: t('footer.newsroom'), href: "/press" },
+        { name: t('nav.contact'), href: "#contact" }
       ]
     },
     {
-      title: "Resources", 
+      title: t('footer.support'), 
       links: [
-        { name: "Help Center", href: "/help" },
-        { name: "Community", href: "/community" },
-        { name: "System Status", href: "/status", external: true },
-        { name: "Changelog", href: "/changelog" },
+        { name: t('footer.helpCenter'), href: "/help" },
+        { name: t('footer.contactUs'), href: "/community" },
+        { name: t('footer.status'), href: "/status", external: true },
+        { name: t('footer.developerResources'), href: "/changelog" },
         { name: "Partners", href: "/partners" }
       ]
     },
     {
-      title: "Legal",
+      title: t('footer.legal'),
       links: [
-        { name: "Privacy Policy", href: "/privacy" },
-        { name: "Terms of Service", href: "/terms" },
-        { name: "Cookie Policy", href: "/cookies" },
-        { name: "Compliance", href: "/compliance" },
+        { name: t('footer.privacy'), href: "/privacy" },
+        { name: t('footer.terms'), href: "/terms" },
+        { name: t('footer.cookies'), href: "/cookies" },
+        { name: t('footer.compliance'), href: "/compliance" },
         { name: "Data Processing", href: "/dpa" }
       ]
     }
@@ -70,8 +72,7 @@ const Footer = () => {
               className="h-10 w-auto"
             />
             <p className="text-background/70 leading-relaxed">
-              Simplifying payments for businesses worldwide with secure, scalable, 
-              and reliable payment processing solutions.
+              {t('footer.tagline')}
             </p>
             
             {/* Social Links */}
@@ -140,7 +141,7 @@ const Footer = () => {
         <div className="border-t border-background/20 pt-8">
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             <div className="flex flex-col lg:flex-row items-center space-y-2 lg:space-y-0 lg:space-x-6 text-sm text-background/70">
-              <div>© {currentYear} Dalal Pay. All rights reserved.</div>
+              <div>© {currentYear} Dalal Pay. {t('footer.allRightsReserved')}</div>
               <div className="hidden lg:block">•</div>
               <div>Built with security and compliance in mind</div>
             </div>
@@ -152,7 +153,7 @@ const Footer = () => {
                 className="text-background/70 hover:text-background hover:bg-background/10"
               >
                 <Globe className="w-4 h-4 mr-2" />
-                English
+                {t('nav.languageSwitch')}
               </Button>
               <div className="text-xs text-background/50">
                 Powered by Stripe Connect

@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
 import { 
   Shield, 
   Lock, 
@@ -12,26 +13,28 @@ import {
 } from "lucide-react";
 
 const SecuritySection = () => {
+  const { t } = useTranslation();
+  
   const securityFeatures = [
     {
       icon: Shield,
-      title: "PCI DSS Compliant",
-      description: "Level 1 PCI DSS certification ensures your payment data meets the highest security standards.",
+      title: t('security.pciCompliance'),
+      description: t('security.pciComplianceDesc'),
     },
     {
       icon: Lock,
-      title: "256-bit SSL Encryption",
-      description: "All data in transit is protected with bank-grade encryption protocols.",
+      title: t('security.endToEndEncryption'),
+      description: t('security.endToEndEncryptionDesc'),
     },
     {
       icon: Eye,
-      title: "Real-time Fraud Detection",
-      description: "Advanced machine learning algorithms monitor transactions for suspicious activity.",
+      title: t('security.fraudDetection'),
+      description: t('security.fraudDetectionDesc'),
     },
     {
       icon: FileCheck,
-      title: "Automated KYC Verification",
-      description: "Streamlined merchant onboarding with comprehensive identity verification.",
+      title: t('security.secureTokenization'),
+      description: t('security.secureTokenizationDesc'),
     }
   ];
 
@@ -54,15 +57,14 @@ const SecuritySection = () => {
             <span className="font-medium">Enterprise Security</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            <span className="text-foreground">Security &</span>{" "}
+            <span className="text-foreground">{t('security.title')}</span>{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
               Compliance
             </span>{" "}
             <span className="text-foreground">First</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Built with enterprise-grade security from the ground up. Every transaction is protected by 
-            multiple layers of security and compliance measures.
+            {t('security.subtitle')}
           </p>
         </div>
 

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 import dalalLogo from "@/assets/dalal-logo.png";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [language, setLanguage] = useState("en");
+  const { language, setLanguage, t } = useTranslation();
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
@@ -28,13 +29,13 @@ const Navigation = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               <a href="#features" className="text-muted-foreground hover:text-primary transition-smooth">
-                {language === "en" ? "Features" : "الميزات"}
+                {t('nav.features')}
               </a>
               <a href="#security" className="text-muted-foreground hover:text-primary transition-smooth">
-                {language === "en" ? "Security" : "الأمان"}
+                {t('nav.security')}
               </a>
               <a href="#contact" className="text-muted-foreground hover:text-primary transition-smooth">
-                {language === "en" ? "Contact" : "اتصل بنا"}
+                {t('nav.contact')}
               </a>
             </div>
           </div>
@@ -48,14 +49,14 @@ const Navigation = () => {
               className="flex items-center space-x-2"
             >
               <Globe className="w-4 h-4" />
-              <span>{language === "en" ? "العربية" : "English"}</span>
+              <span>{t('nav.languageSwitch')}</span>
             </Button>
               <Button variant="outline" size="sm">
-                {language === "en" ? "Login" : "تسجيل الدخول"}
+                {t('nav.login')}
               </Button>
               <Button variant="hero" size="sm" asChild>
-                <a href="/merchant/register">
-                  {language === "en" ? "Get Started" : "ابدأ الآن"}
+                <a href={`/${language}/merchant/register`}>
+                  {t('nav.getStarted')}
                 </a>
               </Button>
           </div>
@@ -81,21 +82,21 @@ const Navigation = () => {
                 className="block px-3 py-2 text-muted-foreground hover:text-primary transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {language === "en" ? "Features" : "الميزات"}
+                {t('nav.features')}
               </a>
               <a
                 href="#security"
                 className="block px-3 py-2 text-muted-foreground hover:text-primary transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {language === "en" ? "Security" : "الأمان"}
+                {t('nav.security')}
               </a>
               <a
                 href="#contact"
                 className="block px-3 py-2 text-muted-foreground hover:text-primary transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {language === "en" ? "Contact" : "اتصل بنا"}
+                {t('nav.contact')}
               </a>
               <div className="flex space-x-2 px-3 py-2">
                 <Button
@@ -105,13 +106,15 @@ const Navigation = () => {
                   className="flex items-center space-x-2"
                 >
                   <Globe className="w-4 h-4" />
-                  <span>{language === "en" ? "العربية" : "English"}</span>
+                  <span>{t('nav.languageSwitch')}</span>
                 </Button>
                 <Button variant="outline" size="sm">
-                  {language === "en" ? "Login" : "تسجيل الدخول"}
+                  {t('nav.login')}
                 </Button>
-                <Button variant="hero" size="sm">
-                  {language === "en" ? "Get Started" : "ابدأ الآن"}
+                <Button variant="hero" size="sm" asChild>
+                  <a href={`/${language}/merchant/register`}>
+                    {t('nav.getStarted')}
+                  </a>
                 </Button>
               </div>
             </div>
