@@ -1,0 +1,14 @@
+{
+  "security": {
+    "title": "أمان على مستوى البنوك",
+    "subtitle": "بياناتك ومعاملاتك محمية بإجراءات أمنية على مستوى المؤسسات",
+    "pciCompliance": "امتثال PCI DSS",
+    "pciComplianceDesc": "امتثال كامل لمعايير أمان بيانات صناعة بطاقات الدفع",
+    "endToEndEncryption": "تشفير شامل",
+    "endToEndEncryptionDesc": "تشفير AES-256 لجميع عمليات نقل وتخزين البيانات الحساسة",
+    "fraudDetection": "كشف الاحتيال",
+    "fraudDetectionDesc": "مراقبة ومنع الاحتيال الفوري بالذكاء الاصطناعي",
+    "secureTokenization": "ترميز آمن",
+    "secureTokenizationDesc": "ترميز بيانات البطاقات لتقليل المخاطر الأمنية"
+  }
+}

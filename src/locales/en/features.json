@@ -1,0 +1,25 @@
+{
+  "features": {
+    "title": "Built for Modern Businesses",
+    "subtitle": "Everything you need to handle payments seamlessly",
+    "kycFirst": "KYC-First Onboarding",
+    "kycFirstDesc": "Streamlined merchant verification with automated document processing",
+    "unifiedApi": "Unified API",
+    "unifiedApiDesc": "Single integration for multiple payment methods and providers",
+    "realTimeReporting": "Real-time Reporting",
+    "realTimeReportingDesc": "Comprehensive analytics and transaction monitoring dashboard",
+    "customizableFlows": "Customizable Flows",
+    "customizableFlowsDesc": "Tailor payment experiences to match your business needs",
+    "automaticReconciliation": "Automatic Reconciliation",
+    "automaticReconciliationDesc": "Streamlined settlement and reporting processes",
+    "multiCurrency": "Multi-currency Support",
+    "multiCurrencyDesc": "Accept payments in multiple currencies with real-time conversion",
+    "whyChooseUs": "Why Choose Dalal Pay?",
+    "fastIntegration": "Lightning-fast integration with comprehensive documentation",
+    "enterpriseSecurity": "Enterprise-grade security with PCI DSS compliance",
+    "247Support": "24/7 dedicated support from payment experts",
+    "competitiveRates": "Competitive rates with transparent pricing",
+    "scalableInfrastructure": "Scalable infrastructure that grows with your business",
+    "apiIntegration": "API Integration"
+  }
+}

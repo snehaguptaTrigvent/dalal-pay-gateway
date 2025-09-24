@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Language, TranslationContext } from '@/hooks/useTranslation';
-import { getTranslation } from '@/translations/translations';
+import { getTranslation, initializeTranslations } from '@/utils/translations';
 
 interface TranslationProviderProps {
   children: React.ReactNode;
@@ -21,6 +21,14 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
   const [language, setLanguageState] = useState<Language>(() => 
     getLanguageFromPath(location.pathname)
   );
+  const [translationsReady, setTranslationsReady] = useState(false);
+
+  // Initialize translations on mount
+  useEffect(() => {
+    initializeTranslations().then(() => {
+      setTranslationsReady(true);
+    });
+  }, []);
 
   // Update document direction and lang attribute based on language
   useEffect(() => {

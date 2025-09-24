@@ -1,0 +1,10 @@
+{
+  "nav": {
+    "features": "Features",
+    "security": "Security", 
+    "contact": "Contact",
+    "login": "Login",
+    "getStarted": "Get Started",
+    "languageSwitch": "العربية"
+  }
+}

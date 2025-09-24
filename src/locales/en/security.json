@@ -1,0 +1,14 @@
+{
+  "security": {
+    "title": "Bank-Level Security",
+    "subtitle": "Your data and transactions are protected by enterprise-grade security measures",
+    "pciCompliance": "PCI DSS Compliance",
+    "pciComplianceDesc": "Full compliance with Payment Card Industry Data Security Standards",
+    "endToEndEncryption": "End-to-End Encryption",
+    "endToEndEncryptionDesc": "AES-256 encryption for all sensitive data transmission and storage",
+    "fraudDetection": "Fraud Detection",
+    "fraudDetectionDesc": "AI-powered real-time fraud monitoring and prevention",
+    "secureTokenization": "Secure Tokenization",
+    "secureTokenizationDesc": "Card data tokenization to minimize security risks"
+  }
+}

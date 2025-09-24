@@ -1,0 +1,25 @@
+{
+  "features": {
+    "title": "مبني للأعمال الحديثة",
+    "subtitle": "كل ما تحتاجه للتعامل مع المدفوعات بسلاسة",
+    "kycFirst": "تأهيل يعطي الأولوية لمعرفة العميل",
+    "kycFirstDesc": "التحقق المبسط من التاجر مع المعالجة الآلية للمستندات",
+    "unifiedApi": "واجهة برمجة تطبيقات موحدة",
+    "unifiedApiDesc": "تكامل واحد لطرق ومقدمي دفع متعددين",
+    "realTimeReporting": "تقارير فورية",
+    "realTimeReportingDesc": "لوحة تحكم شاملة للتحليلات ومراقبة المعاملات",
+    "customizableFlows": "تدفقات قابلة للتخصيص",
+    "customizableFlowsDesc": "صمم تجارب الدفع لتتناسب مع احتياجات عملك",
+    "automaticReconciliation": "تسوية تلقائية",
+    "automaticReconciliationDesc": "عمليات تسوية وتقارير مبسطة",
+    "multiCurrency": "دعم متعدد العملات",
+    "multiCurrencyDesc": "اقبل المدفوعات بعملات متعددة مع التحويل الفوري",
+    "whyChooseUs": "لماذا تختار دلال باي؟",
+    "fastIntegration": "تكامل سريع مع وثائق شاملة",
+    "enterpriseSecurity": "أمان على مستوى المؤسسات مع امتثال PCI DSS",
+    "247Support": "دعم مخصص على مدار الساعة من خبراء المدفوعات",
+    "competitiveRates": "أسعار تنافسية مع تسعير شفاف",
+    "scalableInfrastructure": "بنية تحتية قابلة للتطوير تنمو مع عملك",
+    "apiIntegration": "تكامل واجهة برمجة التطبيقات"
+  }
+}

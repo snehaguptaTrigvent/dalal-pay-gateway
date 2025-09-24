@@ -1,0 +1,16 @@
+{
+  "merchant": {
+    "login": {
+      "title": "Merchant Login"
+    },
+    "register": {
+      "title": "Merchant Registration"
+    },
+    "kyc": {
+      "title": "KYC Verification"
+    },
+    "dashboard": {
+      "title": "Merchant Dashboard"
+    }
+  }
+}

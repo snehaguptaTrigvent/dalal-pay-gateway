@@ -1,0 +1,26 @@
+{
+  "footer": {
+    "tagline": "Simplifying payments for businesses worldwide with secure, scalable, and innovative fintech solutions.",
+    "product": "Product",
+    "paymentGateway": "Payment Gateway",
+    "merchantOnboarding": "Merchant Onboarding",
+    "apiDocumentation": "API Documentation",
+    "pricing": "Pricing",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "careers": "Careers",
+    "blog": "Blog",
+    "newsroom": "Newsroom",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "status": "System Status",
+    "developerResources": "Developer Resources",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "compliance": "Compliance",
+    "cookies": "Cookie Policy",
+    "allRightsReserved": "All rights reserved."
+  }
+}
