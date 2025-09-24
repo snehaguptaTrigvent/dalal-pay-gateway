@@ -23,7 +23,6 @@ import {
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 // Validation schema
 const registerSchema = z.object({
@@ -86,49 +85,47 @@ const MerchantRegister = () => {
     setIsLoading(true);
     
     try {
-      // Register user with Supabase
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/en/merchant/dashboard`,
-          data: {
-            full_name: values.full_name,
-            phone: values.phone,
-            date_of_birth: values.dob
-          }
-        }
+      // Call your API endpoint
+      const response = await fetch('https://api.staging.dalalpay.com/en/merchant/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          full_name: values.full_name,
+          email: values.email,
+          phone: values.phone,
+          dob: values.dob,
+          password: values.password,
+          confirm_password: values.confirm_password
+        })
       });
 
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: language === "en" ? "Registration Failed" : "فشل التسجيل",
-          description: error.message
-        });
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
 
-      if (data.user) {
-        toast({
-          title: language === "en" ? "Registration Successful" : "تم التسجيل بنجاح",
-          description: language === "en" 
-            ? "Please check your email to verify your account" 
-            : "يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك"
-        });
-        
-        // Navigate to login or dashboard
-        setTimeout(() => {
-          navigate("/en/merchant/login");
-        }, 2000);
-      }
-    } catch (error) {
+      toast({
+        title: language === "en" ? "Registration Successful" : "تم التسجيل بنجاح",
+        description: language === "en" 
+          ? "Account created successfully! Redirecting to login..." 
+          : "تم إنشاء الحساب بنجاح! جاري التوجيه لتسجيل الدخول..."
+      });
+      
+      // Navigate to login page
+      setTimeout(() => {
+        navigate("/en/merchant/login");
+      }, 2000);
+
+    } catch (error: any) {
       toast({
         variant: "destructive",
-        title: language === "en" ? "Error" : "خطأ",
-        description: language === "en" 
-          ? "An unexpected error occurred" 
-          : "حدث خطأ غير متوقع"
+        title: language === "en" ? "Registration Failed" : "فشل التسجيل",
+        description: error.message || (language === "en" 
+          ? "An error occurred during registration" 
+          : "حدث خطأ أثناء التسجيل")
       });
     } finally {
       setIsLoading(false);
