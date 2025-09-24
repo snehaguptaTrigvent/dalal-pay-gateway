@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   Eye, 
@@ -12,57 +15,124 @@ import {
   Mail, 
   Lock, 
   User, 
-  Building, 
   Phone,
+  Calendar,
   ArrowRight,
   Globe,
   Shield,
-  CheckCircle
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+// Validation schema
+const registerSchema = z.object({
+  full_name: z.string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(50, "Full name must not exceed 50 characters"),
+  email: z.string()
+    .email("Please enter a valid email address"),
+  phone: z.string()
+    .min(10, "Phone number must be at least 10 characters")
+    .regex(/^[+]?[\d\s-()]+$/, "Please enter a valid phone number"),
+  dob: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Please enter date in YYYY-MM-DD format"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+      "Password must contain uppercase, lowercase, number and special character"),
+  confirm_password: z.string()
+}).refine((data) => data.password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
+});
 
 const MerchantRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [language, setLanguage] = useState("en");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    companyName: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-    acceptTerms: false,
-    acceptPrivacy: false
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      full_name: "",
+      email: "",
+      phone: "",
+      dob: "",
+      password: "",
+      confirm_password: ""
+    },
   });
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
+  const handleSubmit = async (values: z.infer<typeof registerSchema>) => {
+    if (!acceptTerms || !acceptPrivacy) {
       toast({
         variant: "destructive",
-        title: language === "en" ? "Password Mismatch" : "كلمات المرور غير متطابقة",
-        description: language === "en" ? "Passwords do not match" : "كلمات المرور غير متطابقة"
+        title: language === "en" ? "Terms Required" : "الشروط مطلوبة",
+        description: language === "en" ? "Please accept terms and privacy policy" : "يرجى قبول الشروط وسياسة الخصوصية"
       });
       return;
     }
 
-    toast({
-      title: language === "en" ? "Registration Successful" : "تم التسجيل بنجاح",
-      description: language === "en" ? "Proceeding to KYC verification..." : "جاري الانتقال إلى التحقق من الهوية..."
-    });
+    setIsLoading(true);
     
-    // Navigate to KYC flow
-    setTimeout(() => {
-      navigate("/merchant/kyc");
-    }, 1500);
+    try {
+      // Register user with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/en/merchant/dashboard`,
+          data: {
+            full_name: values.full_name,
+            phone: values.phone,
+            date_of_birth: values.dob
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: language === "en" ? "Registration Failed" : "فشل التسجيل",
+          description: error.message
+        });
+        return;
+      }
+
+      if (data.user) {
+        toast({
+          title: language === "en" ? "Registration Successful" : "تم التسجيل بنجاح",
+          description: language === "en" 
+            ? "Please check your email to verify your account" 
+            : "يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك"
+        });
+        
+        // Navigate to login or dashboard
+        setTimeout(() => {
+          navigate("/en/merchant/login");
+        }, 2000);
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: language === "en" ? "Error" : "خطأ",
+        description: language === "en" 
+          ? "An unexpected error occurred" 
+          : "حدث خطأ غير متوقع"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const content = {
@@ -71,12 +141,12 @@ const MerchantRegister = () => {
       subtitle: "Join thousands of businesses using Dalal Pay",
       fullNameLabel: "Full Name",
       fullNamePlaceholder: "Enter your full name",
-      companyLabel: "Company Name",
-      companyPlaceholder: "Enter your company name",
       emailLabel: "Business Email",
       emailPlaceholder: "Enter your business email",
       phoneLabel: "Phone Number",
       phonePlaceholder: "Enter your phone number",
+      dobLabel: "Date of Birth",
+      dobPlaceholder: "YYYY-MM-DD",
       passwordLabel: "Password",
       passwordPlaceholder: "Create a secure password",
       confirmPasswordLabel: "Confirm Password",
@@ -94,12 +164,12 @@ const MerchantRegister = () => {
       subtitle: "انضم إلى آلاف الشركات التي تستخدم دلال باي",
       fullNameLabel: "الاسم الكامل",
       fullNamePlaceholder: "أدخل اسمك الكامل",
-      companyLabel: "اسم الشركة",
-      companyPlaceholder: "أدخل اسم شركتك",
       emailLabel: "البريد الإلكتروني للعمل",
       emailPlaceholder: "أدخل بريدك الإلكتروني للعمل",
       phoneLabel: "رقم الهاتف",
       phonePlaceholder: "أدخل رقم هاتفك",
+      dobLabel: "تاريخ الميلاد",
+      dobPlaceholder: "سنة-شهر-يوم",
       passwordLabel: "كلمة المرور",
       passwordPlaceholder: "أنشئ كلمة مرور آمنة",
       confirmPasswordLabel: "تأكيد كلمة المرور",
@@ -142,7 +212,7 @@ const MerchantRegister = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building className="w-8 h-8 text-primary" />
+              <User className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">
               {t.title}
@@ -153,199 +223,241 @@ const MerchantRegister = () => {
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name */}
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-foreground font-medium">
-                {t.fullNameLabel}
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder={t.fullNamePlaceholder}
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                  required
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              {/* Full Name */}
+              <FormField
+                control={form.control}
+                name="full_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground font-medium">
+                      {t.fullNameLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                          placeholder={t.fullNamePlaceholder}
+                          {...field}
+                          className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground font-medium">
+                      {t.emailLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          placeholder={t.emailPlaceholder}
+                          {...field}
+                          className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Phone and DOB */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground font-medium">
+                        {t.phoneLabel}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input
+                            type="tel"
+                            placeholder={t.phonePlaceholder}
+                            {...field}
+                            className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dob"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground font-medium">
+                        {t.dobLabel}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input
+                            type="date"
+                            placeholder={t.dobPlaceholder}
+                            {...field}
+                            className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
 
-            {/* Company Name */}
-            <div className="space-y-2">
-              <Label htmlFor="companyName" className="text-foreground font-medium">
-                {t.companyLabel}
-              </Label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="companyName"
-                  type="text"
-                  placeholder={t.companyPlaceholder}
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                  className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                  required
+              {/* Password Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground font-medium">
+                        {t.passwordLabel}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder={t.passwordPlaceholder}
+                            {...field}
+                            className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="w-4 h-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirm_password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground font-medium">
+                        {t.confirmPasswordLabel}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder={t.confirmPasswordPlaceholder}
+                            {...field}
+                            className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="w-4 h-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
 
-            {/* Email & Phone */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium">
-                  {t.emailLabel}
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder={t.emailPlaceholder}
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+              {/* Password Requirements */}
+              <div className="text-xs text-muted-foreground">
+                {t.passwordRequirements}
+              </div>
+
+              {/* Terms & Privacy */}
+              <div className="space-y-3">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="acceptTerms"
+                    checked={acceptTerms}
+                    onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                    className="mt-1"
                     required
                   />
+                  <label htmlFor="acceptTerms" className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
+                    {t.acceptTerms}
+                  </label>
+                </div>
+
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="acceptPrivacy"
+                    checked={acceptPrivacy}
+                    onCheckedChange={(checked) => setAcceptPrivacy(checked as boolean)}
+                    className="mt-1"
+                    required
+                  />
+                  <label htmlFor="acceptPrivacy" className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
+                    {t.acceptPrivacy}
+                  </label>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-foreground font-medium">
-                  {t.phoneLabel}
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder={t.phonePlaceholder}
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Password Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground font-medium">
-                  {t.passwordLabel}
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder={t.passwordPlaceholder}
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="w-4 h-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-foreground font-medium">
-                  {t.confirmPasswordLabel}
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder={t.confirmPasswordPlaceholder}
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                    className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-4 h-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="w-4 h-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Password Requirements */}
-            <div className="text-xs text-muted-foreground">
-              {t.passwordRequirements}
-            </div>
-
-            {/* Terms & Privacy */}
-            <div className="space-y-3">
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onCheckedChange={(checked) => 
-                    setFormData({...formData, acceptTerms: checked as boolean})
-                  }
-                  className="mt-1"
-                  required
-                />
-                <Label htmlFor="acceptTerms" className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
-                  {t.acceptTerms}
-                </Label>
-              </div>
-
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="acceptPrivacy"
-                  checked={formData.acceptPrivacy}
-                  onCheckedChange={(checked) => 
-                    setFormData({...formData, acceptPrivacy: checked as boolean})
-                  }
-                  className="mt-1"
-                  required
-                />
-                <Label htmlFor="acceptPrivacy" className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
-                  {t.acceptPrivacy}
-                </Label>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <Button 
-              type="submit" 
-              variant="gradient" 
-              size="lg" 
-              className="w-full"
-              disabled={!formData.acceptTerms || !formData.acceptPrivacy}
-            >
-              {t.signUp}
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </form>
+              {/* Submit Button */}
+              <Button 
+                type="submit" 
+                variant="gradient" 
+                size="lg" 
+                className="w-full"
+                disabled={!acceptTerms || !acceptPrivacy || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+                    {language === "en" ? "Creating Account..." : "جاري إنشاء الحساب..."}
+                  </>
+                ) : (
+                  <>
+                    {t.signUp}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
 
           {/* Divider */}
           <div className="my-8">
@@ -357,7 +469,7 @@ const MerchantRegister = () => {
             <p className="text-muted-foreground mb-4">
               {t.hasAccount}{" "}
               <Link 
-                to="/merchant/login" 
+                to="/en/merchant/login" 
                 className="text-primary font-medium hover:underline transition-smooth"
               >
                 {t.signIn}
