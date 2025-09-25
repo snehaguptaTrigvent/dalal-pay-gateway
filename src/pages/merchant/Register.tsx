@@ -26,6 +26,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import MerchantLoginNavigation from '../../components/MerchantLoginNavigation';
+const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 
 // Validation schema
 const registerSchema = z.object({
@@ -85,7 +86,7 @@ const MerchantRegister = () => {
     
     try {
       // Call your API endpoint
-      const response = await fetch('https://staging-api.dalalpay.com/register', {
+  const response = await fetch(`${DALAL_API_BASE_URL}/accounts/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
