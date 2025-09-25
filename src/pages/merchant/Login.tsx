@@ -17,63 +17,26 @@ import {
   Building
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const MerchantLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [language, setLanguage] = useState("en");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false
   });
   const { toast } = useToast();
-
-  const toggleLanguage = () => {
-    setLanguage(language === "en" ? "ar" : "en");
-  };
+  const { language, setLanguage, t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: language === "en" ? "Login Successful" : "تم تسجيل الدخول بنجاح",
-      description: language === "en" ? "Redirecting to dashboard..." : "جاري التوجيه إلى لوحة التحكم..."
+      title: t("merchant.login.loginSuccessful"),
+      description: t("merchant.login.redirectingToDashboard")
     });
   };
 
-  const content = {
-    en: {
-      title: "Welcome Back",
-      subtitle: "Sign in to your merchant account",
-      emailLabel: "Email Address",
-      emailPlaceholder: "Enter your email",
-      passwordLabel: "Password",
-      passwordPlaceholder: "Enter your password",
-      rememberMe: "Remember me",
-      forgotPassword: "Forgot Password?",
-      signIn: "Sign In",
-      noAccount: "Don't have an account?",
-      signUp: "Sign up here",
-      securityNote: "Your data is protected with enterprise-grade security",
-      loading: "Signing in..."
-    },
-    ar: {
-      title: "مرحباً بعودتك",
-      subtitle: "سجل دخولك إلى حساب التاجر",
-      emailLabel: "البريد الإلكتروني",
-      emailPlaceholder: "أدخل بريدك الإلكتروني",
-      passwordLabel: "كلمة المرور",
-      passwordPlaceholder: "أدخل كلمة المرور",
-      rememberMe: "تذكرني",
-      forgotPassword: "نسيت كلمة المرور؟",
-      signIn: "تسجيل الدخول",
-      noAccount: "ليس لديك حساب؟",
-      signUp: "سجل هنا",
-      securityNote: "بياناتك محمية بأمان على مستوى المؤسسات",
-      loading: "جاري تسجيل الدخول..."
-    }
-  };
-
-  const t = content[language];
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
@@ -81,16 +44,16 @@ const MerchantLogin = () => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={toggleLanguage}
+        onClick={() => setLanguage(language === "en" ? "ar" : "en")}
         className="absolute top-4 right-4 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
       >
         <Globe className="w-4 h-4 mr-2" />
-        {language === "en" ? "العربية" : "English"}
+        {t("nav.languageSwitch")}
       </Button>
 
       {/* Back to Home */}
       <Link 
-        to="/"
+        to={`/${language}`}
         className="absolute top-4 left-4 text-primary-foreground/80 hover:text-primary-foreground transition-smooth"
       >
         <div className="text-xl font-bold">Dalal Pay</div>
@@ -104,10 +67,10 @@ const MerchantLogin = () => {
               <Building className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">
-              {t.title}
+              {t("merchant.login.title")}
             </h1>
             <p className="text-muted-foreground">
-              {t.subtitle}
+              {t("merchant.login.subtitle")}
             </p>
           </div>
 
@@ -116,14 +79,14 @@ const MerchantLogin = () => {
             {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-foreground font-medium">
-                {t.emailLabel}
+                {t("merchant.login.emailLabel")}
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder={t.emailPlaceholder}
+                  placeholder={t("merchant.login.emailPlaceholder")}
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
@@ -135,14 +98,14 @@ const MerchantLogin = () => {
             {/* Password Field */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-foreground font-medium">
-                {t.passwordLabel}
+                {t("merchant.login.passwordLabel")}
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder={t.passwordPlaceholder}
+                  placeholder={t("merchant.login.passwordPlaceholder")}
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
@@ -178,14 +141,14 @@ const MerchantLogin = () => {
                   htmlFor="rememberMe" 
                   className="text-sm text-muted-foreground cursor-pointer"
                 >
-                  {t.rememberMe}
+                  {t("merchant.login.rememberMe")}
                 </Label>
               </div>
               <Link
-                to="/merchant/forgot-password"
+                to={`/${language}/merchant/forgot-password`}
                 className="text-sm text-primary hover:underline"
               >
-                {t.forgotPassword}
+                {t("merchant.login.forgotPassword")}
               </Link>
             </div>
 
@@ -196,7 +159,7 @@ const MerchantLogin = () => {
               size="lg" 
               className="w-full"
             >
-              {t.signIn}
+              {t("merchant.login.signIn")}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </form>
@@ -209,19 +172,19 @@ const MerchantLogin = () => {
           {/* Sign Up Link */}
           <div className="text-center">
             <p className="text-muted-foreground mb-4">
-              {t.noAccount}{" "}
+              {t("merchant.login.noAccount")}{" "}
               <Link 
-                to="/merchant/register" 
+                to={`/${language}/merchant/register`}
                 className="text-primary font-medium hover:underline"
               >
-                {t.signUp}
+                {t("merchant.login.signUp")}
               </Link>
             </p>
 
             {/* Security Badge */}
             <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
               <Shield className="w-4 h-4" />
-              <span>{t.securityNote}</span>
+              <span>{t("merchant.login.securityNote")}</span>
             </div>
           </div>
         </Card>

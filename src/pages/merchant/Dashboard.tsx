@@ -22,13 +22,10 @@ import {
   Globe,
   Bell
 } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const MerchantDashboard = () => {
-  const [language, setLanguage] = useState("en");
-
-  const toggleLanguage = () => {
-    setLanguage(language === "en" ? "ar" : "en");
-  };
+  const { language, setLanguage, t } = useTranslation();
 
   // Mock data
   const kycStatus = "pending" as "pending" | "approved" | "rejected";
@@ -53,64 +50,6 @@ const MerchantDashboard = () => {
     { id: "TX003", amount: 500.00, status: "completed", date: "2024-01-15 12:20" },
   ];
 
-  const content = {
-    en: {
-      welcome: "Welcome back",
-      dashboard: "Dashboard",
-      profile: "Profile",
-      transactions: "Transactions", 
-      settings: "Settings",
-      kycStatus: "KYC Status",
-      kycPending: "Under Review",
-      kycApproved: "Verified",
-      kycRejected: "Needs Attention",
-      viewDetails: "View Details",
-      totalTransactions: "Total Transactions",
-      totalRevenue: "Total Revenue",
-      successRate: "Success Rate", 
-      avgProcessingTime: "Avg Processing Time",
-      recentTransactions: "Recent Transactions",
-      viewAll: "View All",
-      amount: "Amount",
-      status: "Status",
-      date: "Date",
-      completed: "Completed",
-      pending: "Pending",
-      personalInfo: "Personal Information",
-      businessInfo: "Business Information",
-      bankDetails: "Bank Details",
-      documents: "Documents"
-    },
-    ar: {
-      welcome: "مرحباً بعودتك",
-      dashboard: "لوحة التحكم",
-      profile: "الملف الشخصي",
-      transactions: "المعاملات",
-      settings: "الإعدادات", 
-      kycStatus: "حالة التحقق",
-      kycPending: "قيد المراجعة",
-      kycApproved: "تم التحقق",
-      kycRejected: "يحتاج اهتمام",
-      viewDetails: "عرض التفاصيل",
-      totalTransactions: "إجمالي المعاملات",
-      totalRevenue: "إجمالي الإيرادات",
-      successRate: "معدل النجاح",
-      avgProcessingTime: "متوسط وقت المعالجة",
-      recentTransactions: "المعاملات الأخيرة",
-      viewAll: "عرض الكل",
-      amount: "المبلغ",
-      status: "الحالة",
-      date: "التاريخ",
-      completed: "مكتملة",
-      pending: "معلقة",
-      personalInfo: "المعلومات الشخصية",
-      businessInfo: "معلومات الأعمال",
-      bankDetails: "التفاصيل المصرفية",
-      documents: "المستندات"
-    }
-  };
-
-  const t = content[language];
 
   const getKycStatusBadge = () => {
     switch (kycStatus) {
@@ -118,7 +57,7 @@ const MerchantDashboard = () => {
         return (
           <Badge className="bg-success/10 text-success border-success/20">
             <CheckCircle className="w-4 h-4 mr-2" />
-            {t.kycApproved}
+            {t("merchant.dashboard.kycApproved")}
           </Badge>
         );
       case "rejected":
@@ -158,10 +97,10 @@ const MerchantDashboard = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={toggleLanguage}
+                onClick={() => setLanguage(language === "en" ? "ar" : "en")}
               >
                 <Globe className="w-4 h-4 mr-2" />
-                {language === "en" ? "العربية" : "English"}
+                {t("nav.languageSwitch")}
               </Button>
               <Button variant="outline" size="sm">
                 <Settings className="w-4 h-4 mr-2" />
