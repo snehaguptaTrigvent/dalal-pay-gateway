@@ -12,17 +12,21 @@ const Navigation = () => {
     setLanguage(language === "en" ? "ar" : "en");
   };
 
+  // Detect if current page is login
+  const isLoginPage = typeof window !== 'undefined' && window.location.pathname.includes('/merchant/login');
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav className={`fixed top-0 left-0 right-0 z-50 border-b border-border backdrop-blur-md ${isLoginPage ? 'bg-primary/80' : 'bg-background/80'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <img 
-              src={dalalLogo} 
-              alt="Dalal Pay" 
-              className="h-8 w-auto"
-            />
+            <a href={`/${language}`} aria-label="Login">
+              <img 
+                src={dalalLogo} 
+                alt="Dalal Pay" 
+                className="h-8 w-auto"
+              />
+            </a>
           </div>
 
           {/* Desktop Navigation */}
@@ -51,14 +55,16 @@ const Navigation = () => {
               <Globe className="w-4 h-4" />
               <span>{t('nav.languageSwitch')}</span>
             </Button>
-              <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" asChild>
+              <a href={`/${language}/merchant/login`}>
                 {t('nav.login')}
-              </Button>
-              <Button variant="hero" size="sm" asChild>
-                <a href={`/${language}/merchant/register`}>
-                  {t('nav.getStarted')}
-                </a>
-              </Button>
+              </a>
+            </Button>
+            <Button variant="hero" size="sm" asChild>
+              <a href={`/${language}/merchant/register`}>
+                {t('nav.getStarted')}
+              </a>
+            </Button>
           </div>
 
           {/* Mobile menu button */}
