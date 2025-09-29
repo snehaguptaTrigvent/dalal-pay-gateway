@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   Building, 
@@ -19,6 +18,10 @@ import {
   Mail
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+import { useTranslation } from "@/hooks/useTranslation";
+
+const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 
 interface FormData {
   // Basic Information
@@ -60,24 +63,39 @@ interface FormData {
 }
 
 const KYCOnboarding = () => {
+  // State and hooks
   const [currentStep, setCurrentStep] = useState(1);
-  const [language, setLanguage] = useState("en");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { language, setLanguage, t } = useTranslation();
+  // Must call hooks first, then assign stepsArr
+  // @ts-ignore: i18next supports options as second argument
+  let stepsArr: any[] = [];
+  // Try 3-argument signature for i18next translation hook
+  // @ts-ignore
+  const rawSteps = t("kyc.steps", undefined, { returnObjects: true });
+  if (Array.isArray(rawSteps) && rawSteps.length > 0 && rawSteps[0].title) {
+    stepsArr = rawSteps;
+  } else {
+    // Fallback to hardcoded English steps if translation fails
+    stepsArr = [
+      { title: "Basic Information", subtitle: "Account and business details" },
+      { title: "Personal Information", subtitle: "Individual information and address" },
+      { title: "Banking Information", subtitle: "Bank account for payouts" },
+      { title: "Verification", subtitle: "Identity verification and terms" }
+    ];
+  }
+  const totalSteps = stepsArr.length;
 
-  const totalSteps = 4;
-
-  // Form data state
   const [formData, setFormData] = useState<FormData>({
     // Step 1: Basic Information
-    type: "custom",
+    type: "individual",
     country: "US",
     email: "",
-    business_type: "individual",
+    business_type: "",
     business_profile_url: "",
-    business_profile_mcc: "5734",
+    business_profile_mcc: "",
     statement_descriptor: "",
-    
     // Step 2: Individual Information
     individual_first_name: "",
     individual_last_name: "",
@@ -92,7 +110,6 @@ const KYCOnboarding = () => {
     individual_address_state: "",
     individual_address_postal_code: "",
     individual_address_country: "US",
-    
     // Step 3: Banking Information
     external_account_object: "bank_account",
     external_account_country: "US",
@@ -100,7 +117,6 @@ const KYCOnboarding = () => {
     external_account_account_number: "",
     external_account_routing_number: "",
     external_account_account_holder_name: "",
-    
     // Step 4: Verification & Documents
     individual_verification_document_front: null,
     tos_acceptance_date: "",
@@ -112,7 +128,13 @@ const KYCOnboarding = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const toggleLanguage = () => {
-    setLanguage(language === "en" ? "ar" : "en");
+  const newLang = language === "en" ? "ar" : "en";
+
+  // Update URL to reflect language change
+  const pathParts = window.location.pathname.split('/');
+  pathParts[1] = newLang;
+  const newPath = pathParts.join('/');
+  navigate(newPath);
   };
 
   const validateEmail = (email) => {
@@ -131,45 +153,54 @@ const KYCOnboarding = () => {
     switch (step) {
       case 1:
         if (!formData.email.trim()) {
-          newErrors.email = "Email is required";
+          newErrors.email = t("kyc.validation.emailRequired");
         } else if (!validateEmail(formData.email)) {
-          newErrors.email = "Please enter a valid email address";
+          newErrors.email = t("kyc.validation.emailInvalid");
         }
-        if (!formData.business_profile_url.trim()) newErrors.business_profile_url = "Business URL is required";
-        if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = "Statement descriptor is required";
+        if (!formData.business_profile_url.trim()) {
+          newErrors.business_profile_url = t("kyc.validation.urlRequired");
+        } else {
+          try {
+            // Use URL constructor for validation
+            new URL(formData.business_profile_url);
+          } catch {
+            newErrors.business_profile_url = t("kyc.validation.urlInvalid");
+          }
+        }
+        if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = t("kyc.validation.statementRequired");
         break;
-        
+
       case 2:
-        if (!formData.individual_first_name.trim()) newErrors.individual_first_name = "First name is required";
-        if (!formData.individual_last_name.trim()) newErrors.individual_last_name = "Last name is required";
+        if (!formData.individual_first_name.trim()) newErrors.individual_first_name = t("kyc.validation.firstNameRequired");
+        if (!formData.individual_last_name.trim()) newErrors.individual_last_name = t("kyc.validation.lastNameRequired");
         if (!formData.individual_email.trim()) {
-          newErrors.individual_email = "Email is required";
+          newErrors.individual_email = t("kyc.validation.personalEmailRequired");
         } else if (!validateEmail(formData.individual_email)) {
-          newErrors.individual_email = "Please enter a valid email address";
+          newErrors.individual_email = t("kyc.validation.personalEmailInvalid");
         }
         if (!formData.individual_phone.trim()) {
-          newErrors.individual_phone = "Phone number is required";
+          newErrors.individual_phone = t("kyc.validation.phoneRequired");
         } else if (!validatePhone(formData.individual_phone)) {
-          newErrors.individual_phone = "Please enter a valid phone number";
+          newErrors.individual_phone = t("kyc.validation.phoneInvalid");
         }
-        if (!formData.individual_id_number.trim()) newErrors.individual_id_number = "ID number is required";
-        if (!formData.individual_dob_day.trim()) newErrors.individual_dob_day = "Birth day is required";
-        if (!formData.individual_dob_month.trim()) newErrors.individual_dob_month = "Birth month is required";
-        if (!formData.individual_dob_year.trim()) newErrors.individual_dob_year = "Birth year is required";
-        if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = "Address is required";
-        if (!formData.individual_address_city.trim()) newErrors.individual_address_city = "City is required";
-        if (!formData.individual_address_state.trim()) newErrors.individual_address_state = "State is required";
-        if (!formData.individual_address_postal_code.trim()) newErrors.individual_address_postal_code = "Postal code is required";
+        if (!formData.individual_id_number.trim()) newErrors.individual_id_number = t("kyc.validation.idRequired");
+        if (!formData.individual_dob_day.trim()) newErrors.individual_dob_day = t("kyc.validation.dobDayRequired");
+        if (!formData.individual_dob_month.trim()) newErrors.individual_dob_month = t("kyc.validation.dobMonthRequired");
+        if (!formData.individual_dob_year.trim()) newErrors.individual_dob_year = t("kyc.validation.dobYearRequired");
+        if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = t("kyc.validation.addressRequired");
+        if (!formData.individual_address_city.trim()) newErrors.individual_address_city = t("kyc.validation.cityRequired");
+        if (!formData.individual_address_state.trim()) newErrors.individual_address_state = t("kyc.validation.stateRequired");
+        if (!formData.individual_address_postal_code.trim()) newErrors.individual_address_postal_code = t("kyc.validation.postalRequired");
         break;
-        
+
       case 3:
-        if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = "Account number is required";
-        if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = "Routing number is required";
-        if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = "Account holder name is required";
+        if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = t("kyc.validation.accountNumberRequired");
+        if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = t("kyc.validation.routingNumberRequired");
+        if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = t("kyc.validation.accountHolderRequired");
         break;
-        
+
       case 4:
-        if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = "Identity document is required";
+        if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = t("kyc.validation.documentRequired");
         break;
     }
     
@@ -191,11 +222,11 @@ const KYCOnboarding = () => {
     const stepErrors = validateStep(currentStep);
     if (Object.keys(stepErrors).length > 0) {
       setErrors({...errors, ...stepErrors});
-      toast({
-        title: language === "en" ? "Validation Error" : "خطأ في التحقق",
-        description: language === "en" ? "Please fill in all required fields correctly." : "يرجى ملء جميع الحقول المطلوبة بشكل صحيح.",
-        variant: "destructive"
-      });
+          toast({
+            variant: "destructive",
+            title: t("kyc.validation.validationError"),
+            description: t("kyc.validation.validationError")
+          });
       return;
     }
     if (currentStep < totalSteps) {
@@ -217,22 +248,22 @@ const KYCOnboarding = () => {
       formPayload.append('tos_acceptance[ip]', '127.0.0.1'); // You should get the real IP
       
       try {
-        const response = await fetch("https://api.dalal-pay.com/api/stripe-connect-account", {
+        const response = await fetch(`${DALAL_API_BASE_URL}/api/merchant-onboarding/`, {
           method: "POST",
           body: formPayload
         });
         if (!response.ok) throw new Error("Submission failed");
         toast({
-          title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
-          description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
+          title: t("kyc.submittedSuccess"),
+          description: language === "en" ? t("kyc.submittedSuccessDescEn") : t("kyc.submittedSuccessDescAr")
         });
         setTimeout(() => {
           navigate("/merchant/dashboard");
         }, 2000);
       } catch (err) {
         toast({
-          title: language === "en" ? "Submission Error" : "خطأ في الإرسال",
-          description: language === "en" ? "There was a problem submitting your application. Please try again." : "حدثت مشكلة أثناء إرسال طلبك. يرجى المحاولة مرة أخرى.",
+          title: t("kyc.submissionError"),
+          description: t("kyc.submissionErrorDesc"),
           variant: "destructive"
         });
       } finally {
@@ -241,128 +272,9 @@ const KYCOnboarding = () => {
     }
   };
 
-  const content = {
-    en: {
-      steps: [
-        { title: "Basic Information", subtitle: "Account and business details" },
-        { title: "Personal Information", subtitle: "Individual information and address" },
-        { title: "Banking Information", subtitle: "Bank account for payouts" },
-        { title: "Verification", subtitle: "Identity verification and terms" }
-      ],
-      previous: "Previous",
-      nextStep: "Next Step",
-      submit: "Submit Application",
-      
-      // Basic Info
-      email: "Email Address",
-      emailPlaceholder: "your@email.com",
-      businessUrl: "Business Website URL",
-      urlPlaceholder: "https://your-business.com",
-      statementDescriptor: "Statement Descriptor",
-      descriptorPlaceholder: "How your business appears on customer statements",
-      
-      // Personal Info
-      firstName: "First Name",
-      firstNamePlaceholder: "Enter your first name",
-      lastName: "Last Name",
-      lastNamePlaceholder: "Enter your last name",
-      personalEmail: "Personal Email",
-      personalEmailPlaceholder: "your.personal@email.com",
-      phoneNumber: "Phone Number",
-      phonePlaceholder: "+1 555 123 4567",
-      idNumber: "ID Number",
-      idPlaceholder: "Social Security Number or Tax ID",
-      dateOfBirth: "Date of Birth",
-      day: "Day",
-      month: "Month",
-      year: "Year",
-      address: "Address",
-      addressLine1: "Street Address",
-      addressPlaceholder: "123 Main Street",
-      city: "City",
-      cityPlaceholder: "Enter city",
-      state: "State",
-      statePlaceholder: "Select state",
-      postalCode: "Postal Code",
-      postalPlaceholder: "Enter postal code",
-      
-      // Banking Info
-      accountNumber: "Bank Account Number",
-      accountPlaceholder: "Enter account number",
-      routingNumber: "Routing Number",
-      routingPlaceholder: "Enter routing number",
-      accountHolder: "Account Holder Name",
-      holderPlaceholder: "Name on bank account",
-      
-      // Verification
-      identityDocument: "Identity Document",
-      uploadDocument: "Upload Document",
-      supportedFormats: "Supported: PDF, JPG, PNG (Max 5MB)",
-      termsAcceptance: "Terms of Service",
-      acceptTerms: "I accept the Terms of Service and Privacy Policy"
-    },
-    ar: {
-      steps: [
-        { title: "المعلومات الأساسية", subtitle: "تفاصيل الحساب والعمل" },
-        { title: "المعلومات الشخصية", subtitle: "المعلومات الفردية والعنوان" },
-        { title: "المعلومات المصرفية", subtitle: "الحساب المصرفي للمدفوعات" },
-        { title: "التحقق", subtitle: "التحقق من الهوية والشروط" }
-      ],
-      previous: "السابق",
-      nextStep: "الخطوة التالية",
-      submit: "إرسال الطلب",
-      
-      // Basic Info
-      email: "عنوان البريد الإلكتروني",
-      emailPlaceholder: "your@email.com",
-      businessUrl: "رابط الموقع التجاري",
-      urlPlaceholder: "https://your-business.com",
-      statementDescriptor: "وصف الكشف",
-      descriptorPlaceholder: "كيف يظهر عملك في كشوف العملاء",
-      
-      // Personal Info
-      firstName: "الاسم الأول",
-      firstNamePlaceholder: "أدخل اسمك الأول",
-      lastName: "اسم العائلة",
-      lastNamePlaceholder: "أدخل اسم عائلتك",
-      personalEmail: "البريد الإلكتروني الشخصي",
-      personalEmailPlaceholder: "your.personal@email.com",
-      phoneNumber: "رقم الهاتف",
-      phonePlaceholder: "+1 555 123 4567",
-      idNumber: "رقم الهوية",
-      idPlaceholder: "رقم الضمان الاجتماعي أو الرقم الضريبي",
-      dateOfBirth: "تاريخ الميلاد",
-      day: "اليوم",
-      month: "الشهر",
-      year: "السنة",
-      address: "العنوان",
-      addressLine1: "عنوان الشارع",
-      addressPlaceholder: "123 الشارع الرئيسي",
-      city: "المدينة",
-      cityPlaceholder: "أدخل المدينة",
-      state: "الولاية",
-      statePlaceholder: "اختر الولاية",
-      postalCode: "الرمز البريدي",
-      postalPlaceholder: "أدخل الرمز البريدي",
-      
-      // Banking Info
-      accountNumber: "رقم الحساب المصرفي",
-      accountPlaceholder: "أدخل رقم الحساب",
-      routingNumber: "رقم التوجيه",
-      routingPlaceholder: "أدخل رقم التوجيه",
-      accountHolder: "اسم صاحب الحساب",
-      holderPlaceholder: "الاسم في الحساب المصرفي",
-      
-      // Verification
-      identityDocument: "وثيقة الهوية",
-      uploadDocument: "رفع الوثيقة",
-      supportedFormats: "المدعوم: PDF, JPG, PNG (حد أقصى 5 ميجا)",
-      termsAcceptance: "شروط الخدمة",
-      acceptTerms: "أوافق على شروط الخدمة وسياسة الخصوصية"
-    }
-  };
 
-  const t = content[language];
+
+  // Already replaced with locale file loading above
 
   const handleBack = () => {
     if (currentStep > 1) {
@@ -375,22 +287,22 @@ const KYCOnboarding = () => {
       <div className="flex items-center mb-6">
         <Building className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Step 1: Basic Information</h2>
-          <p className="text-sm text-muted-foreground">Account and business details</p>
+          <h2 className="text-xl font-semibold text-foreground">{`${language === "ar" ? "١" : "1"}. ${t("kyc.steps.0.title")}`}</h2>
+          <p className="text-sm text-muted-foreground">{t("kyc.steps.0.subtitle")}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="email" className="text-foreground font-medium">
-            {t.email} <span className="text-destructive">*</span>
+            {t("kyc.email") } <span className="text-destructive">*</span>
           </Label>
           <Input
             id="email"
             type="email"
             value={formData.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
-            placeholder={t.emailPlaceholder}
+            placeholder={t("kyc.emailPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -401,14 +313,14 @@ const KYCOnboarding = () => {
 
         <div>
           <Label htmlFor="business_profile_url" className="text-foreground font-medium">
-            {t.businessUrl} <span className="text-destructive">*</span>
+            {t("kyc.businessUrl")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="business_profile_url"
             type="url"
             value={formData.business_profile_url}
             onChange={(e) => handleInputChange('business_profile_url', e.target.value)}
-            placeholder={t.urlPlaceholder}
+            placeholder={t("kyc.urlPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -420,13 +332,13 @@ const KYCOnboarding = () => {
 
       <div>
         <Label htmlFor="statement_descriptor" className="text-foreground font-medium">
-          {t.statementDescriptor} <span className="text-destructive">*</span>
+          {t("kyc.statementDescriptor")} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="statement_descriptor"
           value={formData.statement_descriptor}
           onChange={(e) => handleInputChange('statement_descriptor', e.target.value)}
-          placeholder={t.descriptorPlaceholder}
+          placeholder={t("kyc.descriptorPlaceholder")}
           className="mt-2 bg-background border-input focus:border-primary"
           maxLength={22}
           required
@@ -452,21 +364,21 @@ const KYCOnboarding = () => {
       <div className="flex items-center mb-6">
         <User className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Step 2: Personal Information</h2>
-          <p className="text-sm text-muted-foreground">Individual information and address</p>
+          <h2 className="text-xl font-semibold text-foreground">{`${language === "ar" ? "٢" : "2"}. ${t("kyc.steps.1.title")}`}</h2>
+          <p className="text-sm text-muted-foreground">{t("kyc.steps.1.subtitle")}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="individual_first_name" className="text-foreground font-medium">
-            {t.firstName} <span className="text-destructive">*</span>
+            {t("kyc.firstName")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="individual_first_name"
             value={formData.individual_first_name}
             onChange={(e) => handleInputChange('individual_first_name', e.target.value)}
-            placeholder={t.firstNamePlaceholder}
+            placeholder={t("kyc.firstNamePlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -477,13 +389,13 @@ const KYCOnboarding = () => {
 
         <div>
           <Label htmlFor="individual_last_name" className="text-foreground font-medium">
-            {t.lastName} <span className="text-destructive">*</span>
+            {t("kyc.lastName")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="individual_last_name"
             value={formData.individual_last_name}
             onChange={(e) => handleInputChange('individual_last_name', e.target.value)}
-            placeholder={t.lastNamePlaceholder}
+            placeholder={t("kyc.lastNamePlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -494,14 +406,14 @@ const KYCOnboarding = () => {
 
         <div>
           <Label htmlFor="individual_email" className="text-foreground font-medium">
-            {t.personalEmail} <span className="text-destructive">*</span>
+            {t("kyc.personalEmail")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="individual_email"
             type="email"
             value={formData.individual_email}
             onChange={(e) => handleInputChange('individual_email', e.target.value)}
-            placeholder={t.personalEmailPlaceholder}
+            placeholder={t("kyc.personalEmailPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -512,14 +424,14 @@ const KYCOnboarding = () => {
 
         <div>
           <Label htmlFor="individual_phone" className="text-foreground font-medium">
-            {t.phoneNumber} <span className="text-destructive">*</span>
+            {t("kyc.phoneNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="individual_phone"
             type="tel"
             value={formData.individual_phone}
             onChange={(e) => handleInputChange('individual_phone', e.target.value)}
-            placeholder={t.phonePlaceholder}
+            placeholder={t("kyc.phonePlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -530,13 +442,13 @@ const KYCOnboarding = () => {
 
         <div>
           <Label htmlFor="individual_id_number" className="text-foreground font-medium">
-            {t.idNumber} <span className="text-destructive">*</span>
+            {t("kyc.idNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="individual_id_number"
             value={formData.individual_id_number}
             onChange={(e) => handleInputChange('individual_id_number', e.target.value)}
-            placeholder={t.idPlaceholder}
+            placeholder={t("kyc.idPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -548,11 +460,11 @@ const KYCOnboarding = () => {
 
       <div>
         <Label className="text-foreground font-medium">
-          {t.dateOfBirth} <span className="text-destructive">*</span>
+          {t("kyc.dateOfBirth")} <span className="text-destructive">*</span>
         </Label>
         <div className="grid grid-cols-3 gap-4 mt-2">
           <div>
-            <Label htmlFor="individual_dob_day" className="text-sm text-muted-foreground">{t.day}</Label>
+            <Label htmlFor="individual_dob_day" className="text-sm text-muted-foreground">{t("kyc.day")}</Label>
             <Input
               id="individual_dob_day"
               type="number"
@@ -560,7 +472,7 @@ const KYCOnboarding = () => {
               max="31"
               value={formData.individual_dob_day}
               onChange={(e) => handleInputChange('individual_dob_day', e.target.value)}
-              placeholder="29"
+              placeholder={t("kyc.day")}
               className="mt-1 bg-background border-input focus:border-primary"
               required
             />
@@ -569,7 +481,7 @@ const KYCOnboarding = () => {
             )}
           </div>
           <div>
-            <Label htmlFor="individual_dob_month" className="text-sm text-muted-foreground">{t.month}</Label>
+            <Label htmlFor="individual_dob_month" className="text-sm text-muted-foreground">{t("kyc.month")}</Label>
             <Input
               id="individual_dob_month"
               type="number"
@@ -577,7 +489,7 @@ const KYCOnboarding = () => {
               max="12"
               value={formData.individual_dob_month}
               onChange={(e) => handleInputChange('individual_dob_month', e.target.value)}
-              placeholder="01"
+              placeholder={t("kyc.month")}
               className="mt-1 bg-background border-input focus:border-primary"
               required
             />
@@ -586,7 +498,7 @@ const KYCOnboarding = () => {
             )}
           </div>
           <div>
-            <Label htmlFor="individual_dob_year" className="text-sm text-muted-foreground">{t.year}</Label>
+            <Label htmlFor="individual_dob_year" className="text-sm text-muted-foreground">{t("kyc.year")}</Label>
             <Input
               id="individual_dob_year"
               type="number"
@@ -594,7 +506,7 @@ const KYCOnboarding = () => {
               max="2005"
               value={formData.individual_dob_year}
               onChange={(e) => handleInputChange('individual_dob_year', e.target.value)}
-              placeholder="1990"
+              placeholder={t("kyc.year")}
               className="mt-1 bg-background border-input focus:border-primary"
               required
             />
@@ -607,58 +519,58 @@ const KYCOnboarding = () => {
 
       <div>
         <Label className="text-foreground font-medium">
-          {t.address} <span className="text-destructive">*</span>
+          {t("kyc.address")} <span className="text-destructive">*</span>
         </Label>
         <div className="space-y-4 mt-2">
           <div>
-            <Input
-              id="individual_address_line1"
-              value={formData.individual_address_line1}
-              onChange={(e) => handleInputChange('individual_address_line1', e.target.value)}
-              placeholder={t.addressPlaceholder}
-              className="bg-background border-input focus:border-primary"
-              required
-            />
+              <Input
+                id="individual_address_line1"
+                value={formData.individual_address_line1}
+                onChange={(e) => handleInputChange('individual_address_line1', e.target.value)}
+                placeholder={t("kyc.addressPlaceholder")}
+                className="bg-background border-input focus:border-primary"
+                required
+              />
             {errors.individual_address_line1 && (
               <p className="text-sm text-destructive mt-1">{errors.individual_address_line1}</p>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Input
-                id="individual_address_city"
-                value={formData.individual_address_city}
-                onChange={(e) => handleInputChange('individual_address_city', e.target.value)}
-                placeholder={t.cityPlaceholder}
-                className="bg-background border-input focus:border-primary"
-                required
-              />
+                <Input
+                  id="individual_address_city"
+                  value={formData.individual_address_city}
+                  onChange={(e) => handleInputChange('individual_address_city', e.target.value)}
+                  placeholder={t("kyc.cityPlaceholder")}
+                  className="bg-background border-input focus:border-primary"
+                  required
+                />
               {errors.individual_address_city && (
                 <p className="text-sm text-destructive mt-1">{errors.individual_address_city}</p>
               )}
             </div>
             <div>
-              <Input
-                id="individual_address_state"
-                value={formData.individual_address_state}
-                onChange={(e) => handleInputChange('individual_address_state', e.target.value)}
-                placeholder={t.statePlaceholder}
-                className="bg-background border-input focus:border-primary"
-                required
-              />
+                <Input
+                  id="individual_address_state"
+                  value={formData.individual_address_state}
+                  onChange={(e) => handleInputChange('individual_address_state', e.target.value)}
+                  placeholder={t("kyc.statePlaceholder")}
+                  className="bg-background border-input focus:border-primary"
+                  required
+                />
               {errors.individual_address_state && (
                 <p className="text-sm text-destructive mt-1">{errors.individual_address_state}</p>
               )}
             </div>
             <div>
-              <Input
-                id="individual_address_postal_code"
-                value={formData.individual_address_postal_code}
-                onChange={(e) => handleInputChange('individual_address_postal_code', e.target.value)}
-                placeholder={t.postalPlaceholder}
-                className="bg-background border-input focus:border-primary"
-                required
-              />
+                <Input
+                  id="individual_address_postal_code"
+                  value={formData.individual_address_postal_code}
+                  onChange={(e) => handleInputChange('individual_address_postal_code', e.target.value)}
+                  placeholder={t("kyc.postalPlaceholder")}
+                  className="bg-background border-input focus:border-primary"
+                  required
+                />
               {errors.individual_address_postal_code && (
                 <p className="text-sm text-destructive mt-1">{errors.individual_address_postal_code}</p>
               )}
@@ -674,8 +586,8 @@ const KYCOnboarding = () => {
       <div className="flex items-center mb-6">
         <CreditCard className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Step 3: Banking Information</h2>
-          <p className="text-sm text-muted-foreground">Bank account for payouts</p>
+          <h2 className="text-xl font-semibold text-foreground">{`${language === "ar" ? "٣" : "3"}. ${t("kyc.steps.2.title")}`}</h2>
+          <p className="text-sm text-muted-foreground">{t("kyc.steps.2.subtitle")}</p>
         </div>
       </div>
 
@@ -689,13 +601,13 @@ const KYCOnboarding = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="external_account_account_number" className="text-foreground font-medium">
-            {t.accountNumber} <span className="text-destructive">*</span>
+            {t("kyc.accountNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="external_account_account_number"
             value={formData.external_account_account_number}
             onChange={(e) => handleInputChange('external_account_account_number', e.target.value)}
-            placeholder={t.accountPlaceholder}
+            placeholder={t("kyc.accountPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -706,13 +618,13 @@ const KYCOnboarding = () => {
 
         <div>
           <Label htmlFor="external_account_routing_number" className="text-foreground font-medium">
-            {t.routingNumber} <span className="text-destructive">*</span>
+            {t("kyc.routingNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="external_account_routing_number"
             value={formData.external_account_routing_number}
             onChange={(e) => handleInputChange('external_account_routing_number', e.target.value)}
-            placeholder={t.routingPlaceholder}
+            placeholder={t("kyc.routingPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -723,13 +635,13 @@ const KYCOnboarding = () => {
 
         <div className="md:col-span-2">
           <Label htmlFor="external_account_account_holder_name" className="text-foreground font-medium">
-            {t.accountHolder} <span className="text-destructive">*</span>
+            {t("kyc.accountHolder")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="external_account_account_holder_name"
             value={formData.external_account_account_holder_name}
             onChange={(e) => handleInputChange('external_account_account_holder_name', e.target.value)}
-            placeholder={t.holderPlaceholder}
+            placeholder={t("kyc.holderPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
@@ -754,14 +666,14 @@ const KYCOnboarding = () => {
         <div className="flex items-center mb-6">
           <FileText className="w-6 h-6 text-primary mr-3" />
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Step 4: Verification</h2>
-            <p className="text-sm text-muted-foreground">Identity verification and terms</p>
+            <h2 className="text-xl font-semibold text-foreground">{`${language === "ar" ? "٤" : "4"}. ${t("kyc.steps.3.title")}`}</h2>
+            <p className="text-sm text-muted-foreground">{t("kyc.steps.3.subtitle")}</p>
           </div>
         </div>
 
         <div>
           <Label htmlFor="individual_verification_document_front" className="text-foreground font-medium">
-            {t.identityDocument} <span className="text-destructive">*</span>
+            {t("kyc.identityDocument")} <span className="text-destructive">*</span>
           </Label>
           <div className="mt-2">
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
@@ -783,7 +695,7 @@ const KYCOnboarding = () => {
                 onClick={() => document.getElementById('individual_verification_document_front')?.click()}
               >
                 <Upload className="w-4 h-4 mr-2" />
-                {t.uploadDocument}
+                {t("kyc.uploadDocument")}
               </Button>
               {formData.individual_verification_document_front && (
                 <p className="text-sm text-primary mt-2">
@@ -794,7 +706,7 @@ const KYCOnboarding = () => {
             {errors.individual_verification_document_front && (
               <p className="text-sm text-destructive mt-1">{errors.individual_verification_document_front}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">{t.supportedFormats}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("kyc.supportedFormats")}</p>
           </div>
         </div>
 
@@ -803,10 +715,10 @@ const KYCOnboarding = () => {
             <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
             <div>
               <Label className="text-foreground font-medium">
-                {t.termsAcceptance}
+                {t("kyc.termsAcceptance")}
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {t.acceptTerms}
+                {t("kyc.acceptTerms")}
               </p>
             </div>
           </div>
@@ -873,11 +785,11 @@ const KYCOnboarding = () => {
       <div className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            {t.steps.map((step, index) => (
+            {stepsArr.map((step, index) => (
               <div
                 key={index}
                 className={`flex items-center ${
-                  index < t.steps.length - 1 ? "flex-1" : ""
+                  index < stepsArr.length - 1 ? "flex-1" : ""
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -911,7 +823,7 @@ const KYCOnboarding = () => {
                     </div>
                   </div>
                 </div>
-                {index < t.steps.length - 1 && (
+                {index < stepsArr.length - 1 && (
                   <div className="flex-1 h-px bg-border mx-4" />
                 )}
               </div>
@@ -934,7 +846,7 @@ const KYCOnboarding = () => {
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>{t.previous}</span>
+              <span>{t("kyc.previous")}</span>
             </Button>
 
             <Button
@@ -944,8 +856,8 @@ const KYCOnboarding = () => {
             >
               <span>
                 {currentStep === totalSteps 
-                  ? (submitting ? "Submitting..." : t.submit || "Submit Application")
-                  : t.nextStep
+                  ? (submitting ? "Submitting..." : t("kyc.submit") || "Submit Application")
+                  : t("kyc.nextStep")
                 }
               </span>
               {currentStep < totalSteps && <ArrowRight className="w-4 h-4" />}

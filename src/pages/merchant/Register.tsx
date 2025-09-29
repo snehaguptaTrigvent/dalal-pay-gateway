@@ -70,8 +70,7 @@ const MerchantRegister = () => {
       confirm_password: ""
     },
   });
-  // Import fix
-  // import MerchantLoginNavigation from '../../components/MerchantLoginNavigation';
+  
    const handleSubmit = async (values: z.infer<typeof registerSchema>) => {
     if (!acceptTerms || !acceptPrivacy) {
       toast({

@@ -24,30 +24,53 @@ const loadTranslations = async (language: Language): Promise<TranslationObject> 
       import(`../locales/${language}/contact.json`),
       import(`../locales/${language}/footer.json`),
       import(`../locales/${language}/merchant.json`),
+      import(`../locales/${language}/kyc.json`),
     ]);
 
     // Combine all modules into a single object with flattened keys
     const combined: TranslationObject = {};
     
-    modules.forEach(module => {
+    modules.forEach((module, idx) => {
       const data = module.default || module;
-      Object.keys(data).forEach(section => {
-        const sectionData = data[section];
-        if (typeof sectionData === 'object' && sectionData !== null) {
-          Object.keys(sectionData).forEach(key => {
-            const value = sectionData[key];
-            if (typeof value === 'object' && value !== null) {
-              // Handle nested objects (like merchant.login.title)
-              Object.keys(value).forEach(nestedKey => {
-                combined[`${section}.${key}.${nestedKey}`] = value[nestedKey];
-              });
-            } else {
-              // Handle direct values (like nav.features)
-              combined[`${section}.${key}`] = value;
-            }
-          });
-        }
-      });
+      // If this is kyc.json (last in array), prefix all keys with 'kyc.'
+      if (idx === modules.length - 1) {
+        Object.keys(data).forEach(key => {
+          const value = data[key];
+          if (Array.isArray(value)) {
+            value.forEach((item, arrIdx) => {
+              if (typeof item === 'object' && item !== null) {
+                Object.keys(item).forEach(nestedKey => {
+                  combined[`kyc.${key}.${arrIdx}.${nestedKey}`] = item[nestedKey];
+                });
+              } else {
+                combined[`kyc.${key}.${arrIdx}`] = item;
+              }
+            });
+          } else if (typeof value === 'object' && value !== null) {
+            Object.keys(value).forEach(nestedKey => {
+              combined[`kyc.${key}.${nestedKey}`] = value[nestedKey];
+            });
+          } else {
+            combined[`kyc.${key}`] = value;
+          }
+        });
+      } else {
+        Object.keys(data).forEach(section => {
+          const sectionData = data[section];
+          if (typeof sectionData === 'object' && sectionData !== null) {
+            Object.keys(sectionData).forEach(key => {
+              const value = sectionData[key];
+              if (typeof value === 'object' && value !== null) {
+                Object.keys(value).forEach(nestedKey => {
+                  combined[`${section}.${key}.${nestedKey}`] = value[nestedKey];
+                });
+              } else {
+                combined[`${section}.${key}`] = value;
+              }
+            });
+          }
+        });
+      }
     });
 
     return combined;
