@@ -15,7 +15,12 @@
       "securityNote": "Your data is protected with enterprise-grade security",
       "loading": "Signing in...",
       "loginSuccessful": "Login Successful",
-      "redirectingToDashboard": "Redirecting to dashboard..."
+      "redirectingToDashboard": "Redirecting to dashboard...",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address.",
+  "passwordRequired": "Password is required.",
+  "loginFailed": "Login Failed",
+  "loginError": "An error occurred during login. Please try again."
     },
     "register": {
       "title": "Create Merchant Account",
@@ -44,7 +49,39 @@
       "registrationSuccessful": "Registration Successful",
       "accountCreatedSuccessfully": "Account created successfully! Redirecting to login...",
       "registrationFailed": "Registration Failed",
-      "registrationError": "An error occurred during registration"
+      "registrationError": "An error occurred during registration",
+      "fullNameRequired": "Full name is required.",
+      "fullNameMin": "Full name must be at least 2 characters.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneRequired": "Phone number is required.",
+      "phoneMin": "Phone number must be at least 10 characters.",
+      "dobRequired": "Date of birth is required.",
+      "passwordRequired": "Password is required.",
+      "confirmPasswordRequired": "Please confirm your password.",
+      "fullNameMax": "Full name must not exceed 50 characters.",
+      "email": "Please enter a valid email address.",
+      "phoneRegex": "Please enter a valid phone number.",
+      "dobRegex": "Please enter date in YYYY-MM-DD format.",
+      "passwordMin": "Password must be at least 8 characters.",
+      "passwordRegex": "Password must contain uppercase, lowercase, number and special character.",
+      "passwordMatch": "Passwords do not match."
+    },
+    "forgot": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to reset your password",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "submit": "Send Reset Link",
+      "successTitle": "Reset Link Sent",
+      "successDesc": "If your email is registered, you will receive a password reset link.",
+      "backToLogin": "Remembered your password?",
+      "loginLink": "Sign in here",
+      "securityNote": "Your data is protected with enterprise-grade security",
+      
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address."
+      
     },
     "dashboard": {
       "welcome": "Welcome back",

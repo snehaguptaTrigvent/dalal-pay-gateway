@@ -46,9 +46,6 @@
   "identityDocument": "وثيقة الهوية",
   "uploadDocument": "رفع الوثيقة",
   "supportedFormats": "المدعوم: PDF, JPG, PNG (حد أقصى 5 ميجا)",
-  "submittedSuccess": "تم إرسال الطلب بنجاح",
-  "submissionError": "فشل الإرسال",
-  "submissionErrorDesc": "حدث خطأ أثناء إرسال طلبك. يرجى المحاولة مرة أخرى.",
   "termsAcceptance": "شروط الخدمة",
   "acceptTerms": "أوافق على شروط الخدمة وسياسة الخصوصية",
   "validation": {
@@ -75,7 +72,5 @@
     "routingNumberRequired": "رقم التوجيه مطلوب",
     "accountHolderRequired": "اسم صاحب الحساب مطلوب",
     "documentRequired": "وثيقة الهوية مطلوبة"
-  ,
-  "validationError": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح."
   }
 }

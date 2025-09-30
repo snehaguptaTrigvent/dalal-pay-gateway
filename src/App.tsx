@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import MerchantLogin from "./pages/merchant/Login";
 import MerchantRegister from "./pages/merchant/Register";
+import MerchantForgotPassword from "./pages/merchant/ForgotPassword";
 import KYCOnboarding from "./pages/merchant/KYC";
 import MerchantDashboard from "./pages/merchant/Dashboard";
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/en" element={<Index />} />
             <Route path="/en/merchant/login" element={<MerchantLogin />} />
             <Route path="/en/merchant/register" element={<MerchantRegister />} />
+            <Route path="/en/merchant/forgot-password" element={<MerchantForgotPassword />} />
             <Route path="/en/merchant/kyc" element={<KYCOnboarding />} />
             <Route path="/en/merchant/dashboard" element={<MerchantDashboard />} />
             
@@ -35,12 +37,14 @@ const App = () => (
             <Route path="/ar" element={<Index />} />
             <Route path="/ar/merchant/login" element={<MerchantLogin />} />
             <Route path="/ar/merchant/register" element={<MerchantRegister />} />
+            <Route path="/ar/merchant/forgot-password" element={<MerchantForgotPassword />} />
             <Route path="/ar/merchant/kyc" element={<KYCOnboarding />} />
             <Route path="/ar/merchant/dashboard" element={<MerchantDashboard />} />
             
             {/* Legacy routes redirect to English */}
             <Route path="/merchant/login" element={<Navigate to="/en/merchant/login" replace />} />
             <Route path="/merchant/register" element={<Navigate to="/en/merchant/register" replace />} />
+            <Route path="/merchant/forgot-password" element={<Navigate to="/en/merchant/forgot-password" replace />} />
             <Route path="/merchant/kyc" element={<Navigate to="/en/merchant/kyc" replace />} />
             <Route path="/merchant/dashboard" element={<Navigate to="/en/merchant/dashboard" replace />} />
             

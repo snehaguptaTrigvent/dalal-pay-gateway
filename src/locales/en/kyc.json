@@ -46,9 +46,6 @@
   "identityDocument": "Identity Document",
   "uploadDocument": "Upload Document",
   "supportedFormats": "Supported: PDF, JPG, PNG (Max 5MB)",
-  "submittedSuccess": "Application Submitted Successfully",
-  "submissionError": "Submission Failed",
-  "submissionErrorDesc": "There was an error submitting your application. Please try again.",
   "termsAcceptance": "Terms of Service",
   "acceptTerms": "I accept the Terms of Service and Privacy Policy",
   "validation": {
@@ -75,7 +72,5 @@
     "routingNumberRequired": "Routing number is required",
     "accountHolderRequired": "Account holder name is required",
     "documentRequired": "Identity document is required"
-  ,
-  "validationError": "Please fill in all required fields correctly."
   }
 }

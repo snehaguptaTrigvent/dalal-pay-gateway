@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dalalLogo from '@/assets/dalal-logo.png';
 import MerchantLoginNavigation from '@/components/MerchantLoginNavigation';
 import { 
@@ -21,22 +21,72 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 
+const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
+
+
 const MerchantLogin = () => {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { language, setLanguage, t } = useTranslation();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateEmail = (email: string) => /.+@.+\..+/.test(email);
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.email.trim()) {
+      newErrors.email = ("merchant.login.emailRequired");
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = ("merchant.login.emailInvalid");
+    }
+    if (!formData.password.trim()) {
+      newErrors.password = ("merchant.login.passwordRequired");
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: t("merchant.login.loginSuccessful"),
-      description: t("merchant.login.redirectingToDashboard")
-    });
+    if (!validateForm()) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+      toast({
+        title: t("merchant.login.loginSuccessful"),
+        description: t("merchant.login.redirectingToDashboard")
+      });
+      setTimeout(() => {
+        navigate(`/${language}/merchant/dashboard`);
+      }, 1000);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("merchant.login.loginFailed"),
+        description: error.message ? t(error.message) : t("merchant.login.loginError")
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
@@ -51,6 +101,7 @@ const MerchantLogin = () => {
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Building className="w-8 h-8 text-primary" />
+               
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">
                 {t("merchant.login.title")}
@@ -70,14 +121,18 @@ const MerchantLogin = () => {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="email"
-                    type="email"
+                    type="text"
                     placeholder={t("merchant.login.emailPlaceholder")}
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                    required
+                    
                   />
                 </div>
+                 {errors.email && (
+                  <p className="text-sm text-destructive mt-1">{t(errors.email)}</p>
+                )}
+               
               </div>
               {/* Password Field */}
               <div className="space-y-2">
@@ -93,7 +148,7 @@ const MerchantLogin = () => {
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                    required
+                    
                   />
                   <Button
                     type="button"
@@ -108,6 +163,9 @@ const MerchantLogin = () => {
                       <Eye className="w-4 h-4 text-muted-foreground" />
                     )}
                   </Button>
+                   {errors.password && (
+                  <p className="text-sm text-destructive mt-1">{t(errors.password)}</p>
+                )}
                 </div>
               </div>
               {/* Remember Me & Forgot Password */}
@@ -139,9 +197,19 @@ const MerchantLogin = () => {
                 variant="gradient" 
                 size="lg" 
                 className="w-full"
+                disabled={isLoading}
               >
-                {t("merchant.login.signIn")}
-                <ArrowRight className="ml-2 w-5 h-5" />
+                {isLoading ? (
+                  <>
+                    <ArrowRight className="mr-2 w-5 h-5 animate-spin" />
+                    {t("merchant.login.loading")}
+                  </>
+                ) : (
+                  <>
+                    {t("merchant.login.signIn")}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
               </Button>
             </form>
             {/* Divider */}

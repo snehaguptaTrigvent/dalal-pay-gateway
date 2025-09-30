@@ -57,21 +57,21 @@ const MerchantDashboard = () => {
         return (
           <Badge className="bg-success/10 text-success border-success/20">
             <CheckCircle className="w-4 h-4 mr-2" />
-            {t("merchant.dashboard.kycApproved")}
+              {t("merchant.dashboard.kycApproved")}
           </Badge>
         );
       case "rejected":
         return (
           <Badge className="bg-destructive/10 text-destructive border-destructive/20">
             <XCircle className="w-4 h-4 mr-2" />
-            {t.kycRejected}
+              {t("merchant.dashboard.kycRejected")}
           </Badge>
         );
       default:
         return (
           <Badge className="bg-secondary/10 text-secondary border-secondary/20">
             <Clock className="w-4 h-4 mr-2" />
-            {t.kycPending}
+              {t("merchant.dashboard.kycPending")}
           </Badge>
         );
     }
@@ -87,7 +87,7 @@ const MerchantDashboard = () => {
               <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 Dalal Pay
               </div>
-              <Badge variant="secondary">{t.dashboard}</Badge>
+              <Badge variant="secondary">{t("merchant.dashboard.dashboard")}</Badge>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -104,7 +104,7 @@ const MerchantDashboard = () => {
               </Button>
               <Button variant="outline" size="sm">
                 <Settings className="w-4 h-4 mr-2" />
-                {t.settings}
+                {t("merchant.dashboard.settings")}
               </Button>
             </div>
           </div>
@@ -115,7 +115,7 @@ const MerchantDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {t.welcome}, {merchantData.name}
+            {t("merchant.dashboard.welcome")}, {merchantData.name}
           </h1>
           <p className="text-muted-foreground">
             {merchantData.companyName} • Member since {merchantData.joinDate}
@@ -145,10 +145,10 @@ const MerchantDashboard = () => {
 
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="dashboard">{t.dashboard}</TabsTrigger>
-            <TabsTrigger value="profile">{t.profile}</TabsTrigger>
-            <TabsTrigger value="transactions">{t.transactions}</TabsTrigger>
-            <TabsTrigger value="settings">{t.settings}</TabsTrigger>
+            <TabsTrigger value="dashboard">{t("merchant.dashboard.dashboard")}</TabsTrigger>
+            <TabsTrigger value="profile">{t("merchant.dashboard.profile")}</TabsTrigger>
+            <TabsTrigger value="transactions">{t("merchant.dashboard.transactions")}</TabsTrigger>
+            <TabsTrigger value="settings">{t("merchant.dashboard.settings")}</TabsTrigger>
           </TabsList>
 
           {/* Dashboard Tab */}
@@ -158,7 +158,7 @@ const MerchantDashboard = () => {
               <Card className="p-6 bg-gradient-card border-0 shadow-soft">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t.totalTransactions}</p>
+                    <p className="text-sm text-muted-foreground">{t("merchant.dashboard.totalTransactions")}</p>
                     <p className="text-2xl font-bold text-foreground">{stats.totalTransactions.toLocaleString()}</p>
                   </div>
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -170,7 +170,7 @@ const MerchantDashboard = () => {
               <Card className="p-6 bg-gradient-card border-0 shadow-soft">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t.totalRevenue}</p>
+                    <p className="text-sm text-muted-foreground">{t("merchant.dashboard.totalRevenue")}</p>
                     <p className="text-2xl font-bold text-foreground">${stats.totalRevenue.toLocaleString()}</p>
                   </div>
                   <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
@@ -182,7 +182,7 @@ const MerchantDashboard = () => {
               <Card className="p-6 bg-gradient-card border-0 shadow-soft">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t.successRate}</p>
+                    <p className="text-sm text-muted-foreground">{t("merchant.dashboard.successRate")}</p>
                     <p className="text-2xl font-bold text-foreground">{stats.successRate}%</p>
                   </div>
                   <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
@@ -194,7 +194,7 @@ const MerchantDashboard = () => {
               <Card className="p-6 bg-gradient-card border-0 shadow-soft">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t.avgProcessingTime}</p>
+                    <p className="text-sm text-muted-foreground">{t("merchant.dashboard.avgProcessingTime")}</p>
                     <p className="text-2xl font-bold text-foreground">{stats.avgProcessingTime}</p>
                   </div>
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -207,9 +207,9 @@ const MerchantDashboard = () => {
             {/* Recent Transactions */}
             <Card className="p-6 shadow-soft">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-foreground">{t.recentTransactions}</h3>
+                <h3 className="text-lg font-semibold text-foreground">{t("merchant.dashboard.recentTransactions")}</h3>
                 <Button variant="outline" size="sm">
-                  {t.viewAll}
+                  {t("merchant.dashboard.viewAll")}
                 </Button>
               </div>
               
@@ -228,7 +228,7 @@ const MerchantDashboard = () => {
                     <div className="text-right">
                       <p className="font-semibold text-foreground">${tx.amount.toFixed(2)}</p>
                       <Badge variant={tx.status === "completed" ? "secondary" : "outline"}>
-                        {tx.status === "completed" ? t.completed : t.pending}
+                        {tx.status === "completed" ? t("merchant.dashboard.completed") : t("merchant.dashboard.pending")}
                       </Badge>
                     </div>
                   </div>
@@ -243,7 +243,7 @@ const MerchantDashboard = () => {
               {/* KYC Status */}
               <Card className="p-6 shadow-soft">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">{t.kycStatus}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{t("merchant.dashboard.kycStatus")}</h3>
                   {getKycStatusBadge()}
                 </div>
                 <Progress 
@@ -264,7 +264,7 @@ const MerchantDashboard = () => {
                 </p>
                 <Button variant="outline" size="sm" className="w-full">
                   <Eye className="w-4 h-4 mr-2" />
-                  {t.viewDetails}
+                  {t("merchant.dashboard.viewDetails")}
                 </Button>
               </Card>
 
@@ -275,7 +275,7 @@ const MerchantDashboard = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-foreground flex items-center">
                       <User className="w-5 h-5 mr-2 text-primary" />
-                      {t.personalInfo}
+                      {t("merchant.dashboard.personalInfo")}
                     </h3>
                     <Button variant="ghost" size="sm">
                       <Settings className="w-4 h-4" />
@@ -298,7 +298,7 @@ const MerchantDashboard = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-foreground flex items-center">
                       <Building className="w-5 h-5 mr-2 text-primary" />
-                      {t.businessInfo}
+                      {t("merchant.dashboard.businessInfo")}
                     </h3>
                     <Button variant="ghost" size="sm">
                       <Settings className="w-4 h-4" />
