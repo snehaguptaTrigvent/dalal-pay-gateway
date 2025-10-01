@@ -18,7 +18,7 @@ const MerchantResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { language, t } = useTranslation();
-  const { token } = useParams();
+  const { token, uid } = useParams();
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -42,12 +42,12 @@ const MerchantResetPassword = () => {
     if (!validateForm()) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/reset-password`, {
+      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/reset-pwd/${uid}/${token}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          token,
-          password: formData.password
+          new_password: formData.password,
+          confirm_password: formData.confirmPassword
         })
       });
       const data = await response.json();
@@ -62,11 +62,19 @@ const MerchantResetPassword = () => {
         navigate(`/${language}/merchant/login`);
       }, 1200);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("merchant.reset.resetFailed"),
-        description: error.message ? t(error.message) : t("merchant.reset.resetError")
-      });
+      if (error.message && error.message.includes("has expired.")) {
+        toast({
+          variant: "destructive",
+          title: t("merchant.reset.linkExpired"),
+          description: t("merchant.reset.linkExpiredMessage")
+        });
+      }else{
+          toast({
+            variant: "destructive",
+            title: t("merchant.reset.resetFailed"),
+            description: error.message ? t(error.message) : t("merchant.reset.resetError")
+          });
+      }
     } finally {
       setIsLoading(false);
     }

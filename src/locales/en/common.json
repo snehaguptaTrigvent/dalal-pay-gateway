@@ -18,6 +18,9 @@
   "accountActivated": {
     "title": "Account Activated!",
     "successMessage": "Your account has been successfully activated. You can now log in and start using Dalal Pay.",
-    "login": "Go to Login"
+    "login": "Go to Login",
+    "verifying": "Verifying your account...",
+    "verificationFailed": "Account activation failed.",
+    "invalidLink": "Invalid activation link. Please check your email again."
   }
 }
