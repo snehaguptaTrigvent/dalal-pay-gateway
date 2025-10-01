@@ -17,10 +17,11 @@ import {
   ArrowRight,
   Shield,
   Loader2,
-  Phone
+  Phone, XCircle
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "@/components/ui/sonner";
+
 
 const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 
@@ -91,13 +92,13 @@ const MerchantRegister = () => {
     e.preventDefault();
     if (!validateForm()) return;
     if (!acceptTerms || !acceptPrivacy) {
-      alert(t("merchant.register.pleaseAcceptTerms"));
+      console.log(t("merchant.register.pleaseAcceptTerms"));
       return;
     }
     setIsLoading(true);
     try {
       
-      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/register`, {
+      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/register/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,7 +107,7 @@ const MerchantRegister = () => {
           phone: formData.phone,
           dob: formData.dob,
           password: formData.password,
-          confirmpassword: formData.confirm_password
+          confirm_password: formData.confirm_password
         })
       });
       const data = await response.json();
@@ -114,19 +115,50 @@ const MerchantRegister = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-       toast(
-      t("activateAccount.title"),
-        {
-          description: `${t("activateAccount.instructions")} ${t("activateAccount.checkSpam")}`,
-          duration: 15000,
-          position: "top-center",
-          className: "text-lg font-semibold py-6 px-8 min-w-[340px] max-w-[90vw] rounded-xl shadow-2xl bg-success/95 text-success-foreground border-2 border-success/40",
-          descriptionClassName: "text-base mt-2 text-success-foreground",
-          style: { minHeight: 420, minWidth: 440, fontSize: 18, justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
-        }
-      );
+      toast(
+        t("activateAccount.title"),
+          {
+            description: `${t("activateAccount.instructions")} ${t("activateAccount.checkSpam")}`,
+            duration: 10000,
+            position: "top-center",
+            className: "text-lg font-semibold py-6 px-8 min-w-[340px] max-w-[90vw] rounded-xl shadow-2xl bg-success/95 text-success-foreground border-2 border-success/40",
+            descriptionClassName: "text-base mt-2 text-success-foreground",
+            style: { minHeight: 420, minWidth: 440, fontSize: 18, justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
+          }
+        );
     } catch (error: any) {
-      alert(error.message || t("merchant.register.registrationError"));
+      if (error.message.includes("already exists")) {
+        toast(t("merchant.register.emailAlreadyUsed"), {
+          description: "",
+          duration: 6000,
+          position: "top-center",
+          icon: <XCircle className="text-red-500" />,
+          className:
+            "bg-red-600 text-white border border-red-700 font-semibold rounded-lg shadow-lg",
+          descriptionClassName: "text-sm text-red-100 mt-1",
+          style: {
+            fontSize: 16,
+            padding: "16px 20px",
+          },
+        });
+      }else{
+          toast(t("merchant.register.registrationError"), {
+          description: "",
+          duration: 6000,
+          position: "top-center",
+          icon: <XCircle className="text-red-500" />,
+          className:
+            "bg-red-600 text-white border border-red-700 font-semibold rounded-lg shadow-lg",
+          descriptionClassName: "text-sm text-red-100 mt-1",
+          style: {
+            fontSize: 16,
+            padding: "16px 20px",
+          },
+        });
+
+      }
+
+      console.log(error.message || t("merchant.register.registrationError"));
     } finally {
       setIsLoading(false);
     }

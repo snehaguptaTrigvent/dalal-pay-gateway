@@ -33,32 +33,32 @@ const App = () => (
             <Route path="/en/merchant/login" element={<MerchantLogin />} />
             <Route path="/en/merchant/register" element={<MerchantRegister />} />
             <Route path="/en/merchant/forgot-password" element={<MerchantForgotPassword />} />
-            <Route path="/en/merchant/reset-password/:token" element={<MerchantResetPassword />} />
+            <Route path="/en/merchant/reset-password/:uid/:token" element={<MerchantResetPassword />} />
             <Route path="/en/merchant/kyc" element={<KYCOnboarding />} />
             <Route path="/en/merchant/dashboard" element={<MerchantDashboard />} />
             {/* <Route path="/en/merchant/activate-account" element={<ActivateAccount />} /> */}
-            <Route path="/en/merchant/account-activated" element={<AccountActivated />} />
+            <Route path="/en/merchant/verify-account" element={<AccountActivated />} />
             
             {/* Arabic routes */}
             <Route path="/ar" element={<Index />} />
             <Route path="/ar/merchant/login" element={<MerchantLogin />} />
             <Route path="/ar/merchant/register" element={<MerchantRegister />} />
             <Route path="/ar/merchant/forgot-password" element={<MerchantForgotPassword />} />
-            <Route path="/ar/merchant/reset-password/:token" element={<MerchantResetPassword />} />
+            <Route path="/ar/merchant/reset-password/:uid/:token" element={<MerchantResetPassword />} />
             <Route path="/ar/merchant/kyc" element={<KYCOnboarding />} />
             <Route path="/ar/merchant/dashboard" element={<MerchantDashboard />} />
             {/* <Route path="/ar/merchant/activate-account" element={<ActivateAccount />} /> */}
-            <Route path="/ar/merchant/account-activated" element={<AccountActivated />} />
+            <Route path="/ar/merchant/verify-account" element={<AccountActivated />} />
             
             {/* Legacy routes redirect to English */}
             <Route path="/merchant/login" element={<Navigate to="/en/merchant/login" replace />} />
             <Route path="/merchant/register" element={<Navigate to="/en/merchant/register" replace />} />
             <Route path="/merchant/forgot-password" element={<Navigate to="/en/merchant/forgot-password" replace />} />
-            <Route path="/merchant/reset-password/:token" element={<Navigate to="/en/merchant/reset-password/:token" replace />} />
+            <Route path="/merchant/reset-password/:uid/:token" element={<Navigate to="/en/merchant/reset-password/:token" replace />} />
             <Route path="/merchant/kyc" element={<Navigate to="/en/merchant/kyc" replace />} />
             <Route path="/merchant/dashboard" element={<Navigate to="/en/merchant/dashboard" replace />} />
             {/* <Route path="/merchant/activate-account" element={<Navigate to="/en/merchant/activate-account" replace />} /> */}
-            <Route path="/merchant/account-activated" element={<Navigate to="/en/merchant/account-activated" replace />} />
+            <Route path="/merchant/verify-account" element={<Navigate to="/en/merchant/account-activated" replace />} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

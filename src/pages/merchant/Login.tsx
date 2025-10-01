@@ -59,7 +59,7 @@ const MerchantLogin = () => {
     if (!validateForm()) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/login`, {
+      const response = await fetch(`${DALAL_API_BASE_URL}/accounts/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +82,7 @@ const MerchantLogin = () => {
       toast({
         variant: "destructive",
         title: t("merchant.login.loginFailed"),
-        description: error.message ? t(error.message) : t("merchant.login.loginError")
+        description: error.message ? t("merchant.login.invalidCredentials") : t("merchant.login.loginError")
       });
     } finally {
       setIsLoading(false);

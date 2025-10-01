@@ -20,6 +20,7 @@
       "emailInvalid": "Please enter a valid email address.",
       "passwordRequired": "Password is required.",
       "loginFailed": "Login Failed",
+      "invalidCredentials": "Login Failed. Please check your entered email and password.",
       "loginError": "An error occurred during login. Please try again."
     },
     "register": {
@@ -65,7 +66,8 @@
       "dobRegex": "Please enter date in YYYY-MM-DD format.",
       "passwordMin": "Password must be at least 8 characters.",
       "passwordRegex": "Password must contain uppercase, lowercase, number and special character.",
-      "passwordMatch": "Passwords do not match."
+      "passwordMatch": "Passwords do not match.",
+      "emailAlreadyUsed": "Email is already in use. Please use a different email."
     },
     "forgot": {
       "title": "Forgot Password",
@@ -79,7 +81,10 @@
       "loginLink": "Sign in here",
       "securityNote": "Your data is protected with enterprise-grade security",
       "emailRequired": "Email is required.",
-      "emailInvalid": "Please enter a valid email address."
+      "emailInvalid": "Please enter a valid email address.",
+      "forgotFailed": "Forgot Failed.",
+      "forgotError": "An error occurred while triggering forgot password. Please try again."
+
     },
     "reset": {
       "title": "Reset Password",
@@ -100,7 +105,9 @@
       "passwordRequired": "Password is required.",
       "passwordMin": "Password must be at least 8 characters.",
       "confirmPasswordRequired": "Please confirm your password.",
-      "passwordMatch": "Passwords do not match."
+      "passwordMatch": "Passwords do not match.",
+      "linkExpired": "Reset Link Expired",
+      "linkExpiredMessage": "The reset link has expired. Please request a new reset link."
     }
   }
 }

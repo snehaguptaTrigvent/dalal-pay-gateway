@@ -39,7 +39,7 @@ const MerchantForgotPassword = () => {
 		if (!validateForm()) return;
 		setIsLoading(true);
 		try {
-			const response = await fetch(`${DALAL_API_BASE_URL}/accounts/forgot-password`, {
+			const response = await fetch(`${DALAL_API_BASE_URL}/accounts/forgot-pwd/`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: formData.email })
@@ -55,8 +55,8 @@ const MerchantForgotPassword = () => {
 		} catch (error: any) {
 			toast({
 				variant: "destructive",
-				title: t("merchant.forgot.resetFailed"),
-				description: error.message ? t(error.message) : t("merchant.forgot.resetError")
+				title: t("merchant.forgot.forgotFailed"),
+				description: error.message ? t("merchant.forgot.forgotError") : t("merchant.forgot.resetError")
 			});
 		} finally {
 			setIsLoading(false);
