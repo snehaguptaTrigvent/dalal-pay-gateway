@@ -141,54 +141,54 @@ const KYCOnboarding = () => {
     switch (step) {
       case 1:
         if (!formData.email.trim()) {
-          newErrors.email = t.validation.emailRequired;
+          newErrors.email = "validation.emailRequired";
         } else if (!validateEmail(formData.email)) {
-          newErrors.email = t.validation.emailInvalid;
+          newErrors.email = "validation.emailInvalid";
         }
         if (!formData.business_profile_url.trim()) {
-          newErrors.business_profile_url = t.validation.urlRequired;
+          newErrors.business_profile_url = "validation.urlRequired";
         } else {
           try {
             // Use URL constructor for validation
             new URL(formData.business_profile_url);
           } catch {
-            newErrors.business_profile_url = t.validation.urlInvalid;
+            newErrors.business_profile_url = "validation.urlInvalid";
           }
         }
-        if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = t.validation.statementRequired;
+  if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = "validation.statementRequired";
         break;
 
       case 2:
-        if (!formData.individual_first_name.trim()) newErrors.individual_first_name = t.validation.firstNameRequired;
-        if (!formData.individual_last_name.trim()) newErrors.individual_last_name = t.validation.lastNameRequired;
+        if (!formData.individual_first_name.trim()) newErrors.individual_first_name = "validation.firstNameRequired";
+        if (!formData.individual_last_name.trim()) newErrors.individual_last_name = "validation.lastNameRequired";
         if (!formData.individual_email.trim()) {
-          newErrors.individual_email = t.validation.personalEmailRequired;
+          newErrors.individual_email = "validation.personalEmailRequired";
         } else if (!validateEmail(formData.individual_email)) {
-          newErrors.individual_email = t.validation.personalEmailInvalid;
+          newErrors.individual_email = "validation.personalEmailInvalid";
         }
         if (!formData.individual_phone.trim()) {
-          newErrors.individual_phone = t.validation.phoneRequired;
+          newErrors.individual_phone = "validation.phoneRequired";
         } else if (!validatePhone(formData.individual_phone)) {
-          newErrors.individual_phone = t.validation.phoneInvalid;
+          newErrors.individual_phone = "validation.phoneInvalid";
         }
-        if (!formData.individual_id_number.trim()) newErrors.individual_id_number = t.validation.idRequired;
-        if (!formData.individual_dob_day.trim()) newErrors.individual_dob_day = t.validation.dobDayRequired;
-        if (!formData.individual_dob_month.trim()) newErrors.individual_dob_month = t.validation.dobMonthRequired;
-        if (!formData.individual_dob_year.trim()) newErrors.individual_dob_year = t.validation.dobYearRequired;
-        if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = t.validation.addressRequired;
-        if (!formData.individual_address_city.trim()) newErrors.individual_address_city = t.validation.cityRequired;
-        if (!formData.individual_address_state.trim()) newErrors.individual_address_state = t.validation.stateRequired;
-        if (!formData.individual_address_postal_code.trim()) newErrors.individual_address_postal_code = t.validation.postalRequired;
+        if (!formData.individual_id_number.trim()) newErrors.individual_id_number = "validation.idRequired";
+        if (!formData.individual_dob_day.trim()) newErrors.individual_dob_day = "validation.dobDayRequired";
+        if (!formData.individual_dob_month.trim()) newErrors.individual_dob_month = "validation.dobMonthRequired";
+        if (!formData.individual_dob_year.trim()) newErrors.individual_dob_year = "validation.dobYearRequired";
+        if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = "validation.addressRequired";
+        if (!formData.individual_address_city.trim()) newErrors.individual_address_city = "validation.cityRequired";
+        if (!formData.individual_address_state.trim()) newErrors.individual_address_state = "validation.stateRequired";
+        if (!formData.individual_address_postal_code.trim()) newErrors.individual_address_postal_code = "validation.postalRequired";
         break;
 
       case 3:
-  if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = t.validation.accountNumberRequired;
-  if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = t.validation.routingNumberRequired;
-  if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = t.validation.accountHolderRequired;
+  if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = "validation.accountNumberRequired";
+  if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = "validation.routingNumberRequired";
+  if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = "validation.accountHolderRequired";
         break;
         
       case 4:
-  if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = t.validation.documentRequired;
+  if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = "validation.documentRequired";
         break;
     }
     
@@ -295,7 +295,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.email && (
-            <p className="text-sm text-destructive mt-1">{errors.email}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.email.split('.').pop()]}</p>
           )}
         </div>
 
@@ -313,7 +313,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.business_profile_url && (
-            <p className="text-sm text-destructive mt-1">{errors.business_profile_url}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.business_profile_url.split('.').pop()] || errors.business_profile_url}</p>
           )}
         </div>
       </div>
@@ -332,7 +332,7 @@ const KYCOnboarding = () => {
           required
         />
         {errors.statement_descriptor && (
-          <p className="text-sm text-destructive mt-1">{errors.statement_descriptor}</p>
+          <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.statement_descriptor.split('.').pop()] || errors.statement_descriptor}</p>
         )}
         <p className="text-xs text-muted-foreground mt-1">Maximum 22 characters</p>
       </div>
@@ -371,7 +371,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.individual_first_name && (
-            <p className="text-sm text-destructive mt-1">{errors.individual_first_name}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_first_name.split('.').pop()] || errors.individual_first_name}</p>
           )}
         </div>
 
@@ -388,7 +388,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.individual_last_name && (
-            <p className="text-sm text-destructive mt-1">{errors.individual_last_name}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_last_name.split('.').pop()] || errors.individual_last_name}</p>
           )}
         </div>
 
@@ -406,7 +406,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.individual_email && (
-            <p className="text-sm text-destructive mt-1">{errors.individual_email}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_email.split('.').pop()] || errors.individual_email}</p>
           )}
         </div>
 
@@ -424,7 +424,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.individual_phone && (
-            <p className="text-sm text-destructive mt-1">{errors.individual_phone}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_phone.split('.').pop()] || errors.individual_phone}</p>
           )}
         </div>
 
@@ -441,7 +441,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.individual_id_number && (
-            <p className="text-sm text-destructive mt-1">{errors.individual_id_number}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_id_number.split('.').pop()] || errors.individual_id_number}</p>
           )}
         </div>
       </div>
@@ -465,7 +465,7 @@ const KYCOnboarding = () => {
               required
             />
             {errors.individual_dob_day && (
-              <p className="text-sm text-destructive mt-1">{errors.individual_dob_day}</p>
+              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_dob_day.split('.').pop()] || errors.individual_dob_day}</p>
             )}
           </div>
           <div>
@@ -482,7 +482,7 @@ const KYCOnboarding = () => {
               required
             />
             {errors.individual_dob_month && (
-              <p className="text-sm text-destructive mt-1">{errors.individual_dob_month}</p>
+              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_dob_month.split('.').pop()] || errors.individual_dob_month}</p>
             )}
           </div>
           <div>
@@ -499,7 +499,7 @@ const KYCOnboarding = () => {
               required
             />
             {errors.individual_dob_year && (
-              <p className="text-sm text-destructive mt-1">{errors.individual_dob_year}</p>
+              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_dob_year.split('.').pop()] || errors.individual_dob_year}</p>
             )}
           </div>
         </div>
@@ -520,7 +520,7 @@ const KYCOnboarding = () => {
               required
             />
             {errors.individual_address_line1 && (
-              <p className="text-sm text-destructive mt-1">{errors.individual_address_line1}</p>
+              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_line1.split('.').pop()] || errors.individual_address_line1}</p>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -534,7 +534,7 @@ const KYCOnboarding = () => {
                 required
               />
               {errors.individual_address_city && (
-                <p className="text-sm text-destructive mt-1">{errors.individual_address_city}</p>
+                <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_city.split('.').pop()] || errors.individual_address_city}</p>
               )}
             </div>
             <div>
@@ -547,7 +547,7 @@ const KYCOnboarding = () => {
                 required
               />
               {errors.individual_address_state && (
-                <p className="text-sm text-destructive mt-1">{errors.individual_address_state}</p>
+                <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_state.split('.').pop()] || errors.individual_address_state}</p>
               )}
             </div>
             <div>
@@ -560,7 +560,7 @@ const KYCOnboarding = () => {
                 required
               />
               {errors.individual_address_postal_code && (
-                <p className="text-sm text-destructive mt-1">{errors.individual_address_postal_code}</p>
+                <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_postal_code.split('.').pop()] || errors.individual_address_postal_code}</p>
               )}
             </div>
           </div>
@@ -600,7 +600,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.external_account_account_number && (
-            <p className="text-sm text-destructive mt-1">{errors.external_account_account_number}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.external_account_account_number.split('.').pop()] || errors.external_account_account_number}</p>
           )}
         </div>
 
@@ -617,7 +617,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.external_account_routing_number && (
-            <p className="text-sm text-destructive mt-1">{errors.external_account_routing_number}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.external_account_routing_number.split('.').pop()] || errors.external_account_routing_number}</p>
           )}
         </div>
 
@@ -634,7 +634,7 @@ const KYCOnboarding = () => {
             required
           />
           {errors.external_account_account_holder_name && (
-            <p className="text-sm text-destructive mt-1">{errors.external_account_account_holder_name}</p>
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.external_account_account_holder_name.split('.').pop()] || errors.external_account_account_holder_name}</p>
           )}
         </div>
       </div>
@@ -692,7 +692,7 @@ const KYCOnboarding = () => {
               )}
             </div>
             {errors.individual_verification_document_front && (
-              <p className="text-sm text-destructive mt-1">{errors.individual_verification_document_front}</p>
+              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_verification_document_front.split('.').pop()] || errors.individual_verification_document_front}</p>
             )}
             <p className="text-xs text-muted-foreground mt-1">{t.supportedFormats}</p>
           </div>
