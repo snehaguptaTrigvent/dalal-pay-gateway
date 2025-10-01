@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,8 @@ import {
   Phone
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { toast } from "@/components/ui/sonner";
+
 const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 
 const MerchantRegister = () => {
@@ -29,6 +30,7 @@ const MerchantRegister = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
   const { language, t } = useTranslation();
   const navigate = useNavigate();
 
@@ -94,6 +96,7 @@ const MerchantRegister = () => {
     }
     setIsLoading(true);
     try {
+      
       const response = await fetch(`${DALAL_API_BASE_URL}/accounts/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,13 +110,21 @@ const MerchantRegister = () => {
         })
       });
       const data = await response.json();
+      
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-      alert(t("merchant.register.accountCreatedSuccessfully"));
-      setTimeout(() => {
-        navigate(`/${language}/merchant/login`);
-      }, 2000);
+       toast(
+      t("activateAccount.title"),
+        {
+          description: `${t("activateAccount.instructions")} ${t("activateAccount.checkSpam")}`,
+          duration: 15000,
+          position: "top-center",
+          className: "text-lg font-semibold py-6 px-8 min-w-[340px] max-w-[90vw] rounded-xl shadow-2xl bg-success/95 text-success-foreground border-2 border-success/40",
+          descriptionClassName: "text-base mt-2 text-success-foreground",
+          style: { minHeight: 420, minWidth: 440, fontSize: 18, justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
+        }
+      );
     } catch (error: any) {
       alert(error.message || t("merchant.register.registrationError"));
     } finally {
@@ -126,6 +137,7 @@ const MerchantRegister = () => {
       <MerchantLoginNavigation />
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 py-20">
         <div className="w-full max-w-lg">
+         
           <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">

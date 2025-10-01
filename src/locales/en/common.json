@@ -6,5 +6,18 @@
     "login": "Login",
     "getStarted": "Get Started",
     "languageSwitch": "العربية"
+  },
+  "activateAccount": {
+    "title": "Activate Your Account",
+    "instructions": "We've sent an activation link to your email. Please check your inbox and follow the instructions to activate your account.",
+    "resend": "Resend Activation Email",
+    "resending": "Resending...",
+    "resent": "Activation Email Sent!",
+    "checkSpam": "If you don't see the email, please check your spam or junk folder."
+  },
+  "accountActivated": {
+    "title": "Account Activated!",
+    "successMessage": "Your account has been successfully activated. You can now log in and start using Dalal Pay.",
+    "login": "Go to Login"
   }
 }

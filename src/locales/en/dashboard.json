@@ -1,0 +1,18 @@
+{
+	"brand": "Dalal Pay",
+	"memberSince": "Member since",
+	"kycInProgress": "KYC Verification in Progress",
+	"kycInProgressDesc": "Your account is under review. You'll receive an email once verification is complete.",
+	"kycPendingDesc": "Your documents are being reviewed by our compliance team.",
+	"kycApprovedDesc": "Your account is fully verified and ready for payments.",
+	"kycRejectedDesc": "Additional information required for verification.",
+	"name": "Name",
+	"email": "Email",
+	"company": "Company",
+	"type": "Type",
+	"transactionHistory": "Transaction History",
+	"transactionHistoryDesc": "View and manage all your payment transactions",
+	"exportTransactions": "Export Transactions",
+	"accountSettings": "Account Settings",
+	"accountSettingsDesc": "Manage your account preferences and security settings"
+}

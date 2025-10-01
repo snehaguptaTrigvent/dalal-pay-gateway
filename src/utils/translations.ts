@@ -24,6 +24,7 @@ const loadTranslations = async (language: Language): Promise<TranslationObject> 
       import(`../locales/${language}/contact.json`),
       import(`../locales/${language}/footer.json`),
       import(`../locales/${language}/merchant.json`),
+      import(`../locales/${language}/dashboard.json`),
     ]);
 
     // Combine all modules into a single object with flattened keys
@@ -31,23 +32,27 @@ const loadTranslations = async (language: Language): Promise<TranslationObject> 
     
     modules.forEach(module => {
       const data = module.default || module;
-      Object.keys(data).forEach(section => {
-        const sectionData = data[section];
-        if (typeof sectionData === 'object' && sectionData !== null) {
-          Object.keys(sectionData).forEach(key => {
-            const value = sectionData[key];
-            if (typeof value === 'object' && value !== null) {
-              // Handle nested objects (like merchant.login.title)
-              Object.keys(value).forEach(nestedKey => {
-                combined[`${section}.${key}.${nestedKey}`] = value[nestedKey];
-              });
-            } else {
-              // Handle direct values (like nav.features)
-              combined[`${section}.${key}`] = value;
-            }
-          });
-        }
-      });
+      // If the file is flat (like dashboard.json), just copy keys directly
+      if (Object.values(data).every(v => typeof v !== 'object' || v === null)) {
+        Object.assign(combined, data);
+      } else {
+        // Otherwise, flatten as before
+        Object.keys(data).forEach(section => {
+          const sectionData = data[section];
+          if (typeof sectionData === 'object' && sectionData !== null) {
+            Object.keys(sectionData).forEach(key => {
+              const value = sectionData[key];
+              if (typeof value === 'object' && value !== null) {
+                Object.keys(value).forEach(nestedKey => {
+                  combined[`${section}.${key}.${nestedKey}`] = value[nestedKey];
+                });
+              } else {
+                combined[`${section}.${key}`] = value;
+              }
+            });
+          }
+        });
+      }
     });
 
     return combined;

@@ -21,7 +21,7 @@
       "passwordRequired": "كلمة المرور مطلوبة."
   ,"loginFailed": "فشل تسجيل الدخول"
   ,"loginError": "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى."
-    },
+  },
     "register": {
       "title": "إنشاء حساب تاجر",
       "subtitle": "انضم إلى آلاف الشركات التي تستخدم دلال باي",
@@ -107,33 +107,6 @@
       "passwordMin": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
       "confirmPasswordRequired": "يرجى تأكيد كلمة المرور.",
       "passwordMatch": "كلمتا المرور غير متطابقتين."
-    },
-    "dashboard": {
-      "welcome": "مرحباً بعودتك",
-      "dashboard": "لوحة التحكم",
-      "profile": "الملف الشخصي",
-      "transactions": "المعاملات",
-      "settings": "الإعدادات",
-      "kycStatus": "حالة التحقق",
-      "kycPending": "قيد المراجعة",
-      "kycApproved": "تم التحقق",
-      "kycRejected": "يحتاج اهتمام",
-      "viewDetails": "عرض التفاصيل",
-      "totalTransactions": "إجمالي المعاملات",
-      "totalRevenue": "إجمالي الإيرادات",
-      "successRate": "معدل النجاح",
-      "avgProcessingTime": "متوسط وقت المعالجة",
-      "recentTransactions": "المعاملات الأخيرة",
-      "viewAll": "عرض الكل",
-      "amount": "المبلغ",
-      "status": "الحالة",
-      "date": "التاريخ",
-      "completed": "مكتملة",
-      "pending": "معلقة",
-      "personalInfo": "المعلومات الشخصية",
-      "businessInfo": "معلومات الأعمال",
-      "bankDetails": "التفاصيل المصرفية",
-      "documents": "المستندات"
     }
   }
 }

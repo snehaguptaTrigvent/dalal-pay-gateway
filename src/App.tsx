@@ -12,6 +12,8 @@ import MerchantForgotPassword from "./pages/merchant/ForgotPassword";
 import MerchantResetPassword from "./pages/merchant/ResetPassword";
 import KYCOnboarding from "./pages/merchant/KYC";
 import MerchantDashboard from "./pages/merchant/Dashboard";
+// import ActivateAccount from "./pages/merchant/ActivateAccount";
+import AccountActivated from "./pages/merchant/AccountActivated";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,8 @@ const App = () => (
             <Route path="/en/merchant/reset-password/:token" element={<MerchantResetPassword />} />
             <Route path="/en/merchant/kyc" element={<KYCOnboarding />} />
             <Route path="/en/merchant/dashboard" element={<MerchantDashboard />} />
+            {/* <Route path="/en/merchant/activate-account" element={<ActivateAccount />} /> */}
+            <Route path="/en/merchant/account-activated" element={<AccountActivated />} />
             
             {/* Arabic routes */}
             <Route path="/ar" element={<Index />} />
@@ -43,6 +47,8 @@ const App = () => (
             <Route path="/ar/merchant/reset-password/:token" element={<MerchantResetPassword />} />
             <Route path="/ar/merchant/kyc" element={<KYCOnboarding />} />
             <Route path="/ar/merchant/dashboard" element={<MerchantDashboard />} />
+            {/* <Route path="/ar/merchant/activate-account" element={<ActivateAccount />} /> */}
+            <Route path="/ar/merchant/account-activated" element={<AccountActivated />} />
             
             {/* Legacy routes redirect to English */}
             <Route path="/merchant/login" element={<Navigate to="/en/merchant/login" replace />} />
@@ -51,6 +57,8 @@ const App = () => (
             <Route path="/merchant/reset-password/:token" element={<Navigate to="/en/merchant/reset-password/:token" replace />} />
             <Route path="/merchant/kyc" element={<Navigate to="/en/merchant/kyc" replace />} />
             <Route path="/merchant/dashboard" element={<Navigate to="/en/merchant/dashboard" replace />} />
+            {/* <Route path="/merchant/activate-account" element={<Navigate to="/en/merchant/activate-account" replace />} /> */}
+            <Route path="/merchant/account-activated" element={<Navigate to="/en/merchant/account-activated" replace />} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

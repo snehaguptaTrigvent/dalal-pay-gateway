@@ -18,9 +18,9 @@
       "redirectingToDashboard": "Redirecting to dashboard...",
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email address.",
-  "passwordRequired": "Password is required.",
-  "loginFailed": "Login Failed",
-  "loginError": "An error occurred during login. Please try again."
+      "passwordRequired": "Password is required.",
+      "loginFailed": "Login Failed",
+      "loginError": "An error occurred during login. Please try again."
     },
     "register": {
       "title": "Create Merchant Account",
@@ -78,10 +78,8 @@
       "backToLogin": "Remembered your password?",
       "loginLink": "Sign in here",
       "securityNote": "Your data is protected with enterprise-grade security",
-      
-        "emailRequired": "Email is required.",
-        "emailInvalid": "Please enter a valid email address."
-      
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address."
     },
     "reset": {
       "title": "Reset Password",
@@ -103,33 +101,6 @@
       "passwordMin": "Password must be at least 8 characters.",
       "confirmPasswordRequired": "Please confirm your password.",
       "passwordMatch": "Passwords do not match."
-    },
-    "dashboard": {
-      "welcome": "Welcome back",
-      "dashboard": "Dashboard",
-      "profile": "Profile",
-      "transactions": "Transactions",
-      "settings": "Settings",
-      "kycStatus": "KYC Status",
-      "kycPending": "Under Review",
-      "kycApproved": "Verified",
-      "kycRejected": "Needs Attention",
-      "viewDetails": "View Details",
-      "totalTransactions": "Total Transactions",
-      "totalRevenue": "Total Revenue",
-      "successRate": "Success Rate",
-      "avgProcessingTime": "Avg Processing Time",
-      "recentTransactions": "Recent Transactions",
-      "viewAll": "View All",
-      "amount": "Amount",
-      "status": "Status",
-      "date": "Date",
-      "completed": "Completed",
-      "pending": "Pending",
-      "personalInfo": "Personal Information",
-      "businessInfo": "Business Information",
-      "bankDetails": "Bank Details",
-      "documents": "Documents"
     }
   }
 }
