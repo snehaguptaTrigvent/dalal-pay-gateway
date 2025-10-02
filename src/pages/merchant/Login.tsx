@@ -71,13 +71,14 @@ const MerchantLogin = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
+      localStorage.setItem("authData", JSON.stringify(data.data));
       toast({
         title: t("merchant.login.loginSuccessful"),
         description: t("merchant.login.redirectingToDashboard")
       });
       setTimeout(() => {
         navigate(`/${language}/merchant/dashboard`);
-      }, 1000);
+      }, 1500);
     } catch (error: any) {
       toast({
         variant: "destructive",
