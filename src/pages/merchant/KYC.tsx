@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,10 @@ import {
   Upload,
   Globe,
   User,
-  Phone,
-  Mail
+  ChevronDown
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
+import { useAuth } from "@/hooks/useAuth"
 import kycEn from "@/locales/en/kyc.json";
 import kycAr from "@/locales/ar/kyc.json";
 
@@ -34,16 +33,8 @@ interface FormData {
   business_profile_url: string;
   business_profile_mcc: string;
   statement_descriptor: string;
-  
-  // Individual Information
-  individual_first_name: string;
-  individual_last_name: string;
-  individual_email: string;
-  individual_phone: string;
+  industry_type: string;  
   individual_id_number: string;
-  individual_dob_day: string;
-  individual_dob_month: string;
-  individual_dob_year: string;
   individual_address_line1: string;
   individual_address_city: string;
   individual_address_state: string;
@@ -64,16 +55,17 @@ interface FormData {
   tos_acceptance_ip: string;
 }
 
+interface IndustryType {
+  id: number;
+  name: string;
+}
+
 const KYCOnboarding = () => {
   // State and hooks
   const [currentStep, setCurrentStep] = useState(1);
-  // Get language from URL and update on change
-  const urlLang = window.location.pathname.split('/')[1] || 'en';
-  const [language, setLanguage] = useState(urlLang);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const t = language === 'ar' ? kycAr : kycEn;
-  const totalSteps = t.steps.length;
+  const { token, user, isAuthenticated } = useAuth();
+  const [industryTypes, setIndustryTypes] = useState<IndustryType[]>([]);
+  const [loadingIndustries, setLoadingIndustries] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     // Step 1: Basic Information
@@ -84,15 +76,9 @@ const KYCOnboarding = () => {
     business_profile_url: "",
     business_profile_mcc: "",
     statement_descriptor: "",
+    industry_type: "",
     // Step 2: Individual Information
-    individual_first_name: "",
-    individual_last_name: "",
-    individual_email: "",
-    individual_phone: "",
     individual_id_number: "",
-    individual_dob_day: "",
-    individual_dob_month: "",
-    individual_dob_year: "",
     individual_address_line1: "",
     individual_address_city: "",
     individual_address_state: "",
@@ -111,28 +97,75 @@ const KYCOnboarding = () => {
     tos_acceptance_ip: ""
   });
 
+  const urlLang = window.location.pathname.split('/')[1] || 'en';
+  const [language, setLanguage] = useState(urlLang);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const t = language === 'ar' ? kycAr : kycEn;
+  const totalSteps = t.steps.length;
+
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [touched, setTouched] = useState<{[key: string]: boolean}>({});
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const fetchIndustryTypes = async () => {
+      setLoadingIndustries(true);
+      try {
+        const response = await fetch(`${DALAL_API_BASE_URL}/merchant-onboarding/category-list/`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setIndustryTypes(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch industry types:", error);
+        setIndustryTypes([
+          { id: 1, name: "A/C, Refrigeration Repair" },
+          { id: 2, name: "Accounting/Bookkeeping Services" },
+          { id: 3, name: "Advertising Services" }
+        ]);
+      } finally {
+        setLoadingIndustries(false);
+      }
+    };
+
+    if (token) {
+      fetchIndustryTypes();
+    }
+  }, [token]);
+
+
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        setFormData(prev => ({
+          ...prev,
+          tos_acceptance_ip: data.ip
+        }));
+      })
+      .catch(err => {
+        console.error('Error fetching IP address:', err);
+      });
+  }, []);
+
   const toggleLanguage = () => {
-  const newLang = language === "en" ? "ar" : "en";
-  setLanguage(newLang);
-  // Update URL to reflect language change
-  const pathParts = window.location.pathname.split('/');
-  pathParts[1] = newLang;
-  const newPath = pathParts.join('/');
-  navigate(newPath);
+    const newLang = language === "en" ? "ar" : "en";
+    setLanguage(newLang);
+    const pathParts = window.location.pathname.split('/');
+    pathParts[1] = newLang;
+    const newPath = pathParts.join('/');
+    navigate(newPath);
   };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone) => {
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(phone.replace(/\s/g, ''));
   };
 
   const validateStep = (step: number) => {
@@ -149,32 +182,17 @@ const KYCOnboarding = () => {
           newErrors.business_profile_url = "validation.urlRequired";
         } else {
           try {
-            // Use URL constructor for validation
             new URL(formData.business_profile_url);
           } catch {
             newErrors.business_profile_url = "validation.urlInvalid";
           }
         }
-  if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = "validation.statementRequired";
+        if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = "validation.statementRequired";
+        if (!formData.industry_type) newErrors.industry_type = "validation.industryTypeRequired";
         break;
 
       case 2:
-        if (!formData.individual_first_name.trim()) newErrors.individual_first_name = "validation.firstNameRequired";
-        if (!formData.individual_last_name.trim()) newErrors.individual_last_name = "validation.lastNameRequired";
-        if (!formData.individual_email.trim()) {
-          newErrors.individual_email = "validation.personalEmailRequired";
-        } else if (!validateEmail(formData.individual_email)) {
-          newErrors.individual_email = "validation.personalEmailInvalid";
-        }
-        if (!formData.individual_phone.trim()) {
-          newErrors.individual_phone = "validation.phoneRequired";
-        } else if (!validatePhone(formData.individual_phone)) {
-          newErrors.individual_phone = "validation.phoneInvalid";
-        }
         if (!formData.individual_id_number.trim()) newErrors.individual_id_number = "validation.idRequired";
-        if (!formData.individual_dob_day.trim()) newErrors.individual_dob_day = "validation.dobDayRequired";
-        if (!formData.individual_dob_month.trim()) newErrors.individual_dob_month = "validation.dobMonthRequired";
-        if (!formData.individual_dob_year.trim()) newErrors.individual_dob_year = "validation.dobYearRequired";
         if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = "validation.addressRequired";
         if (!formData.individual_address_city.trim()) newErrors.individual_address_city = "validation.cityRequired";
         if (!formData.individual_address_state.trim()) newErrors.individual_address_state = "validation.stateRequired";
@@ -182,13 +200,13 @@ const KYCOnboarding = () => {
         break;
 
       case 3:
-  if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = "validation.accountNumberRequired";
-  if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = "validation.routingNumberRequired";
-  if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = "validation.accountHolderRequired";
+        if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = "validation.accountNumberRequired";
+        if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = "validation.routingNumberRequired";
+        if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = "validation.accountHolderRequired";
         break;
         
       case 4:
-  if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = "validation.documentRequired";
+        if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = "validation.documentRequired";
         break;
     }
     
@@ -198,7 +216,6 @@ const KYCOnboarding = () => {
   const handleInputChange = (field, value) => {
     setFormData({...formData, [field]: value});
     
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors({...errors, [field]: null});
     }
@@ -220,27 +237,57 @@ const KYCOnboarding = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Final step - submit to Stripe Connect API
       setSubmitting(true);
       const formPayload = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formPayload.append(key, value);
-        }
-      });
+      const accountsData = {
+        business_email: formData.email,
+        website_url: formData.business_profile_url,
+        statement_descriptor: formData.statement_descriptor,
+        address: formData.individual_address_line1,
+        city: formData.individual_address_city,
+        state: formData.individual_address_state,
+        postal_code: formData.individual_address_postal_code,
+        social_security_num: formData.individual_id_number,
+        ip_address: formData.tos_acceptance_ip,
+        country_code: formData.country || "US",
+        mcc: formData.industry_type
+      };
+      formPayload.append('accounts_data', JSON.stringify(accountsData));
+
+      const bankDetails = {
+        account_holder_name: formData.external_account_account_holder_name,
+        account_number: formData.external_account_account_number,
+        routing_number: formData.external_account_routing_number
+      };
+      formPayload.append('bank_details', JSON.stringify(bankDetails));
       
-      // Add automatic fields for Stripe
-      formPayload.append('capabilities[card_payments][requested]', 'true');
-      formPayload.append('capabilities[transfers][requested]', 'true');
-      formPayload.append('tos_acceptance[date]', Math.floor(Date.now() / 1000).toString());
-      formPayload.append('tos_acceptance[ip]', '127.0.0.1'); // You should get the real IP
+      if (formData.individual_verification_document_front) {
+        formPayload.append('documents', formData.individual_verification_document_front);
+      }
       
       try {
-        const response = await fetch(`${DALAL_API_BASE_URL}/api/merchant-onboarding/`, {
+        const response = await fetch(`${DALAL_API_BASE_URL}/merchant-onboarding/`, {
           method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
           body: formPayload
         });
-        if (!response.ok) throw new Error("Submission failed");
+        const result = await response.json();
+        console.log(result);
+        if (!response.ok) {
+          if (result.message && result.message.includes("user already exists.")) {
+            toast({
+              title: language === "en" ? "Submission Error" : "خطأ في الإرسال",
+              description: language === "en"
+                ? "You have already submitted the application. Please wait for approval."
+                : "لقد قمت بإرسال الطلب مسبقًا. يرجى انتظار الموافقة.",
+              variant: "destructive"
+            });
+          }else{
+            throw new Error("Submission failed");
+          }
+        }
         toast({
           title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
           description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
@@ -259,8 +306,6 @@ const KYCOnboarding = () => {
       }
     }
   };
-
-
 
   // Already replaced with locale file loading above
 
@@ -316,25 +361,51 @@ const KYCOnboarding = () => {
             <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.business_profile_url.split('.').pop()] || errors.business_profile_url}</p>
           )}
         </div>
-      </div>
 
-      <div>
-        <Label htmlFor="statement_descriptor" className="text-foreground font-medium">
-          {t.statementDescriptor} <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="statement_descriptor"
-          value={formData.statement_descriptor}
-          onChange={(e) => handleInputChange('statement_descriptor', e.target.value)}
-          placeholder={t.descriptorPlaceholder}
-          className="mt-2 bg-background border-input focus:border-primary"
-          maxLength={22}
-          required
-        />
-        {errors.statement_descriptor && (
-          <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.statement_descriptor.split('.').pop()] || errors.statement_descriptor}</p>
-        )}
-        <p className="text-xs text-muted-foreground mt-1">Maximum 22 characters</p>
+        <div>
+          <Label htmlFor="industry_type" className="text-foreground font-medium">
+            Industry Type <span className="text-destructive">*</span>
+          </Label>
+          <div className="mt-2 relative">
+            <select
+              id="industry_type"
+              value={formData.industry_type}
+              onChange={(e) => handleInputChange('industry_type', e.target.value)}
+              className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none"
+              required
+            >
+              <option value="">Select Industry Type</option>
+              {industryTypes.map((industry) => (
+                <option key={industry.id} value={industry.id}>
+                  {industry.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+          {errors.industry_type && (
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.industry_type.split('.').pop()] || errors.industry_type}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="statement_descriptor" className="text-foreground font-medium">
+            {t.statementDescriptor} <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="statement_descriptor"
+            value={formData.statement_descriptor}
+            onChange={(e) => handleInputChange('statement_descriptor', e.target.value)}
+            placeholder={t.descriptorPlaceholder}
+            className="mt-2 bg-background border-input focus:border-primary"
+            maxLength={22}
+            required
+          />
+          {errors.statement_descriptor && (
+            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.statement_descriptor.split('.').pop()] || errors.statement_descriptor}</p>
+          )}
+          <p className="text-xs text-muted-foreground mt-1">Maximum 22 characters</p>
+        </div>
       </div>
 
       <div className="bg-muted/50 p-4 rounded-lg">
@@ -357,77 +428,7 @@ const KYCOnboarding = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Label htmlFor="individual_first_name" className="text-foreground font-medium">
-            {t.firstName} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="individual_first_name"
-            value={formData.individual_first_name}
-            onChange={(e) => handleInputChange('individual_first_name', e.target.value)}
-            placeholder={t.firstNamePlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.individual_first_name && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_first_name.split('.').pop()] || errors.individual_first_name}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="individual_last_name" className="text-foreground font-medium">
-            {t.lastName} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="individual_last_name"
-            value={formData.individual_last_name}
-            onChange={(e) => handleInputChange('individual_last_name', e.target.value)}
-            placeholder={t.lastNamePlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.individual_last_name && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_last_name.split('.').pop()] || errors.individual_last_name}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="individual_email" className="text-foreground font-medium">
-            {t.personalEmail} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="individual_email"
-            type="email"
-            value={formData.individual_email}
-            onChange={(e) => handleInputChange('individual_email', e.target.value)}
-            placeholder={t.personalEmailPlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.individual_email && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_email.split('.').pop()] || errors.individual_email}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="individual_phone" className="text-foreground font-medium">
-            {t.phoneNumber} <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="individual_phone"
-            type="tel"
-            value={formData.individual_phone}
-            onChange={(e) => handleInputChange('individual_phone', e.target.value)}
-            placeholder={t.phonePlaceholder}
-            className="mt-2 bg-background border-input focus:border-primary"
-            required
-          />
-          {errors.individual_phone && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_phone.split('.').pop()] || errors.individual_phone}</p>
-          )}
-        </div>
-
+      <div className="grid grid-cols-1 gap-6">
         <div>
           <Label htmlFor="individual_id_number" className="text-foreground font-medium">
             {t.idNumber} <span className="text-destructive">*</span>
@@ -443,65 +444,6 @@ const KYCOnboarding = () => {
           {errors.individual_id_number && (
             <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_id_number.split('.').pop()] || errors.individual_id_number}</p>
           )}
-        </div>
-      </div>
-
-      <div>
-        <Label className="text-foreground font-medium">
-          {t.dateOfBirth} <span className="text-destructive">*</span>
-        </Label>
-        <div className="grid grid-cols-3 gap-4 mt-2">
-          <div>
-            <Label htmlFor="individual_dob_day" className="text-sm text-muted-foreground">{t.day}</Label>
-            <Input
-              id="individual_dob_day"
-              type="number"
-              min="1"
-              max="31"
-              value={formData.individual_dob_day}
-              onChange={(e) => handleInputChange('individual_dob_day', e.target.value)}
-              placeholder="29"
-              className="mt-1 bg-background border-input focus:border-primary"
-              required
-            />
-            {errors.individual_dob_day && (
-              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_dob_day.split('.').pop()] || errors.individual_dob_day}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="individual_dob_month" className="text-sm text-muted-foreground">{t.month}</Label>
-            <Input
-              id="individual_dob_month"
-              type="number"
-              min="1"
-              max="12"
-              value={formData.individual_dob_month}
-              onChange={(e) => handleInputChange('individual_dob_month', e.target.value)}
-              placeholder="01"
-              className="mt-1 bg-background border-input focus:border-primary"
-              required
-            />
-            {errors.individual_dob_month && (
-              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_dob_month.split('.').pop()] || errors.individual_dob_month}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="individual_dob_year" className="text-sm text-muted-foreground">{t.year}</Label>
-            <Input
-              id="individual_dob_year"
-              type="number"
-              min="1900"
-              max="2005"
-              value={formData.individual_dob_year}
-              onChange={(e) => handleInputChange('individual_dob_year', e.target.value)}
-              placeholder="1990"
-              className="mt-1 bg-background border-input focus:border-primary"
-              required
-            />
-            {errors.individual_dob_year && (
-              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_dob_year.split('.').pop()] || errors.individual_dob_year}</p>
-            )}
-          </div>
         </div>
       </div>
 

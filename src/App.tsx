@@ -14,6 +14,8 @@ import KYCOnboarding from "./pages/merchant/KYC";
 import MerchantDashboard from "./pages/merchant/Dashboard";
 // import ActivateAccount from "./pages/merchant/ActivateAccount";
 import AccountActivated from "./pages/merchant/AccountActivated";
+import PrivateRoute from "@/components/PrivateRoute";
+
 
 const queryClient = new QueryClient();
 
@@ -34,8 +36,8 @@ const App = () => (
             <Route path="/en/merchant/register" element={<MerchantRegister />} />
             <Route path="/en/merchant/forgot-password" element={<MerchantForgotPassword />} />
             <Route path="/en/merchant/reset-password/:uid/:token" element={<MerchantResetPassword />} />
-            <Route path="/en/merchant/kyc" element={<KYCOnboarding />} />
-            <Route path="/en/merchant/dashboard" element={<MerchantDashboard />} />
+            <Route path="/en/merchant/kyc" element={<PrivateRoute><KYCOnboarding /></PrivateRoute>} />
+            <Route path="/en/merchant/dashboard" element={<PrivateRoute><MerchantDashboard /></PrivateRoute>} />
             {/* <Route path="/en/merchant/activate-account" element={<ActivateAccount />} /> */}
             <Route path="/en/merchant/verify-account" element={<AccountActivated />} />
             
@@ -45,8 +47,8 @@ const App = () => (
             <Route path="/ar/merchant/register" element={<MerchantRegister />} />
             <Route path="/ar/merchant/forgot-password" element={<MerchantForgotPassword />} />
             <Route path="/ar/merchant/reset-password/:uid/:token" element={<MerchantResetPassword />} />
-            <Route path="/ar/merchant/kyc" element={<KYCOnboarding />} />
-            <Route path="/ar/merchant/dashboard" element={<MerchantDashboard />} />
+            <Route path="/ar/merchant/kyc" element={<PrivateRoute><KYCOnboarding /></PrivateRoute>} />
+            <Route path="/ar/merchant/dashboard" element={<PrivateRoute><MerchantDashboard /></PrivateRoute>} />
             {/* <Route path="/ar/merchant/activate-account" element={<ActivateAccount />} /> */}
             <Route path="/ar/merchant/verify-account" element={<AccountActivated />} />
             
