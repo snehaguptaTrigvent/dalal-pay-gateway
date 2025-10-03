@@ -11,7 +11,7 @@ const MerchantLoginNavigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to={`/${language}`} aria-label="Login" className="flex items-center">
+          <Link to={`/${language}`} aria-label="Dalal Pay" className="flex items-center">
             <img 
               src={dalalLogo} 
               alt="Dalal Pay" 

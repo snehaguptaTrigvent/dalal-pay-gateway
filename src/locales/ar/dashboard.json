@@ -1,4 +1,5 @@
 {
+  "dashboard": {
   "welcome": "مرحباً بعودتك",
   "dashboard": "لوحة التحكم",
   "profile": "الملف الشخصي",
@@ -40,4 +41,5 @@
   "exportTransactions": "تصدير المعاملات",
   "accountSettings": "إعدادات الحساب",
   "accountSettingsDesc": "إدارة تفضيلات حسابك وإعدادات الأمان"
+  }
 }

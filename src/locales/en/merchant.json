@@ -63,7 +63,8 @@
       "fullNameMax": "Full name must not exceed 50 characters.",
       "email": "Please enter a valid email address.",
       "phoneRegex": "Please enter a valid phone number.",
-      "dobRegex": "Please enter date in YYYY-MM-DD format.",
+  "dobFormat": "Please enter date in DD-MM-YYYY format.",
+      "dobPastOnly": "Date of birth cannot be today or in the future.",
       "passwordMin": "Password must be at least 8 characters.",
       "passwordRegex": "Password must contain uppercase, lowercase, number and special character.",
       "passwordMatch": "Passwords do not match.",
@@ -71,6 +72,7 @@
     },
     "forgot": {
       "title": "Forgot Password",
+      "loading": "Sending reset instructions...",
       "subtitle": "Enter your email to reset your password",
       "emailLabel": "Email Address",
       "emailPlaceholder": "Enter your email",

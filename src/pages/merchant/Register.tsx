@@ -58,8 +58,12 @@ const MerchantRegister = () => {
     }
     if (!formData.email.trim()) {
       newErrors.email = ("merchant.register.emailRequired");
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = ("merchant.register.emailInvalid");
+    } else {
+      // Stricter email validation
+      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = ("merchant.register.emailInvalid");
+      }
     }
     if (!formData.phone.trim()) {
       newErrors.phone = ("merchant.register.phoneRequired");
@@ -68,11 +72,32 @@ const MerchantRegister = () => {
     }
     if (!formData.dob.trim()) {
       newErrors.dob = ("merchant.register.dobRequired");
+    } else {
+    
+      const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dobRegex.test(formData.dob)) {
+        newErrors.dob = ("merchant.register.dobFormat");
+      } else {
+        const dobDate = new Date(formData.dob);
+        const today = new Date();
+        dobDate.setHours(0,0,0,0);
+        today.setHours(0,0,0,0);
+        if (dobDate >= today) {
+          newErrors.dob = ("merchant.register.dobPastOnly");
+        }
+      }
     }
     if (!formData.password.trim()) {
       newErrors.password = ("merchant.register.passwordRequired");
     } else if (formData.password.length < 8) {
       newErrors.password = ("merchant.register.passwordMin");
+    } else {
+      // Require at least one number and one symbol
+      const numberRegex = /[0-9]/;
+      const symbolRegex = /[^A-Za-z0-9]/;
+      if (!numberRegex.test(formData.password) || !symbolRegex.test(formData.password)) {
+        newErrors.password = ("merchant.register.passwordRegex");
+      }
     }
     if (!formData.confirm_password.trim()) {
       newErrors.confirm_password = ("merchant.register.confirmPasswordRequired");
@@ -209,7 +234,7 @@ const MerchantRegister = () => {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
-                    type="email"
+                    type="text"
                     placeholder={t("merchant.register.emailPlaceholder")}
                     value={formData.email}
                     onChange={e => handleInputChange('email', e.target.value)}
@@ -252,6 +277,9 @@ const MerchantRegister = () => {
                       value={formData.dob}
                       onChange={e => handleInputChange('dob', e.target.value)}
                       className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                                        
+                      inputMode="numeric"
+                    
                     />
                   </div>
                   {errors.dob && (
