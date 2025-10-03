@@ -49,7 +49,6 @@ interface KYCStatusResponse {
         disabled_reason: string | null;
         errors: any[];
         eventually_due: string[];
-        past_due: string[];
         pending_verification: string[];
       };
     };
@@ -60,7 +59,7 @@ interface KYCStatusResponse {
 
 const MerchantDashboard = () => {
   const { language, setLanguage, t } = useTranslation();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -70,11 +69,13 @@ const MerchantDashboard = () => {
   const [kycDialogOpen, setKycDialogOpen] = useState(false);
 
   const merchantData = {
-    name: "John Doe",
-    companyName: "TechCorp Solutions",
-    email: "john@techcorp.com",
-    phone: "+971 50 123 4567",
-    joinDate: "2024-01-15"
+    name: `${user?.first_name ?? ''} ${user?.last_name ?? ''}`
+      .toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase()),
+    companyName: user?.organization_name,
+    email: user?.email,
+    phone: user?.phone,
+    companyType: user?.category,
+    joinDate: user?.joined_at
   };
 
   const stats = {
@@ -113,8 +114,7 @@ const MerchantDashboard = () => {
         } 
         else if (data.status === "error" || 
                 (data.data.account_info && 
-                 (data.data.account_info.requirements?.currently_due.length > 0 || 
-                  data.data.account_info.requirements?.past_due.length > 0))) {
+                 (data.data.account_info.requirements?.currently_due.length > 0))) {
           setKycStatus("pending");
         } 
         // Default to pending if we have onboarding data but no clear status
@@ -178,7 +178,7 @@ const MerchantDashboard = () => {
       case "approved": return 100;
       case "not_started": return 0;
       case "rejected": return 25;
-      default: return 75; // pending
+      default: return 50;
     }
   };
 
@@ -188,7 +188,6 @@ const MerchantDashboard = () => {
     const requirements = kycData.data.account_info.requirements;
     return [
       ...requirements.currently_due,
-      ...requirements.past_due,
       ...requirements.eventually_due,
       ...requirements.pending_verification
     ];
@@ -255,7 +254,7 @@ const MerchantDashboard = () => {
                 </p>
                 {hasRequirements && (
                   <p className="text-sm text-warning mt-1">
-                    {requirements.length} requirement(s) pending
+                    Requirements Pending
                   </p>
                 )}
               </div>
@@ -273,63 +272,51 @@ const MerchantDashboard = () => {
                     <DialogHeader>
                       <DialogTitle>Verification Requirements</DialogTitle>
                       <div className="text-sm text-muted-foreground mt-2">
-                        {kycData?.data?.account_info?.requirements?.disabled_reason 
-                          ? kycData.data.account_info.requirements.disabled_reason
-                          : "Please provide the following information to complete your verification."
-                        }
+                        Please provide the following information to complete your verification. If added, please wait for sometime.
                       </div>
                     </DialogHeader>
                     <div className="space-y-4">
                       {/* API Error Message */}
-                      {kycData?.message && kycData.status === "error" && (
+                      {kycData?.status === "error" && (kycData.message || kycData.data?.message) && (
                         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
                           <div className="flex items-center space-x-2 text-destructive">
                             <AlertCircle className="w-4 h-4" />
                             <span className="font-medium">Action Required</span>
                           </div>
                           <p className="text-sm mt-1 text-destructive">
-                            {Array.isArray(kycData.message) 
+                            {Array.isArray(kycData.message)
                               ? kycData.message.join(", ")
-                              : kycData.message
-                            }
+                              : kycData.message || kycData.data?.message}
                           </p>
                         </div>
                       )}
-                      
-                      {/* Requirements List */}
-                      {hasRequirements && (
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-foreground">Pending Requirements:</h4>
-                          <ul className="space-y-2">
-                            {requirements.map((requirement, index) => (
-                              <li key={index} className="flex items-center space-x-2 text-sm">
-                                <div className="w-2 h-2 bg-warning rounded-full"></div>
-                                <span className="text-muted-foreground">{requirement}</span>
-                              </li>
-                            ))}
-                          </ul>
+                      {kycData?.status === "success" && kycData.data?.message && (
+                        <div className="bg-yellow-100 border border-warning-300 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 text-warning-700">
+                            <AlertCircle className="w-4 h-4" />
+                            <span className="font-medium">KYC Update</span>
+                          </div>
+                          <p className="text-sm mt-1 text-warning-700">
+                            {kycData.data?.message}
+                          </p>
                         </div>
                       )}
-                      
-                      {/* Capabilities Status */}
-                      {kycData?.data?.account_info?.capabilities && (
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-foreground">Payment Capabilities:</h4>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            {Object.entries(kycData.data.account_info.capabilities).map(([key, value]) => (
-                              <div key={key} className="flex items-center justify-between">
-                                <span className="text-muted-foreground capitalize">
-                                  {key.replace('_', ' ')}:
-                                </span>
-                                <Badge variant={value === "active" ? "secondary" : "outline"}>
-                                  {value}
-                                </Badge>
-                              </div>
-                            ))}
+                      {kycData?.status === "success" && kycData.data?.account_info?.requirements && (
+                        <div className="bg-yellow-100 border border-warning-300 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 text-warning-700">
+                            <AlertCircle className="w-4 h-4" />
+                            <span className="font-medium">KYC Update</span>
                           </div>
+                          <p className="text-sm mt-1 text-warning-700">
+                            {kycData.data?.account_info?.requirements?.currently_due?.join(", ")}
+                            {kycData.data?.account_info?.requirements?.errors.length > 0 && (
+                              <p>{kycData.data?.account_info?.requirements?.errors[0]?.reason}</p>
+                            )}
+                          </p>
                         </div>
                       )}
                     </div>
+
                     <div className="flex justify-end space-x-2 pt-4">
                       <Button variant="outline" onClick={() => setKycDialogOpen(false)}>
                         Close
@@ -450,53 +437,7 @@ const MerchantDashboard = () => {
         </div>
 
         {/* KYC Status Alert */}
-        {/* {renderKYCAlert()} */}
-        {kycStatus === "pending" && (
-          <Card className="p-6 mb-8 bg-secondary/5 border-secondary/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <AlertCircle className="w-8 h-8 text-secondary" />
-                <div>
-                  <h3 className="font-semibold text-foreground">{t("dashboard.kycInProgress")}</h3>
-                  <p className="text-muted-foreground">
-                    {t("dashboard.kycInProgressDesc")}
-                   
-                    <br />
-                    <a
-                      href={`/${language}/merchant/kyc`}
-                      className="text-primary underline hover:text-primary/80 transition-colors"
-                    >
-                      Click here to update your KYC information
-                    </a>
-                  </p>
-                </div>
-              </div>
-              <Dialog open={kycDialogOpen} onOpenChange={setKycDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" onClick={() => { setKycData(sampleKycErrorMultiple); }}>
-                    <Eye className="w-4 h-4 mr-2" />
-                    {t("dashboard.viewDetails")}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Actions required</DialogTitle>
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {infoMessage}
-                    </div>
-                  </DialogHeader>
-                  <pre className="bg-muted p-4 rounded text-sm overflow-x-auto">
-                    {Array.isArray(kycData?.message)
-                      ? kycData.message.map((msg: string, idx: number) => (
-                          <div key={idx} className="mb-2 text-destructive">{msg}</div>
-                        ))
-                      : JSON.stringify(kycData, null, 2)}
-                  </pre>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </Card>
-        )}
+        {renderKYCAlert()}
 
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
@@ -663,11 +604,11 @@ const MerchantDashboard = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">{t("dashboard.company")}</p>
-                      <p className="font-medium text-foreground">{merchantData.companyName}</p>
+                      <p className="font-medium text-foreground">{merchantData.companyName || "N/A"}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">{t("dashboard.type")}</p>
-                      <p className="font-medium text-foreground">LLC</p>
+                      <p className="font-medium text-foreground">{merchantData.companyType  || "LLC"}</p>
                     </div>
                   </div>
                 </Card>
