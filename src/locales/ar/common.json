@@ -5,7 +5,8 @@
     "contact": "اتصل بنا",
     "login": "تسجيل الدخول",
     "getStarted": "ابدأ الآن",
-    "languageSwitch": "English"
+    "languageSwitch": "English",
+    "logout": "تسجيل الخروج"
   },
   "activateAccount": {
     "title": "تفعيل حسابك",

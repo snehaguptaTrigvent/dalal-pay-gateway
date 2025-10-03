@@ -22,7 +22,7 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
   const navigate = useNavigate();
   const handleLogout = async () => {
     const authData = localStorage.getItem("authData");
-    console.log("Logging out, authData:", authData);
+ 
     let refresh_token = "";
     try {
       if (authData) {
@@ -83,7 +83,7 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleLogout}>
-                  Logout
+                  {t("common.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
