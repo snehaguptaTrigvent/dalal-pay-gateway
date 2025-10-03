@@ -115,6 +115,16 @@ const MerchantRegister = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+     toast(
+        t("activateAccount.title"),
+          {
+            description: `${t("activateAccount.instructions")} ${t("activateAccount.checkSpam")}`,
+            duration: 10000,          
+            className: "text-lg font-semibold py-6 px-8 w-full max-w-lg rounded-xl shadow-2xl bg-success/95 text-success-foreground border-2 border-success/40 flex flex-col items-center justify-center text-center fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999]",
+            descriptionClassName: "text-base mt-2 text-success-foreground text-center",
+            style: { minHeight: 420, width: '100%', maxWidth: 480, fontSize: 18, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999 },
+          }
+        );
     if (!validateForm()) return;
     if (!acceptTerms || !acceptPrivacy) {
       console.log(t("merchant.register.pleaseAcceptTerms"));
@@ -140,17 +150,7 @@ const MerchantRegister = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-      toast(
-        t("activateAccount.title"),
-          {
-            description: `${t("activateAccount.instructions")} ${t("activateAccount.checkSpam")}`,
-            duration: 10000,
-            position: "top-center",
-            className: "text-lg font-semibold py-6 px-8 min-w-[340px] max-w-[90vw] rounded-xl shadow-2xl bg-success/95 text-success-foreground border-2 border-success/40",
-            descriptionClassName: "text-base mt-2 text-success-foreground",
-            style: { minHeight: 420, minWidth: 440, fontSize: 18, justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
-          }
-        );
+     
     } catch (error: any) {
       if (error.message.includes("already exists")) {
         toast(t("merchant.register.emailAlreadyUsed"), {
