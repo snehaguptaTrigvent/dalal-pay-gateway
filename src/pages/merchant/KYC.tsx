@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth"
 import kycEn from "@/locales/en/kyc.json";
 import kycAr from "@/locales/ar/kyc.json";
+import AfterLoginNav from "@/components/AfterLoginNav";
 
 const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 
@@ -683,30 +684,23 @@ const KYCOnboarding = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AfterLoginNav language={language} setLanguage={setLanguage} />
+
       {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3">
+            <Link to={`/${language}/merchant/dashboard`} className="flex items-center space-x-3">
               <ArrowLeft className="w-5 h-5" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  {language === "en" ? "Merchant Onboarding" : "تسجيل التاجر"}
+                 {t.kycHeaderTitle}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {language === "en" ? "Complete your KYC verification to start accepting payments" : "أكمل عملية التحقق من الهوية لبدء قبول الدفعات"}
-                </p>
+                    {t.kycHeaderDesc} </p>
               </div>
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleLanguage}
-              className="flex items-center space-x-2"
-            >
-              <Globe className="w-4 h-4" />
-              <span>{language === "en" ? "العربية" : "English"}</span>
-            </Button>
+        
           </div>
         </div>
       </div>

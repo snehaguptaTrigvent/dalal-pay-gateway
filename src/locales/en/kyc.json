@@ -1,3 +1,4 @@
+
 {
   "steps": [
     { "title": "Basic Information", "subtitle": "Account and business details" },
@@ -5,6 +6,8 @@
     { "title": "Banking Information", "subtitle": "Bank account for payouts" },
     { "title": "Verification", "subtitle": "Identity verification and terms" }
   ],
+  "kycHeaderTitle": "Merchant Onboarding",
+  "kycHeaderDesc": "Complete your KYC verification to start accepting payments",
   "previous": "Previous",
   "nextStep": "Next Step",
   "submit": "Submit Application",

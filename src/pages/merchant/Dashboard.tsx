@@ -1,3 +1,4 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,27 @@ const MerchantDashboard = () => {
     }
   };
 
+  // Sample KYC responses
+  const sampleKycResponse = {
+    status: "error",
+    message: `Provide an identity document for Rita Gupta`,
+    data: {}
+  };
+
+  // For demo: multiple error messages
+  const sampleKycErrorMultiple = {
+    status: "error",
+    message: [
+      "Request req_K0RIyddip6vFmW: Routing number must have 9 digits",
+      "Provide an industry"
+    ],
+    data: {}
+  };
+
+  const [kycDialogOpen, setKycDialogOpen] = useState(false);
+  const [kycData, setKycData] = useState<any>(null);
+  const infoMessage = "This account must provide valid data to avoid disruptions to capabilities.";
+
   return (
     <div className="min-h-screen bg-background">
       <AfterLoginNav language={language} setLanguage={setLanguage} />
@@ -105,13 +127,40 @@ const MerchantDashboard = () => {
                   <h3 className="font-semibold text-foreground">{t("dashboard.kycInProgress")}</h3>
                   <p className="text-muted-foreground">
                     {t("dashboard.kycInProgressDesc")}
+                   
+                    <br />
+                    <a
+                      href={`/${language}/merchant/kyc`}
+                      className="text-primary underline hover:text-primary/80 transition-colors"
+                    >
+                      Click here to update your KYC information
+                    </a>
                   </p>
                 </div>
               </div>
-              <Button variant="outline">
-                <Eye className="w-4 h-4 mr-2" />
-                {t("dashboard.viewDetails")}
-              </Button>
+              <Dialog open={kycDialogOpen} onOpenChange={setKycDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" onClick={() => { setKycData(sampleKycErrorMultiple); }}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    {t("dashboard.viewDetails")}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Actions required</DialogTitle>
+                    <div className="text-sm text-muted-foreground mt-2">
+                      {infoMessage}
+                    </div>
+                  </DialogHeader>
+                  <pre className="bg-muted p-4 rounded text-sm overflow-x-auto">
+                    {Array.isArray(kycData?.message)
+                      ? kycData.message.map((msg: string, idx: number) => (
+                          <div key={idx} className="mb-2 text-destructive">{msg}</div>
+                        ))
+                      : JSON.stringify(kycData, null, 2)}
+                  </pre>
+                </DialogContent>
+              </Dialog>
             </div>
           </Card>
         )}

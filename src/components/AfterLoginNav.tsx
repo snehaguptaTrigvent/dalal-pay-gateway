@@ -1,9 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Globe, Settings } from "lucide-react";
+import { Bell, Globe, Settings, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
 import dalalLogo from "@/assets/dalal-logo.png";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
+
 interface AfterLoginNavProps {
   language: string;
   setLanguage: (lang: string) => void;
@@ -29,9 +36,7 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
             <Badge variant="secondary">{t("dashboard.dashboard")}</Badge>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
-              <Bell className="w-4 h-4" />
-            </Button>
+         
             <Button
               variant="ghost"
               size="sm"
@@ -40,10 +45,25 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
               <Globe className="w-4 h-4 mr-2" />
               {t("nav.languageSwitch")}
             </Button>
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              {t("dashboard.settings")}
+               <Button variant="ghost" size="sm">
+              <Bell className="w-4 h-4" />
             </Button>
+            <Button variant="ghost" size="sm">
+              <Settings className="w-4 h-4 mr-2" />
+             
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="rounded-full p-0 w-8 h-8">
+                  <User className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => {/* TODO: Add logout logic here */}}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
