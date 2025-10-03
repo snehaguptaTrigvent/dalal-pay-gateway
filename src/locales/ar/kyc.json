@@ -74,6 +74,8 @@
     "accountNumberRequired": "رقم الحساب مطلوب",
     "routingNumberRequired": "رقم التوجيه مطلوب",
     "accountHolderRequired": "اسم صاحب الحساب مطلوب",
-    "documentRequired": "وثيقة الهوية مطلوبة"
+    "documentRequired": "وثيقة الهوية مطلوبة",
+    "industryTypeRequired": "نوع الصناعة مطلوب",
+    "statementInvalidChars": "وصف البيان يحتوي على أحرف غير صالحة"
   }
 }

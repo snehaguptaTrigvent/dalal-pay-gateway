@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,16 +21,54 @@ import {
   Eye,
   Download,
   Globe,
-  Bell
+  Bell,
+  ArrowRight,
+  ExternalLink
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import AfterLoginNav from "@/components/AfterLoginNav";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+
+const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
+
+interface KYCStatusResponse {
+  status: "success" | "error";
+  message: string;
+  data: {
+    account_info?: {
+      charges_enabled: boolean;
+      payouts_enabled: boolean;
+      details_submitted: boolean;
+      capabilities: Record<string, string>;
+      requirements: {
+        alternatives: any[];
+        current_deadline: string | null;
+        currently_due: string[];
+        disabled_reason: string | null;
+        errors: any[];
+        eventually_due: string[];
+        past_due: string[];
+        pending_verification: string[];
+      };
+    };
+    account_status?: string;
+    onboarding_data?: boolean;
+  };
+}
 
 const MerchantDashboard = () => {
   const { language, setLanguage, t } = useTranslation();
+  const { token } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Mock data
-  const kycStatus = "pending" as "pending" | "approved" | "rejected";
+  const [kycStatus, setKycStatus] = useState<"pending" | "approved" | "rejected" | "not_started">("not_started");
+  const [kycData, setKycData] = useState<KYCStatusResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [kycDialogOpen, setKycDialogOpen] = useState(false);
+
   const merchantData = {
     name: "John Doe",
     companyName: "TechCorp Solutions",
@@ -52,6 +90,55 @@ const MerchantDashboard = () => {
     { id: "TX003", amount: 500.00, status: "completed", date: "2024-01-15 12:20" },
   ];
 
+  useEffect(() => {
+    const fetchKYCStatus = async () => {
+      if (!token) return;
+      
+      setLoading(true);
+      try {
+        const response = await fetch(`${DALAL_API_BASE_URL}/merchant-onboarding/initiate/`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        const data: KYCStatusResponse = await response.json();
+        setKycData(data);
+        
+        if (data.data.onboarding_data === false) {
+          setKycStatus("not_started");
+        } 
+        else if (data.status === "success" && data.data.account_status === "Active") {
+          setKycStatus("approved");
+        } 
+        else if (data.status === "error" || 
+                (data.data.account_info && 
+                 (data.data.account_info.requirements?.currently_due.length > 0 || 
+                  data.data.account_info.requirements?.past_due.length > 0))) {
+          setKycStatus("pending");
+        } 
+        // Default to pending if we have onboarding data but no clear status
+        else if (data.data.onboarding_data === true) {
+          setKycStatus("pending");
+        }
+        // Fallback
+        else {
+          setKycStatus("not_started");
+        }
+      } catch (error) {
+        console.error("Failed to fetch KYC status:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load KYC status",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKYCStatus();
+  }, [token, toast]);
 
   const getKycStatusBadge = () => {
     switch (kycStatus) {
@@ -59,46 +146,291 @@ const MerchantDashboard = () => {
         return (
           <Badge className="bg-success/10 text-success border-success/20">
             <CheckCircle className="w-4 h-4 mr-2" />
-              {t("dashboard.kycApproved")}
+            {t("dashboard.kycApproved")}
           </Badge>
         );
       case "rejected":
         return (
           <Badge className="bg-destructive/10 text-destructive border-destructive/20">
             <XCircle className="w-4 h-4 mr-2" />
-              {t("dashboard.kycRejected")}
+            {t("dashboard.kycRejected")}
+          </Badge>
+        );
+      case "not_started":
+        return (
+          <Badge className="bg-muted/10 text-muted-foreground border-muted/20">
+            <Clock className="w-4 h-4 mr-2" />
+            {t("dashboard.kycNotStarted")}
           </Badge>
         );
       default:
         return (
-          <Badge className="bg-secondary/10 text-secondary border-secondary/20">
-            <Clock className="w-4 h-4 mr-2" />
-              {t("dashboard.kycPending")}
+          <Badge className="bg-warning/10 text-warning border-warning/20">
+            <AlertCircle className="w-4 h-4 mr-2" />
+            {t("dashboard.kycPending")}
           </Badge>
         );
     }
   };
 
-  // Sample KYC responses
-  const sampleKycResponse = {
-    status: "error",
-    message: `Provide an identity document for Rita Gupta`,
-    data: {}
+  const getKycProgressValue = () => {
+    switch (kycStatus) {
+      case "approved": return 100;
+      case "not_started": return 0;
+      case "rejected": return 25;
+      default: return 75; // pending
+    }
   };
 
-  // For demo: multiple error messages
-  const sampleKycErrorMultiple = {
-    status: "error",
-    message: [
-      "Request req_K0RIyddip6vFmW: Routing number must have 9 digits",
-      "Provide an industry"
-    ],
-    data: {}
+  const getRequirementsList = () => {
+    if (!kycData?.data?.account_info?.requirements) return [];
+    
+    const requirements = kycData.data.account_info.requirements;
+    return [
+      ...requirements.currently_due,
+      ...requirements.past_due,
+      ...requirements.eventually_due,
+      ...requirements.pending_verification
+    ];
   };
 
-  const [kycDialogOpen, setKycDialogOpen] = useState(false);
-  const [kycData, setKycData] = useState<any>(null);
-  const infoMessage = "This account must provide valid data to avoid disruptions to capabilities.";
+  const handleStartOnboarding = () => {
+    navigate(`/${language}/merchant/kyc`);
+  };
+
+  const renderKYCAlert = () => {
+    if (loading) {
+      return (
+        <Card className="p-6 mb-8 bg-secondary/5 border-secondary/20">
+          <div className="flex items-center space-x-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary"></div>
+            <div>
+              <h3 className="font-semibold text-foreground">Loading KYC Status...</h3>
+              <p className="text-muted-foreground">Checking your verification status</p>
+            </div>
+          </div>
+        </Card>
+      );
+    }
+
+    // Show "Start Onboarding" only when onboarding_data is false
+    if (kycData?.data?.onboarding_data === false) {
+      return (
+        <Card className="p-6 mb-8 bg-secondary/5 border-secondary/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <AlertCircle className="w-8 h-8 text-secondary" />
+              <div>
+                <h3 className="font-semibold text-foreground">KYC Verification Required</h3>
+                <p className="text-muted-foreground">
+                  You need to complete KYC verification to start accepting payments.
+                </p>
+              </div>
+            </div>
+            <Button onClick={handleStartOnboarding}>
+              Start Onboarding
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </Card>
+      );
+    }
+
+    if (kycStatus === "pending") {
+      const requirements = getRequirementsList();
+      const hasRequirements = requirements.length > 0;
+      
+      return (
+        <Card className="p-6 mb-8 bg-warning/5 border-warning/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <AlertCircle className="w-8 h-8 text-warning" />
+              <div>
+                <h3 className="font-semibold text-foreground">KYC Verification In Progress</h3>
+                <p className="text-muted-foreground">
+                  {hasRequirements 
+                    ? "Additional information required to complete your verification."
+                    : "Your verification is being processed. We'll notify you once completed."
+                  }
+                </p>
+                {hasRequirements && (
+                  <p className="text-sm text-warning mt-1">
+                    {requirements.length} requirement(s) pending
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              {(hasRequirements || kycData?.message) && (
+                <Dialog open={kycDialogOpen} onOpenChange={setKycDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Verification Requirements</DialogTitle>
+                      <div className="text-sm text-muted-foreground mt-2">
+                        {kycData?.data?.account_info?.requirements?.disabled_reason 
+                          ? kycData.data.account_info.requirements.disabled_reason
+                          : "Please provide the following information to complete your verification."
+                        }
+                      </div>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* API Error Message */}
+                      {kycData?.message && kycData.status === "error" && (
+                        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 text-destructive">
+                            <AlertCircle className="w-4 h-4" />
+                            <span className="font-medium">Action Required</span>
+                          </div>
+                          <p className="text-sm mt-1 text-destructive">
+                            {Array.isArray(kycData.message) 
+                              ? kycData.message.join(", ")
+                              : kycData.message
+                            }
+                          </p>
+                        </div>
+                      )}
+                      
+                      {/* Requirements List */}
+                      {hasRequirements && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-foreground">Pending Requirements:</h4>
+                          <ul className="space-y-2">
+                            {requirements.map((requirement, index) => (
+                              <li key={index} className="flex items-center space-x-2 text-sm">
+                                <div className="w-2 h-2 bg-warning rounded-full"></div>
+                                <span className="text-muted-foreground">{requirement}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Capabilities Status */}
+                      {kycData?.data?.account_info?.capabilities && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-foreground">Payment Capabilities:</h4>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {Object.entries(kycData.data.account_info.capabilities).map(([key, value]) => (
+                              <div key={key} className="flex items-center justify-between">
+                                <span className="text-muted-foreground capitalize">
+                                  {key.replace('_', ' ')}:
+                                </span>
+                                <Badge variant={value === "active" ? "secondary" : "outline"}>
+                                  {value}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-end space-x-2 pt-4">
+                      <Button variant="outline" onClick={() => setKycDialogOpen(false)}>
+                        Close
+                      </Button>
+                      <Button onClick={handleStartOnboarding}>
+                        Update Information
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+              <Button onClick={handleStartOnboarding} variant="default">
+                Update KYC
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      );
+    }
+
+    if (kycStatus === "approved") {
+      return (
+        <Card className="p-6 mb-8 bg-success/5 border-success/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <CheckCircle className="w-8 h-8 text-success" />
+              <div>
+                <h3 className="font-semibold text-foreground">KYC Verification Complete</h3>
+                <p className="text-muted-foreground">
+                  Your account is fully verified and ready to accept payments.
+                </p>
+              </div>
+            </div>
+            <Dialog open={kycDialogOpen} onOpenChange={setKycDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Status
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Verification Status</DialogTitle>
+                  <div className="text-sm text-muted-foreground mt-2">
+                    Your account is fully verified and all capabilities are active.
+                  </div>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {/* Account Status */}
+                  <div className="bg-success/10 border border-success/20 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 text-success">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="font-medium">Account Status: Active</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Charges:</span>
+                        <Badge className="ml-2 bg-success/20 text-success">
+                          {kycData?.data?.account_info?.charges_enabled ? "Enabled" : "Disabled"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Payouts:</span>
+                        <Badge className="ml-2 bg-success/20 text-success">
+                          {kycData?.data?.account_info?.payouts_enabled ? "Enabled" : "Disabled"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Capabilities */}
+                  {kycData?.data?.account_info?.capabilities && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-foreground">Active Capabilities:</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {Object.entries(kycData.data.account_info.capabilities)
+                          .filter(([_, value]) => value === "active")
+                          .map(([key, value]) => (
+                            <div key={key} className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-success" />
+                              <span className="text-muted-foreground capitalize">
+                                {key.replace('_', ' ')}
+                              </span>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </Card>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,6 +450,7 @@ const MerchantDashboard = () => {
         </div>
 
         {/* KYC Status Alert */}
+        {/* {renderKYCAlert()} */}
         {kycStatus === "pending" && (
           <Card className="p-6 mb-8 bg-secondary/5 border-secondary/20">
             <div className="flex items-center justify-between">
@@ -268,25 +601,26 @@ const MerchantDashboard = () => {
                   <h3 className="text-lg font-semibold text-foreground">{t("dashboard.kycStatus")}</h3>
                   {getKycStatusBadge()}
                 </div>
-                <Progress 
-                  value={
-                    kycStatus === "approved" ? 100 : 
-                    kycStatus === "pending" ? 75 : 
-                    25
-                  } 
-                  className="mb-4" 
-                />
+                <Progress value={getKycProgressValue()} className="mb-4" />
                 <p className="text-sm text-muted-foreground mb-4">
-                  {kycStatus === "pending" 
-                    ? t("dashboard.kycPendingDesc")
+                  {kycStatus === "not_started" 
+                    ? "Start the KYC process to enable payment processing"
+                    : kycStatus === "pending"
+                    ? "Your verification is in progress. Additional information may be required."
                     : kycStatus === "approved"
-                    ? t("dashboard.kycApprovedDesc")
-                    : t("dashboard.kycRejectedDesc")
+                    ? "Your account is fully verified and ready for transactions"
+                    : "Your verification requires attention. Please update your information."
                   }
                 </p>
-                <Button variant="outline" size="sm" className="w-full">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={handleStartOnboarding}
+                  disabled={loading}
+                >
                   <Eye className="w-4 h-4 mr-2" />
-                  {t("dashboard.viewDetails")}
+                  {kycStatus === "not_started" ? "Start KYC" : "View Details"}
                 </Button>
               </Card>
 
