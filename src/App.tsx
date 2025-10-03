@@ -36,8 +36,8 @@ const App = () => (
             <Route path="/en/merchant/register" element={<MerchantRegister />} />
             <Route path="/en/merchant/forgot-password" element={<MerchantForgotPassword />} />
             <Route path="/en/merchant/reset-password/:uid/:token" element={<MerchantResetPassword />} />
-            <Route path="/en/merchant/kyc" element={<KYCOnboarding />} />
-            <Route path="/en/merchant/dashboard" element={<MerchantDashboard />} />
+            <Route path="/en/merchant/kyc" element={<PrivateRoute><KYCOnboarding /></PrivateRoute>} />
+            <Route path="/en/merchant/dashboard" element={<PrivateRoute><MerchantDashboard /></PrivateRoute>} />
             {/* <Route path="/en/merchant/activate-account" element={<ActivateAccount />} /> */}
             <Route path="/en/merchant/verify-account" element={<AccountActivated />} />
             
@@ -48,7 +48,7 @@ const App = () => (
             <Route path="/ar/merchant/forgot-password" element={<MerchantForgotPassword />} />
             <Route path="/ar/merchant/reset-password/:uid/:token" element={<MerchantResetPassword />} />
             <Route path="/ar/merchant/kyc" element={<PrivateRoute><KYCOnboarding /></PrivateRoute>} />
-            <Route path="/ar/merchant/dashboard" element={<MerchantDashboard />} />
+            <Route path="/ar/merchant/dashboard" element={<PrivateRoute><MerchantDashboard /></PrivateRoute>} />
             {/* <Route path="/ar/merchant/activate-account" element={<ActivateAccount />} /> */}
             <Route path="/ar/merchant/verify-account" element={<AccountActivated />} />
             
@@ -57,8 +57,8 @@ const App = () => (
             <Route path="/merchant/register" element={<Navigate to="/en/merchant/register" replace />} />
             <Route path="/merchant/forgot-password" element={<Navigate to="/en/merchant/forgot-password" replace />} />
             <Route path="/merchant/reset-password/:uid/:token" element={<Navigate to="/en/merchant/reset-password/:token" replace />} />
-            <Route path="/merchant/kyc" element={<Navigate to="/en/merchant/kyc" replace />} />
-            <Route path="/merchant/dashboard" element={<Navigate to="/en/merchant/dashboard" replace />} />
+            <Route path="/merchant/kyc" element={<PrivateRoute><Navigate to="/en/merchant/kyc" replace /></PrivateRoute>} />
+            <Route path="/merchant/dashboard" element={<PrivateRoute><Navigate to="/en/merchant/dashboard" replace /></PrivateRoute>} />
             {/* <Route path="/merchant/activate-account" element={<Navigate to="/en/merchant/activate-account" replace />} /> */}
             <Route path="/merchant/verify-account" element={<Navigate to="/en/merchant/account-activated" replace />} />
             
