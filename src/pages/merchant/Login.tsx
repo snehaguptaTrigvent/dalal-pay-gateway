@@ -93,9 +93,9 @@ const MerchantLogin = () => {
 
   return (
     <>
-    <div className="relative min-h-screen">
+  <div className="relative min-h-screen overflow-hidden" style={{overflow: 'hidden', height: '100vh'}}>
       <MerchantLoginNavigation />
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 py-20">
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 py-20 overflow-hidden">
         <div className="w-full max-w-md">
           <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0">
             {/* Header */}

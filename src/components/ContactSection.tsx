@@ -183,7 +183,9 @@ const ContactSection = () => {
               <Button variant="secondary" size="lg" className="bg-background text-foreground hover:bg-background/90">
                 {t('contact.startToday')}
               </Button>
-              <Button variant="outline" size="lg" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+          
+              <Button variant="outline" className=" justify-start text-foreground" size="lg">
+                <Headphones className="mr-3 w-5 h-5" />
                 {t('contact.talkToExpert')}
               </Button>
             </div>

@@ -1,3 +1,4 @@
+         
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
   Phone, XCircle
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/sonner";
 
 
@@ -113,19 +115,11 @@ const MerchantRegister = () => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  const [showActivationModal, setShowActivationModal] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-     toast(
-        t("activateAccount.title"),
-          {
-            description: `${t("activateAccount.instructions")} ${t("activateAccount.checkSpam")}`,
-            duration: 10000,          
-            className: "text-lg font-semibold py-6 px-8 w-full max-w-lg rounded-xl shadow-2xl bg-success/95 text-success-foreground border-2 border-success/40 flex flex-col items-center justify-center text-center fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999]",
-            descriptionClassName: "text-base mt-2 text-success-foreground text-center",
-            style: { minHeight: 420, width: '100%', maxWidth: 480, fontSize: 18, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999 },
-          }
-        );
-    if (!validateForm()) return;
+    setShowActivationModal(true);
+  if (!validateForm()) return;
     if (!acceptTerms || !acceptPrivacy) {
       console.log(t("merchant.register.pleaseAcceptTerms"));
       return;
@@ -190,12 +184,22 @@ const MerchantRegister = () => {
   };
 
   return (
-    <div className="relative min-h-screen">
+  <div className="relative min-h-screen" style={{ overflow: 'hidden' }}>
       <MerchantLoginNavigation />
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 py-20">
-        <div className="w-full max-w-lg">
-         
-          <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0">
+        <Dialog open={showActivationModal} onOpenChange={(open) => { setShowActivationModal(open); if (!open) navigate('/merchant/login'); }}>
+          <DialogContent className="bg-white text-black text-lg font-semibold py-6 px-8 w-full max-w-lg rounded-xl shadow-2xl border-2 border-white flex flex-col items-center justify-center text-center">
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-l mb-2">{t("activateAccount.title")}</h2>
+              <p className="text-base mt-2 text-gray-500 text-center">
+                {t("activateAccount.instructions")}<br />{t("activateAccount.checkSpam")}
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        <div className="w-full max-w-xl">         
+          <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0 max-h-[80vh] overflow-y-auto">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="w-8 h-8 text-primary" />
@@ -208,42 +212,43 @@ const MerchantRegister = () => {
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Full Name */}
-              <div>
-                <label className="text-foreground font-medium">
-                  {t("merchant.register.fullNameLabel")}
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    placeholder={t("merchant.register.fullNamePlaceholder")}
-                    value={formData.full_name}
-                    onChange={e => handleInputChange('full_name', e.target.value)}
-                    className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                  />
+              {/* Full Name & Email in one row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-foreground font-medium">
+                    {t("merchant.register.fullNameLabel")}
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      placeholder={t("merchant.register.fullNamePlaceholder")}
+                      value={formData.full_name}
+                      onChange={e => handleInputChange('full_name', e.target.value)}
+                      className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                    />
+                  </div>
+                  {errors.full_name && (
+                    <p className="text-sm text-destructive mt-1">{t(errors.full_name)}</p>
+                  )}
                 </div>
-                {errors.full_name && (
-                  <p className="text-sm text-destructive mt-1">{t(errors.full_name)}</p>
-                )}
-              </div>
-              {/* Email */}
-              <div>
-                <label className="text-foreground font-medium">
-                  {t("merchant.register.emailLabel")}
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder={t("merchant.register.emailPlaceholder")}
-                    value={formData.email}
-                    onChange={e => handleInputChange('email', e.target.value)}
-                    className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
-                  />
+                <div>
+                  <label className="text-foreground font-medium">
+                    {t("merchant.register.emailLabel")}
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder={t("merchant.register.emailPlaceholder")}
+                      value={formData.email}
+                      onChange={e => handleInputChange('email', e.target.value)}
+                      className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-sm text-destructive mt-1">{t(errors.email)}</p>
+                  )}
                 </div>
-                {errors.email && (
-                  <p className="text-sm text-destructive mt-1">{t(errors.email)}</p>
-                )}
               </div>
               {/* Phone and DOB */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -384,11 +389,13 @@ const MerchantRegister = () => {
                 </div>
               </div>
               {/* Submit Button */}
+                <div className="flex justify-center">
               <Button
                 type="submit"
                 variant="gradient"
                 size="lg"
-                className="w-full"
+                    className="w-3/4 mx-auto"
+                    
                 disabled={!acceptTerms || !acceptPrivacy || isLoading}
               >
                 {isLoading ? (
@@ -403,6 +410,7 @@ const MerchantRegister = () => {
                   </>
                 )}
               </Button>
+              </div>
             </form>
             {/* Divider */}
             <div className="my-8">
