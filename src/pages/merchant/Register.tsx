@@ -118,7 +118,7 @@ const MerchantRegister = () => {
   const [showActivationModal, setShowActivationModal] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowActivationModal(true);
+   
   if (!validateForm()) return;
     if (!acceptTerms || !acceptPrivacy) {
       console.log(t("merchant.register.pleaseAcceptTerms"));
@@ -144,6 +144,7 @@ const MerchantRegister = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
+       setShowActivationModal(true);
      
     } catch (error: any) {
       if (error.message.includes("already exists")) {
@@ -199,7 +200,7 @@ const MerchantRegister = () => {
         </Dialog>
         
         <div className="w-full max-w-xl">         
-          <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0 max-h-[80vh] overflow-y-auto">
+          <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0 max-h-[75vh] overflow-y-auto">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="w-8 h-8 text-primary" />
