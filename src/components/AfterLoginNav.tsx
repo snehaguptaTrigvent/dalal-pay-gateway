@@ -1,7 +1,8 @@
+const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Globe, Settings, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
 import dalalLogo from "@/assets/dalal-logo.png";
 import {
@@ -18,7 +19,29 @@ interface AfterLoginNavProps {
 
 const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
   const { t } = useTranslation();
-  
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    const authData = localStorage.getItem("authData");
+    console.log("Logging out, authData:", authData);
+    let refresh_token = "";
+    try {
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        refresh_token = parsed.refresh || "";
+      }
+      if (refresh_token) {
+       await fetch(`${DALAL_API_BASE_URL}/accounts/logout/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token })
+        });
+      }
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+    localStorage.removeItem("authData");
+    navigate(`/${language}/merchant/login`);
+  };
   return (
     <div className="bg-card border-b border-border">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -59,7 +82,7 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => {/* TODO: Add logout logic here */}}>
+                <DropdownMenuItem onClick={handleLogout}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -169,22 +169,8 @@ const MerchantLogin = () => {
                 )}
                 </div>
               </div>
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="rememberMe"
-                    checked={formData.rememberMe}
-                    onCheckedChange={(checked) => 
-                      setFormData({...formData, rememberMe: checked as boolean})}
-                  />
-                  <Label 
-                    htmlFor="rememberMe" 
-                    className="text-sm text-muted-foreground cursor-pointer"
-                  >
-                    {t("merchant.login.rememberMe")}
-                  </Label>
-                </div>
+             
+              <div className="flex items-center justify-end">
                 <Link
                   to={`/${language}/merchant/forgot-password`}
                   className="text-sm text-primary hover:underline"
