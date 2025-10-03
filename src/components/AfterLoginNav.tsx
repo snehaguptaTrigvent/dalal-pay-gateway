@@ -30,10 +30,10 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
         refresh_token = parsed.refresh || "";
       }
       if (refresh_token) {
-       await fetch(`${DALAL_API_BASE_URL}/accounts/logout/`, {
+        await fetch(`${DALAL_API_BASE_URL}/accounts/logout/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refresh_token })
+          body: JSON.stringify({ refresh_token: refresh_token })
         });
       }
     } catch (err) {
