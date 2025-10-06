@@ -813,15 +813,7 @@ const KYCOnboarding = () => {
                     {t.kycHeaderDesc} </p>
               </div>
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleLanguage}
-              className="flex items-center space-x-2"
-            >
-              <Globe className="w-4 h-4" />
-              <span>{language === "en" ? "العربية" : "English"}</span>
-            </Button>
+           
           </div>
         </div>
       </div>

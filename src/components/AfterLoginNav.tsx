@@ -83,7 +83,7 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleLogout}>
-                  {t("common.logout")}
+                  {t("nav.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

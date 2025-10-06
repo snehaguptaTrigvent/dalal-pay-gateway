@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import MerchantLoginNavigation from '@/components/MerchantLoginNavigation';
-import { Lock, ArrowRight, Shield, Building } from "lucide-react";
+import { Lock, ArrowRight, Shield, Building, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -14,6 +14,8 @@ const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
 
 const MerchantResetPassword = () => {
   const [formData, setFormData] = useState({ password: "", confirmPassword: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -24,14 +26,21 @@ const MerchantResetPassword = () => {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.password.trim()) {
-      newErrors.password = "merchant.reset.passwordRequired";
+      newErrors.password = "merchant.register.passwordRequired";
     } else if (formData.password.length < 8) {
-      newErrors.password = "merchant.reset.passwordMin";
+      newErrors.password = "merchant.register.passwordMin";
+    } else {
+      // Require at least one number and one symbol
+      const numberRegex = /[0-9]/;
+      const symbolRegex = /[^A-Za-z0-9]/;
+      if (!numberRegex.test(formData.password) || !symbolRegex.test(formData.password)) {
+        newErrors.password = "merchant.register.passwordRegex";
+      }
     }
     if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = "merchant.reset.confirmPasswordRequired";
+      newErrors.confirmPassword = "merchant.register.confirmPasswordRequired";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "merchant.reset.passwordMatch";
+      newErrors.confirmPassword = "merchant.register.passwordMatch";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -109,12 +118,25 @@ const MerchantResetPassword = () => {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder={t("merchant.reset.passwordPlaceholder")}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                    className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </Button>
                 </div>
                 {errors.password && (
                   <p className="text-sm text-destructive mt-1">{t(errors.password)}</p>
@@ -129,12 +151,25 @@ const MerchantResetPassword = () => {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder={t("merchant.reset.confirmPasswordPlaceholder")}
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="pl-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                    className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </Button>
                 </div>
                 {errors.confirmPassword && (
                   <p className="text-sm text-destructive mt-1">{t(errors.confirmPassword)}</p>

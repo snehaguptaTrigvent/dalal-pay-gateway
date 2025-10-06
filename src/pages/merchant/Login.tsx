@@ -80,11 +80,19 @@ const MerchantLogin = () => {
         navigate(`/${language}/merchant/dashboard`);
       }, 1500);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("merchant.login.loginFailed"),
-        description: error.message ? t("merchant.login.invalidCredentials") : t("merchant.login.loginError")
-      });
+      if (error.message.includes("deactivated")){
+        toast({
+          variant: "destructive",
+          title: t("merchant.login.loginFailed"),
+          description: t("merchant.login.accountNotVerified")
+        });
+      }else{
+        toast({
+          variant: "destructive",
+          title: t("merchant.login.loginFailed"),
+          description: error.message ? t("merchant.login.invalidCredentials") : t("merchant.login.loginError")
+        });
+      }
     } finally {
       setIsLoading(false);
     }
