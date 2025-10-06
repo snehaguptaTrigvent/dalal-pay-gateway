@@ -504,7 +504,7 @@ const KYCOnboarding = () => {
               id="industry_type"
               value={formData.industry_type}
               onChange={(e) => handleInputChange('industry_type', e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none"
+              className="w-full px-3 pr-10 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none truncate"
               required
             >
               <option value="">{t("kyc.selectIndustry")}</option>
