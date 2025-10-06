@@ -840,9 +840,15 @@ const KYCOnboarding = () => {
 
       {/* Progress Bar */}
       <div className="border-b border-border bg-card">
+<<<<<<< Updated upstream
         <div className="container max-w-5xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             {stepsTexts.map((step, index) => (
+=======
+        <div className="container max-w-5xl mx-auto px-6 py-4 ">
+          <div className="flex flex-col md:flex-row md:items-center items-start justify-between gap-6 md:gap-0 ">
+            {t.steps.map((step, index) => (
+>>>>>>> Stashed changes
               <div
                 key={index}
                 className={`flex items-center ${
@@ -895,7 +901,7 @@ const KYCOnboarding = () => {
           {getCurrentStepComponent()}
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-border">
+          <div className="flex flex-col md:flex-row justify-between mt-8 pt-6 border-t border-border gap-4 md:gap-0">
             <Button
               variant="outline"
               onClick={handleBack}

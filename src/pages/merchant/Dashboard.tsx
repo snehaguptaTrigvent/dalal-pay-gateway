@@ -217,7 +217,7 @@ const MerchantDashboard = () => {
     if (kycData?.data?.onboarding_data === false) {
       return (
         <Card className="p-6 mb-8 bg-secondary/5 border-secondary/20">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
             <div className="flex items-center space-x-4">
               <AlertCircle className="w-8 h-8 text-secondary" />
               <div>

@@ -105,8 +105,8 @@ const MerchantLogin = () => {
         <MerchantLoginNavigation />
         <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 py-20 overflow-hidden">
           <div className="w-full max-w-md">
-            <Card className="shadow-strong bg-card/95 backdrop-blur-sm border-0 xl:h-[75vh] overflow-hidden">
-              <div className="p-8 overflow-y-auto max-h-[75vh]">
+            <Card className="shadow-strong bg-card/95 backdrop-blur-sm border-0 xl:h-[83vh] overflow-hidden">
+              <div className="p-8 overflow-y-auto max-h-[83vh]">
                 {/* Header */}
                 <div className="text-center mb-8">
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
