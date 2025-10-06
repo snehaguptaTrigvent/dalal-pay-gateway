@@ -61,12 +61,41 @@ interface IndustryType {
   name: string;
 }
 
+interface OnboardingData {
+  id: number;
+  business_email: string;
+  website_url: string;
+  statement_descriptor: string;
+  mcc: number;
+  social_security_num: string;
+  address: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  bank_details: {
+    account_holder_name: string;
+    account_number: string;
+    routing_number: string;
+  };
+  documents: Array<{
+    document_name: string;
+    document_url: string;
+  }>;
+  stripe_status: {
+    stripe_account_id: string | null;
+    is_active: boolean;
+    message: string;
+  };
+}
+
 const KYCOnboarding = () => {
   // State and hooks
   const [currentStep, setCurrentStep] = useState(1);
   const { token, user, isAuthenticated } = useAuth();
   const [industryTypes, setIndustryTypes] = useState<IndustryType[]>([]);
   const [loadingIndustries, setLoadingIndustries] = useState(false);
+  const [existingData, setExistingData] = useState<OnboardingData | null>(null);
+  const [loadingExistingData, setLoadingExistingData] = useState(true);
 
   const [formData, setFormData] = useState<FormData>({
     // Step 1: Basic Information
@@ -108,6 +137,53 @@ const KYCOnboarding = () => {
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [touched, setTouched] = useState<{[key: string]: boolean}>({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchExistingData = async () => {
+      if (!token) return;      
+      setLoadingExistingData(true);
+      try {
+        const response = await fetch(`${DALAL_API_BASE_URL}/merchant-onboarding/`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status === 'success' && result.data && Object.keys(result.data).length > 0) {
+            setExistingData(result.data);
+            prefilleFormData(result.data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch existing onboarding data:", error);
+      } finally {
+        setLoadingExistingData(false);
+      }
+    };
+
+    fetchExistingData();
+  }, [token]);
+
+  const prefilleFormData = (data: OnboardingData) => {
+    setFormData(prev => ({
+      ...prev,
+      email: data.business_email || "",
+      business_profile_url: data.website_url || "",
+      statement_descriptor: data.statement_descriptor || "",
+      industry_type: data.mcc ? data.mcc.toString() : "",
+
+      individual_id_number: data.social_security_num || "",
+      individual_address_line1: data.address || "",
+      individual_address_city: data.city || "",
+      individual_address_state: data.state || "",
+      individual_address_postal_code: data.postal_code || "",
+
+      external_account_account_holder_name: data.bank_details?.account_holder_name || "",
+      external_account_account_number: data.bank_details?.account_number || "",
+      external_account_routing_number: data.bank_details?.routing_number || "",
+    }));
+  };
 
   useEffect(() => {
     const fetchIndustryTypes = async () => {
@@ -188,7 +264,11 @@ const KYCOnboarding = () => {
             newErrors.business_profile_url = "validation.urlInvalid";
           }
         }
-        if (!formData.statement_descriptor.trim()) newErrors.statement_descriptor = "validation.statementRequired";
+        if (!formData.statement_descriptor.trim()) {
+          newErrors.statement_descriptor = "validation.statementRequired";
+        } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.statement_descriptor)) {
+          newErrors.statement_descriptor = "validation.statementInvalidChars";
+        }
         if (!formData.industry_type) newErrors.industry_type = "validation.industryTypeRequired";
         break;
 
@@ -207,7 +287,9 @@ const KYCOnboarding = () => {
         break;
         
       case 4:
-        if (!formData.individual_verification_document_front) newErrors.individual_verification_document_front = "validation.documentRequired";
+        if (!formData.individual_verification_document_front &&  (!existingData?.documents || existingData.documents.length === 0)) {
+          newErrors.individual_verification_document_front = "validation.documentRequired";
+        }
         break;
     }
     
@@ -267,8 +349,9 @@ const KYCOnboarding = () => {
       }
       
       try {
+        const method = existingData ? "PUT" : "POST";
         const response = await fetch(`${DALAL_API_BASE_URL}/merchant-onboarding/`, {
-          method: "POST",
+          method: method,
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -291,7 +374,13 @@ const KYCOnboarding = () => {
         }
         toast({
           title: language === "en" ? "Application Submitted Successfully" : "تم إرسال الطلب بنجاح",
-          description: language === "en" ? "Your application is under review. We'll notify you once approved." : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
+          description: language === "en"
+            ? existingData 
+              ? "Your application has been updated successfully!" 
+              : "Your application is under review. We'll notify you once approved."
+            : existingData
+              ? "تم تحديث طلبك بنجاح!"
+              : "طلبك قيد المراجعة. سنخبرك عند الموافقة."
         });
         setTimeout(() => {
           navigate("/merchant/dashboard");
@@ -308,13 +397,22 @@ const KYCOnboarding = () => {
     }
   };
 
-  // Already replaced with locale file loading above
-
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
+
+  if (loadingExistingData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading your application data...</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderBasicInfo = () => (
     <div className="space-y-6">
@@ -323,6 +421,11 @@ const KYCOnboarding = () => {
         <div>
           <h2 className="text-xl font-semibold text-foreground">{t.steps[0].title}</h2>
           <p className="text-sm text-muted-foreground">{t.steps[0].subtitle}</p>
+          {existingData && (
+            <p className="text-sm text-green-600 mt-1">
+              ✓ You have existing application data. You can update your information.
+            </p>
+          )}
         </div>
       </div>
 
@@ -633,6 +736,16 @@ const KYCOnboarding = () => {
                   ✓ {formData.individual_verification_document_front.name}
                 </p>
               )}
+              {existingData?.documents && existingData.documents.length > 0 && (
+                <>
+                  <p className="text-sm text-green-600 mt-2">
+                    ✓ You have already uploaded <b>{existingData.documents[0].document_name}</b> document
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    New upload will remove previously uploaded file
+                  </p>
+                </>
+              )}
             </div>
             {errors.individual_verification_document_front && (
               <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_verification_document_front.split('.').pop()] || errors.individual_verification_document_front}</p>
@@ -700,7 +813,15 @@ const KYCOnboarding = () => {
                     {t.kycHeaderDesc} </p>
               </div>
             </Link>
-        
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleLanguage}
+              className="flex items-center space-x-2"
+            >
+              <Globe className="w-4 h-4" />
+              <span>{language === "en" ? "العربية" : "English"}</span>
+            </Button>
           </div>
         </div>
       </div>
@@ -780,7 +901,11 @@ const KYCOnboarding = () => {
             >
               <span>
                 {currentStep === totalSteps 
-                  ? (submitting ? "Submitting..." : t.submit || "Submit Application")
+                  ? (submitting 
+                      ? "Submitting..." 
+                      : existingData 
+                        ? "Update Application" 
+                        : t.submit || "Submit Application")
                   : t.nextStep
                 }
               </span>

@@ -200,8 +200,9 @@ const MerchantRegister = () => {
         </Dialog>
         
         <div className="w-full max-w-xl">         
-          <Card className="p-8 shadow-strong bg-card/95 backdrop-blur-sm border-0 max-h-[75vh] overflow-y-auto">
-            <div className="text-center mb-8">
+          <Card className="shadow-strong bg-card/95 backdrop-blur-sm border-0 rounded-2xl max-h-[75vh] overflow-hidden">
+            <div className="p-8 overflow-y-auto pr-2 max-h-[75vh]">
+              <div className="text-center mb-8">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="w-8 h-8 text-primary" />
               </div>
@@ -435,6 +436,7 @@ const MerchantRegister = () => {
                   <span>{t("merchant.register.securityNote")}</span>
                 </div>
               </div>
+            </div>
             </div>
           </Card>
         </div>

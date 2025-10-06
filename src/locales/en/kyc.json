@@ -74,6 +74,8 @@
     "accountNumberRequired": "Account number is required",
     "routingNumberRequired": "Routing number is required",
     "accountHolderRequired": "Account holder name is required",
-    "documentRequired": "Identity document is required"
+    "documentRequired": "Identity document is required",
+    "industryTypeRequired": "Industry type is required",
+    "statementInvalidChars": "Statement descriptor contains invalid characters"
   }
 }
