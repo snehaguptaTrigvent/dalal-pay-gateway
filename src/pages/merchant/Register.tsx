@@ -57,6 +57,8 @@ const MerchantRegister = () => {
       newErrors.full_name = ("merchant.register.fullNameRequired");
     } else if (formData.full_name.length < 2) {
       newErrors.full_name = ("merchant.register.fullNameMin");
+    } else if (!/^[A-Za-z0-9 ]+$/.test(formData.full_name)) {
+      newErrors.full_name = ("merchant.register.fullNameRegex");
     }
     if (!formData.email.trim()) {
       newErrors.email = ("merchant.register.emailRequired");
@@ -69,8 +71,14 @@ const MerchantRegister = () => {
     }
     if (!formData.phone.trim()) {
       newErrors.phone = ("merchant.register.phoneRequired");
-    } else if (formData.phone.length < 10) {
-      newErrors.phone = ("merchant.register.phoneMin");
+    } else {
+      const raw = formData.phone.trim();
+      // Normalize: remove spaces, dashes, parentheses
+      const normalized = raw.replace(/[()\s-]/g, "");
+      const e164Regex = /^\+?[1-9]\d{9,14}$/;
+      if (!e164Regex.test(normalized)) {
+        newErrors.phone = ("merchant.register.phoneRegex");
+      }
     }
     if (!formData.dob.trim()) {
       newErrors.dob = ("merchant.register.dobRequired");
@@ -86,6 +94,12 @@ const MerchantRegister = () => {
         today.setHours(0,0,0,0);
         if (dobDate >= today) {
           newErrors.dob = ("merchant.register.dobPastOnly");
+        } else {
+          // Must be at least 18 years old
+          const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+          if (dobDate > eighteenYearsAgo) {
+            newErrors.dob = ("merchant.register.dobAge");
+          }
         }
       }
     }
@@ -111,7 +125,12 @@ const MerchantRegister = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    let nextValue = value;
+    if (field === 'full_name') {
+      // Allow only alphanumeric characters and spaces
+      nextValue = value.replace(/[^A-Za-z0-9 ]/g, "");
+    }
+    setFormData((prev) => ({ ...prev, [field]: nextValue }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
@@ -188,7 +207,7 @@ const MerchantRegister = () => {
   <div className="relative min-h-screen" style={{ overflow: 'hidden' }}>
       <MerchantLoginNavigation />
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 py-20">
-        <Dialog open={showActivationModal} onOpenChange={(open) => { setShowActivationModal(open); if (!open) navigate('/merchant/login'); }}>
+        <Dialog open={showActivationModal} onOpenChange={(open) => { setShowActivationModal(open); if (!open) navigate(`/${language}/merchant/login`); }}>
           <DialogContent className="bg-white text-black text-lg font-semibold py-6 px-8 w-full max-w-lg rounded-xl shadow-2xl border-2 border-white flex flex-col items-center justify-center text-center">
             <div className="flex flex-col items-center justify-center">
               <h2 className="text-l mb-2">{t("activateAccount.title")}</h2>
