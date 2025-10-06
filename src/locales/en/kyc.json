@@ -123,7 +123,9 @@
       "idAlphaNumericOnly": "Please enter a valid ID number",
       "ValidAccountNumber": "Please enter a valid account number",
       "ValidRoutingNumber": "Please enter a valid routing number",
-      "ValidAccountHolderName": "Please enter a valid account holder name"
+      "ValidAccountHolderName": "Please enter a valid account holder name",
+      "invalidFileType": "Invalid file type, Please upload supported files",
+      "fileTooLarge": "File size must be less than 5MB"
     }
   }
 }
