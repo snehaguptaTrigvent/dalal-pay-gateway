@@ -308,7 +308,17 @@ const KYCOnboarding = () => {
       case 4:
         if (!formData.individual_verification_document_front &&  (!existingData?.documents || existingData.documents.length === 0)) {
           newErrors.individual_verification_document_front = "validation.documentRequired";
+        }else if (formData.individual_verification_document_front){
+          const fileExtension = formData.individual_verification_document_front.name.split('.').pop().toLowerCase();
+          const maxFileSizeBytes = 5 * 1024 * 1024;
+          if (!['jpg', 'jpeg', 'png', 'pdf'].includes(fileExtension)) {
+            newErrors.individual_verification_document_front = "validation.invalidFileType";
+          }
+          else if (formData.individual_verification_document_front.size > maxFileSizeBytes) {
+            newErrors.individual_verification_document_front = "validation.fileTooLarge";
+          }
         }
+
         break;
     }
     

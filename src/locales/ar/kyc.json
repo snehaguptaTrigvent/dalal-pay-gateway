@@ -123,7 +123,9 @@
       "idAlphaNumericOnly": "يرجى إدخال رقم هوية صالح",
       "ValidAccountNumber": "يرجى إدخال رقم حساب صالح",
       "ValidRoutingNumber": "يرجى إدخال رقم توجيه صالح",
-      "ValidAccountHolderName": "يرجى إدخال اسم صاحب حساب صالح"
+      "ValidAccountHolderName": "يرجى إدخال اسم صاحب حساب صالح",
+      "invalidFileType": "نوع الملف غير صالح، يرجى رفع ملفات مدعومة",
+      "fileTooLarge": "يجب أن يكون حجم الملف أقل من 5 ميغابايت"
     }
   }
 }
