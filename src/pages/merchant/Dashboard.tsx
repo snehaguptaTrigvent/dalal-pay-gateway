@@ -295,7 +295,7 @@ const MerchantDashboard = () => {
                         <div className="bg-yellow-100 border border-warning-300 rounded-lg p-4">
                           <div className="flex items-center space-x-2 text-warning-700">
                             <AlertCircle className="w-4 h-4" />
-                            <span className="font-medium">KYC Update</span>
+                            <span className="font-medium">{t("dashboard.updateKyc")}</span>
                           </div>
                           <p className="text-sm mt-1 text-warning-700">
                             {kycData.data?.message}
@@ -306,7 +306,7 @@ const MerchantDashboard = () => {
                         <div className="bg-yellow-100 border border-warning-300 rounded-lg p-4">
                           <div className="flex items-center space-x-2 text-warning-700">
                             <AlertCircle className="w-4 h-4" />
-                            <span className="font-medium">KYC Update</span>
+                            <span className="font-medium">{t("dashboard.updateKyc")}</span>
                           </div>
                           <p className="text-sm mt-1 text-warning-700">
                             {kycData.data?.account_info?.requirements?.currently_due?.join(", ")}
@@ -378,7 +378,7 @@ const MerchantDashboard = () => {
                       <div>
                         <span className="text-muted-foreground">{t("dashboard.charges")}:</span>
                         <Badge className="ml-2 bg-success/20 text-success">
-                          {kycData?.data?.account_info?.charges_enabled ? "Enabled" : "Disabled"}
+                          {kycData?.data?.account_info?.charges_enabled ? t("dashboard.enabled") : t("dashboard.disabled")}
                         </Badge>
                       </div>
                       <div>
