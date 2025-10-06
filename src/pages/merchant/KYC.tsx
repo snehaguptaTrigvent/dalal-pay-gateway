@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Link, useNavigate } from "react-router-dom";
+
 import { 
   Building, 
   CreditCard, 
@@ -19,8 +20,10 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth"
-import kycEn from "@/locales/en/kyc.json";
-import kycAr from "@/locales/ar/kyc.json";
+// Removed unused locale JSON imports
+// import kycEn from "@/locales/en/kyc.json";
+// import kycAr from "@/locales/ar/kyc.json";
+import { useTranslation } from "@/hooks/useTranslation";
 import AfterLoginNav from "@/components/AfterLoginNav";
 
 const DALAL_API_BASE_URL = import.meta.env.VITE_DALAL_API_BASE_URL;
@@ -128,11 +131,19 @@ const KYCOnboarding = () => {
   });
 
   const urlLang = window.location.pathname.split('/')[1] || 'en';
-  const [language, setLanguage] = useState(urlLang);
+  const { language, setLanguage, t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const t = language === 'ar' ? kycAr : kycEn;
-  const totalSteps = t.steps.length;
+  //const t = language === 'ar' ? kycAr : kycEn;
+  const totalSteps = 4;
+
+  // Build steps text from translation function
+  const stepsTexts = [
+    { title: t("kyc.steps[0].title"), subtitle: t("kyc.steps[0].subtitle") },
+    { title: t("kyc.steps[1].title"), subtitle: t("kyc.steps[1].subtitle") },
+    { title: t("kyc.steps[2].title"), subtitle: t("kyc.steps[2].subtitle") },
+    { title: t("kyc.steps[3].title"), subtitle: t("kyc.steps[3].subtitle") }
+  ];
 
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [touched, setTouched] = useState<{[key: string]: boolean}>({});
@@ -419,8 +430,8 @@ const KYCOnboarding = () => {
       <div className="flex items-center mb-6">
         <Building className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">{t.steps[0].title}</h2>
-          <p className="text-sm text-muted-foreground">{t.steps[0].subtitle}</p>
+          <h2 className="text-xl font-semibold text-foreground">{t("kyc.steps[0].title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("kyc.steps[0].subtitle")}</p>
           {existingData && (
             <p className="text-sm text-green-600 mt-1">
               ✓ You have existing application data. You can update your information.
@@ -432,43 +443,43 @@ const KYCOnboarding = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="email" className="text-foreground font-medium">
-            {t.email} <span className="text-destructive">*</span>
+            {t("kyc.email")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="email"
             type="email"
             value={formData.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
-            placeholder={t.emailPlaceholder}
+            placeholder={t("kyc.emailPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
           {errors.email && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.email.split('.').pop()]}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.email}`)}</p>
           )}
         </div>
 
         <div>
           <Label htmlFor="business_profile_url" className="text-foreground font-medium">
-            {t.businessUrl} <span className="text-destructive">*</span>
+            {t("kyc.businessUrl")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="business_profile_url"
             type="url"
             value={formData.business_profile_url}
             onChange={(e) => handleInputChange('business_profile_url', e.target.value)}
-            placeholder={t.urlPlaceholder}
+            placeholder={t("kyc.urlPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
           {errors.business_profile_url && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.business_profile_url.split('.').pop()] || errors.business_profile_url}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.business_profile_url}`)}</p>
           )}
         </div>
 
         <div>
           <Label htmlFor="industry_type" className="text-foreground font-medium">
-            Industry Type <span className="text-destructive">*</span>
+            {t("kyc.industryType")} <span className="text-destructive">*</span>
           </Label>
           <div className="mt-2 relative">
             <select
@@ -478,7 +489,7 @@ const KYCOnboarding = () => {
               className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none"
               required
             >
-              <option value="">Select Industry Type</option>
+              <option value="">{t("kyc.selectIndustry")}</option>
               {industryTypes.map((industry) => (
                 <option key={industry.id} value={industry.id}>
                   {industry.name}
@@ -488,35 +499,35 @@ const KYCOnboarding = () => {
             <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           </div>
           {errors.industry_type && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.industry_type.split('.').pop()] || errors.industry_type}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.industry_type}`)}</p>
           )}
         </div>
 
         <div>
           <Label htmlFor="statement_descriptor" className="text-foreground font-medium">
-            {t.statementDescriptor} <span className="text-destructive">*</span>
+            {t("kyc.statementDescriptor")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="statement_descriptor"
             value={formData.statement_descriptor}
             onChange={(e) => handleInputChange('statement_descriptor', e.target.value)}
-            placeholder={t.descriptorPlaceholder}
+            placeholder={t("kyc.descriptorPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             maxLength={22}
             required
           />
           {errors.statement_descriptor && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.statement_descriptor.split('.').pop()] || errors.statement_descriptor}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.statement_descriptor}`)}</p>
           )}
-          <p className="text-xs text-muted-foreground mt-1">Maximum 22 characters</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("kyc.max22Chars")}</p>
         </div>
       </div>
 
       <div className="bg-muted/50 p-4 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          <strong>Account Type:</strong> Individual Business Account<br/>
-          <strong>Country:</strong> United States<br/>
-          <strong>Capabilities:</strong> Card Payments, Transfers
+          <strong>{t("kyc.accountTypeLabel")}</strong> {t("kyc.accountTypeIndividual")}<br/>
+          <strong>{t("kyc.countryLabel")}</strong> {t("kyc.countryUnitedStates")}<br/>
+          <strong>{t("kyc.capabilitiesLabel")}</strong> {t("kyc.capabilitiesList")}
         </p>
       </div>
     </div>
@@ -527,33 +538,33 @@ const KYCOnboarding = () => {
       <div className="flex items-center mb-6">
         <User className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">{t.steps[1].title}</h2>
-          <p className="text-sm text-muted-foreground">{t.steps[1].subtitle}</p>
+          <h2 className="text-xl font-semibold text-foreground">{t("kyc.steps[1].title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("kyc.steps[1].subtitle")}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
         <div>
           <Label htmlFor="individual_id_number" className="text-foreground font-medium">
-            {t.idNumber} <span className="text-destructive">*</span>
+            {t("kyc.idNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="individual_id_number"
             value={formData.individual_id_number}
             onChange={(e) => handleInputChange('individual_id_number', e.target.value)}
-            placeholder={t.idPlaceholder}
+            placeholder={t("kyc.idPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
           {errors.individual_id_number && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_id_number.split('.').pop()] || errors.individual_id_number}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.individual_id_number}`)}</p>
           )}
         </div>
       </div>
 
       <div>
         <Label className="text-foreground font-medium">
-          {t.address} <span className="text-destructive">*</span>
+          {t("kyc.address")} <span className="text-destructive">*</span>
         </Label>
         <div className="space-y-4 mt-2">
           <div>
@@ -561,12 +572,12 @@ const KYCOnboarding = () => {
               id="individual_address_line1"
               value={formData.individual_address_line1}
               onChange={(e) => handleInputChange('individual_address_line1', e.target.value)}
-              placeholder={t.addressPlaceholder}
+              placeholder={t("kyc.addressPlaceholder")}
               className="bg-background border-input focus:border-primary"
               required
             />
             {errors.individual_address_line1 && (
-              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_line1.split('.').pop()] || errors.individual_address_line1}</p>
+              <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.individual_address_line1}`)}</p>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -575,12 +586,12 @@ const KYCOnboarding = () => {
                 id="individual_address_city"
                 value={formData.individual_address_city}
                 onChange={(e) => handleInputChange('individual_address_city', e.target.value)}
-                placeholder={t.cityPlaceholder}
+                placeholder={t("kyc.cityPlaceholder")}
                 className="bg-background border-input focus:border-primary"
                 required
               />
               {errors.individual_address_city && (
-                <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_city.split('.').pop()] || errors.individual_address_city}</p>
+                <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.individual_address_city}`)}</p>
               )}
             </div>
             <div>
@@ -588,12 +599,12 @@ const KYCOnboarding = () => {
                 id="individual_address_state"
                 value={formData.individual_address_state}
                 onChange={(e) => handleInputChange('individual_address_state', e.target.value)}
-                placeholder={t.statePlaceholder}
+                placeholder={t("kyc.statePlaceholder")}
                 className="bg-background border-input focus:border-primary"
                 required
               />
               {errors.individual_address_state && (
-                <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_state.split('.').pop()] || errors.individual_address_state}</p>
+                <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.individual_address_state}`)}</p>
               )}
             </div>
             <div>
@@ -601,12 +612,12 @@ const KYCOnboarding = () => {
                 id="individual_address_postal_code"
                 value={formData.individual_address_postal_code}
                 onChange={(e) => handleInputChange('individual_address_postal_code', e.target.value)}
-                placeholder={t.postalPlaceholder}
+                placeholder={t("kyc.postalPlaceholder")}
                 className="bg-background border-input focus:border-primary"
                 required
               />
               {errors.individual_address_postal_code && (
-                <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_address_postal_code.split('.').pop()] || errors.individual_address_postal_code}</p>
+                <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.individual_address_postal_code}`)}</p>
               )}
             </div>
           </div>
@@ -620,67 +631,67 @@ const KYCOnboarding = () => {
       <div className="flex items-center mb-6">
         <CreditCard className="w-6 h-6 text-primary mr-3" />
         <div>
-          <h2 className="text-xl font-semibold text-foreground">{t.steps[2].title}</h2>
-          <p className="text-sm text-muted-foreground">{t.steps[2].subtitle}</p>
+          <h2 className="text-xl font-semibold text-foreground">{t("kyc.steps[2].title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("kyc.steps[2].subtitle")}</p>
         </div>
       </div>
 
       <div className="bg-muted/50 p-4 rounded-lg mb-6">
         <p className="text-sm text-muted-foreground">
-          <strong>Account Type:</strong> US Bank Account<br/>
-          <strong>Currency:</strong> USD
+          <strong>{t("kyc.accountTypeLabel")}</strong> {t("kyc.accountTypeUs")}<br/>
+          <strong>{t("kyc.currencyLabel")}</strong> {t("kyc.currencyUsd")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="external_account_account_number" className="text-foreground font-medium">
-            {t.accountNumber} <span className="text-destructive">*</span>
+            {t("kyc.accountNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="external_account_account_number"
             value={formData.external_account_account_number}
             onChange={(e) => handleInputChange('external_account_account_number', e.target.value)}
-            placeholder={t.accountPlaceholder}
+            placeholder={t("kyc.accountPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
           {errors.external_account_account_number && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.external_account_account_number.split('.').pop()] || errors.external_account_account_number}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.external_account_account_number}`)}</p>
           )}
         </div>
 
         <div>
           <Label htmlFor="external_account_routing_number" className="text-foreground font-medium">
-            {t.routingNumber} <span className="text-destructive">*</span>
+            {t("kyc.routingNumber")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="external_account_routing_number"
             value={formData.external_account_routing_number}
             onChange={(e) => handleInputChange('external_account_routing_number', e.target.value)}
-            placeholder={t.routingPlaceholder}
+            placeholder={t("kyc.routingPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
           {errors.external_account_routing_number && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.external_account_routing_number.split('.').pop()] || errors.external_account_routing_number}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.external_account_routing_number}`)}</p>
           )}
         </div>
 
         <div className="md:col-span-2">
           <Label htmlFor="external_account_account_holder_name" className="text-foreground font-medium">
-            {t.accountHolder} <span className="text-destructive">*</span>
+            {t("kyc.accountHolder")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="external_account_account_holder_name"
             value={formData.external_account_account_holder_name}
             onChange={(e) => handleInputChange('external_account_account_holder_name', e.target.value)}
-            placeholder={t.holderPlaceholder}
+            placeholder={t("kyc.holderPlaceholder")}
             className="mt-2 bg-background border-input focus:border-primary"
             required
           />
           {errors.external_account_account_holder_name && (
-            <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.external_account_account_holder_name.split('.').pop()] || errors.external_account_account_holder_name}</p>
+            <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.external_account_account_holder_name}`)}</p>
           )}
         </div>
       </div>
@@ -700,20 +711,20 @@ const KYCOnboarding = () => {
         <div className="flex items-center mb-6">
           <FileText className="w-6 h-6 text-primary mr-3" />
           <div>
-            <h2 className="text-xl font-semibold text-foreground">{t.steps[3].title}</h2>
-            <p className="text-sm text-muted-foreground">{t.steps[3].subtitle}</p>
+            <h2 className="text-xl font-semibold text-foreground">{t("kyc.steps[3].title")}</h2>
+            <p className="text-sm text-muted-foreground">{t("kyc.steps[3].subtitle")}</p>
           </div>
         </div>
 
         <div>
           <Label htmlFor="individual_verification_document_front" className="text-foreground font-medium">
-            {t.identityDocument} <span className="text-destructive">*</span>
+            {t("kyc.identityDocument")} <span className="text-destructive">*</span>
           </Label>
           <div className="mt-2">
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
               <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground mb-2">
-                Upload a photo of your government-issued ID (front side)
+                {t("kyc.uploadPhotoHelp")}
               </p>
               <Input
                 id="individual_verification_document_front"
@@ -729,7 +740,7 @@ const KYCOnboarding = () => {
                 onClick={() => document.getElementById('individual_verification_document_front')?.click()}
               >
                 <Upload className="w-4 h-4 mr-2" />
-                {t.uploadDocument}
+                {t("kyc.uploadDocument")}
               </Button>
               {formData.individual_verification_document_front && (
                 <p className="text-sm text-primary mt-2">
@@ -739,18 +750,18 @@ const KYCOnboarding = () => {
               {existingData?.documents && existingData.documents.length > 0 && (
                 <>
                   <p className="text-sm text-green-600 mt-2">
-                    ✓ You have already uploaded <b>{existingData.documents[0].document_name}</b> document
+                    {t("kyc.alreadyUploadedPrefix")} <b>{existingData.documents[0].document_name}</b> {t("kyc.documentWord")}
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    New upload will remove previously uploaded file
+                    {t("kyc.newUploadReplaces")}
                   </p>
                 </>
               )}
             </div>
             {errors.individual_verification_document_front && (
-              <p className="text-sm text-destructive mt-1">{t.validation && t.validation[errors.individual_verification_document_front.split('.').pop()] || errors.individual_verification_document_front}</p>
+              <p className="text-sm text-destructive mt-1">{t(`kyc.${errors.individual_verification_document_front}`)}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">{t.supportedFormats}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("kyc.supportedFormats")}</p>
           </div>
         </div>
 
@@ -759,10 +770,10 @@ const KYCOnboarding = () => {
             <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
             <div>
               <Label className="text-foreground font-medium">
-                {t.termsAcceptance}
+                {t("kyc.termsAcceptance")}
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {t.acceptTerms}
+                {t("kyc.acceptTerms")}
               </p>
             </div>
           </div>
@@ -770,10 +781,10 @@ const KYCOnboarding = () => {
 
         <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>Next Steps:</strong><br/>
-            • Your application will be reviewed within 1-2 business days<br/>
-            • We may request additional documentation if needed<br/>
-            • You'll receive an email notification once your account is approved
+            <strong>{t("kyc.nextStepsTitle")}</strong><br/>
+            • {t("kyc.nextStepsReview")}<br/>
+            • {t("kyc.nextStepsDocs")}<br/>
+            • {t("kyc.nextStepsEmail")}
           </p>
         </div>
       </div>
@@ -807,12 +818,13 @@ const KYCOnboarding = () => {
               <ArrowLeft className="w-5 h-5" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                 {t.kycHeaderTitle}
+                 {t("kyc.kycHeaderTitle")}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                    {t.kycHeaderDesc} </p>
+                    {t("kyc.kycHeaderDesc")} </p>
               </div>
             </Link>
+           
            
           </div>
         </div>
@@ -822,11 +834,11 @@ const KYCOnboarding = () => {
       <div className="border-b border-border bg-card">
         <div className="container max-w-5xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            {t.steps.map((step, index) => (
+            {stepsTexts.map((step, index) => (
               <div
                 key={index}
                 className={`flex items-center ${
-                  index < t.steps.length - 1 ? "flex-1" : ""
+                  index < stepsTexts.length - 1 ? "flex-1" : ""
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -860,7 +872,7 @@ const KYCOnboarding = () => {
                     </div>
                   </div>
                 </div>
-                {index < t.steps.length - 1 && (
+                {index < stepsTexts.length - 1 && (
                   <div className="flex-1 h-px bg-border mx-4" />
                 )}
               </div>
@@ -883,7 +895,7 @@ const KYCOnboarding = () => {
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>{t.previous}</span>
+              <span>{t("kyc.previous")}</span>
             </Button>
 
             <Button
@@ -894,11 +906,11 @@ const KYCOnboarding = () => {
               <span>
                 {currentStep === totalSteps 
                   ? (submitting 
-                      ? "Submitting..." 
+                      ? t("kyc.submitting")
                       : existingData 
-                        ? "Update Application" 
-                        : t.submit || "Submit Application")
-                  : t.nextStep
+                        ? t("kyc.updateApplication")
+                        : (t("kyc.submit") || "Submit Application"))
+                  : (t("kyc.nextStep") || "Next Step")
                 }
               </span>
               {currentStep < totalSteps && <ArrowRight className="w-4 h-4" />}

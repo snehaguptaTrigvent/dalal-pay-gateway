@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AfterLoginNavProps {
   language: string;
@@ -18,11 +19,12 @@ interface AfterLoginNavProps {
 }
 
 const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
+  const { token, user, isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const handleLogout = async () => {
     const authData = localStorage.getItem("authData");
- 
+    if (!token) return;   
     let refresh_token = "";
     try {
       if (authData) {
@@ -31,8 +33,11 @@ const AfterLoginNav = ({ language, setLanguage }: AfterLoginNavProps) => {
       }
       if (refresh_token) {
         await fetch(`${DALAL_API_BASE_URL}/accounts/logout/`, {
+          
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {  "Authorization": `Bearer ${token}`,
+                      "Content-Type": "application/json" 
+                   },
           body: JSON.stringify({ refresh_token: refresh_token })
         });
       }
