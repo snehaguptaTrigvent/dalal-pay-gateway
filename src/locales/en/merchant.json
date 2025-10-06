@@ -20,8 +20,9 @@
       "emailInvalid": "Please enter a valid email address.",
       "passwordRequired": "Password is required.",
       "loginFailed": "Login Failed",
-      "invalidCredentials": "Login Failed. Please check your entered email and password.",
-      "loginError": "An error occurred during login. Please try again."
+      "invalidCredentials": "Please check your entered email and password.",
+      "loginError": "An error occurred during login. Please try again.",
+      "accountNotVerified": "Your account has not been verified yet. Please check your email for verification instructions."
     },
     "register": {
       "title": "Create Merchant Account",
