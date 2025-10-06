@@ -64,6 +64,7 @@
 		"kycAdditional": "Additional information required to complete your verification.",
 		"actionReq": "Action Required",
 		"close": "Close",
-		"updateInfo": "Update Information"
+		"updateInfo": "Update Information",
+		"updateKyc": "KYC Update"
 	}
 }

@@ -118,7 +118,12 @@
       "accountHolderFormatInvalid": "Account holder name looks invalid",
       "documentRequired": "Identity document is required",
       "industryTypeRequired": "Industry type is required",
-      "statementInvalidChars": "Statement descriptor contains invalid characters"
+      "statementInvalidChars": "Statement descriptor contains invalid characters",
+      "postalAlphaNumericOnly": "Please enter a valid postal code",
+      "idAlphaNumericOnly": "Please enter a valid ID number",
+      "ValidAccountNumber": "Please enter a valid account number",
+      "ValidRoutingNumber": "Please enter a valid routing number",
+      "ValidAccountHolderName": "Please enter a valid account holder name"
     }
   }
 }
