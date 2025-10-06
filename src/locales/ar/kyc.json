@@ -110,7 +110,12 @@
       "accountHolderRequired": "اسم صاحب الحساب مطلوب",
       "documentRequired": "وثيقة الهوية مطلوبة",
       "industryTypeRequired": "نوع الصناعة مطلوب",
-      "statementInvalidChars": "وصف البيان يحتوي على أحرف غير صالحة"
+      "statementInvalidChars": "وصف البيان يحتوي على أحرف غير صالحة",
+      "postalNumericOnly": "يجب أن يكون الرمز البريدي رقماً صالحاً",
+      "idAlphaNumericOnly": "يرجى إدخال رقم هوية صالح",
+      "ValidAccountNumber": "يرجى إدخال رقم حساب صالح",
+      "ValidRoutingNumber": "يرجى إدخال رقم توجيه صالح",
+      "ValidAccountHolderName": "يرجى إدخال اسم صاحب حساب صالح"
     }
   }
 }

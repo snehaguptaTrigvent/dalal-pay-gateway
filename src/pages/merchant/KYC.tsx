@@ -284,17 +284,25 @@ const KYCOnboarding = () => {
         break;
 
       case 2:
-        if (!formData.individual_id_number.trim()) newErrors.individual_id_number = "validation.idRequired";
+        if (!formData.individual_id_number.trim()) {newErrors.individual_id_number = "validation.idRequired";}
+        else if(!/^[a-zA-Z0-9]+$/.test(formData.individual_id_number.trim())|| formData.individual_id_number.trim().length > 25) 
+          {newErrors.individual_id_number = "validation.idAlphaNumericOnly"; }
         if (!formData.individual_address_line1.trim()) newErrors.individual_address_line1 = "validation.addressRequired";
         if (!formData.individual_address_city.trim()) newErrors.individual_address_city = "validation.cityRequired";
         if (!formData.individual_address_state.trim()) newErrors.individual_address_state = "validation.stateRequired";
-        if (!formData.individual_address_postal_code.trim()) newErrors.individual_address_postal_code = "validation.postalRequired";
+        if (!formData.individual_address_postal_code.trim()) {newErrors.individual_address_postal_code = "validation.postalRequired";
+        } else if (!/^[a-zA-Z0-9]+$/.test(formData.individual_address_postal_code.trim()) || formData.individual_address_postal_code.trim().length > 11) {
+          newErrors.individual_address_postal_code = "validation.postalAlphaNumericOnly";
+        }
         break;
 
       case 3:
         if (!formData.external_account_account_number.trim()) newErrors.external_account_account_number = "validation.accountNumberRequired";
+        else if(!/^[a-zA-Z0-9]+$/.test(formData.external_account_account_number.trim())) {newErrors.external_account_account_number = "validation.ValidAccountNumber"; }
         if (!formData.external_account_routing_number.trim()) newErrors.external_account_routing_number = "validation.routingNumberRequired";
+        else if(!/^[a-zA-Z0-9]+$/.test(formData.external_account_routing_number.trim())) {newErrors.external_account_routing_number = "validation.ValidRoutingNumber"; }
         if (!formData.external_account_account_holder_name.trim()) newErrors.external_account_account_holder_name = "validation.accountHolderRequired";
+        else if(!/^[a-zA-Z0-9\s]+$/.test(formData.external_account_account_holder_name.trim())) {newErrors.external_account_account_holder_name = "validation.ValidAccountHolderName"; }
         break;
         
       case 4:
