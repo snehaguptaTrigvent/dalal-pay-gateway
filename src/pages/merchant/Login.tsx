@@ -140,7 +140,7 @@ const MerchantLogin = () => {
                 <Label htmlFor="password" className="text-foreground font-medium">
                   {t("merchant.login.passwordLabel")}
                 </Label>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="password"
@@ -148,7 +148,7 @@ const MerchantLogin = () => {
                     placeholder={t("merchant.login.passwordPlaceholder")}
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth"
+                    className="pl-11 pr-11 bg-muted/30 border-border focus:border-primary transition-smooth w-full"
                     
                   />
                   <Button
@@ -156,7 +156,7 @@ const MerchantLogin = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                    className="absolute right-1 top-0 bottom-0 my-auto h-8 w-8 p-0 flex items-center justify-center"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4 text-muted-foreground" />
@@ -164,10 +164,10 @@ const MerchantLogin = () => {
                       <Eye className="w-4 h-4 text-muted-foreground" />
                     )}
                   </Button>
-                   {errors.password && (
-                  <p className="text-sm text-destructive mt-1">{t(errors.password)}</p>
-                )}
                 </div>
+                {errors.password && (
+                  <p className="block w-full text-sm text-destructive mt-1">{t(errors.password)}</p>
+                )}
               </div>
              
               <div className="flex items-center justify-end">
