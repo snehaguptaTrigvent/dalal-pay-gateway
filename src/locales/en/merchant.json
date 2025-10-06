@@ -111,7 +111,8 @@
       "confirmPasswordRequired": "Please confirm your password.",
       "passwordMatch": "Passwords do not match.",
       "linkExpired": "Reset Link Expired",
-      "linkExpiredMessage": "The reset link has expired. Please request a new reset link."
+      "linkExpiredMessage": "The reset link has expired. Please request a new reset link.",
+      "passwordTooCommon": "This password is too common and not secure. Please choose a different password."
     }
   }
 }

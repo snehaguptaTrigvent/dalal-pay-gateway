@@ -81,7 +81,7 @@ const MerchantResetPassword = () => {
           toast({
             variant: "destructive",
             title: t("merchant.reset.resetFailed"),
-            description: error.message ? t(error.message) : t("merchant.reset.resetError")
+            description: error.message ? t("merchant.reset.passwordTooCommon") : t("merchant.reset.resetError")
           });
       }
     } finally {
