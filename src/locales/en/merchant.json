@@ -87,8 +87,8 @@
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email address.",
       "forgotFailed": "Forgot Failed.",
-      "forgotError": "An error occurred while triggering forgot password. Please try again."
-
+      "forgotError": "An error occurred while triggering forgot password. Please try again.",
+      "accountNotFound": "No account found, please entered your registered email."
     },
     "reset": {
       "title": "Reset Password",

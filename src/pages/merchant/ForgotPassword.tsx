@@ -53,11 +53,19 @@ const MerchantForgotPassword = () => {
 				description: t("merchant.forgot.successDesc")
 			});
 		} catch (error: any) {
-			toast({
-				variant: "destructive",
-				title: t("merchant.forgot.forgotFailed"),
-				description: error.message ? t("merchant.forgot.forgotError") : t("merchant.forgot.resetError")
-			});
+			if (error.message && error.message.includes("no user")) {
+				toast({
+					variant: "destructive",
+					title: t("merchant.forgot.forgotFailed"),
+					description: t("merchant.forgot.accountNotFound")
+				});
+			}else{
+				toast({
+					variant: "destructive",
+					title: t("merchant.forgot.forgotFailed"),
+					description: error.message ? t("merchant.forgot.forgotError") : t("merchant.forgot.resetError")
+				});
+			}
 		} finally {
 			setIsLoading(false);
 		}
