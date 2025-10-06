@@ -9,6 +9,7 @@ type AuthData = {
   joined_at: string;
   organization_name: string;
   category: string;
+  dob: string;
 };
 
 export const useAuth = () => {
@@ -32,7 +33,8 @@ export const useAuth = () => {
           phone: parsed.phone, 
           joined_at: parsed.joined_at,
           category: parsed.category,
-          organization_name: parsed.organization_name
+          organization_name: parsed.organization_name,
+          dob: parsed.dob
         };
       }
     } catch (err) {

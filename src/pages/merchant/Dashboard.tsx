@@ -75,7 +75,8 @@ const MerchantDashboard = () => {
     email: user?.email,
     phone: user?.phone,
     companyType: user?.category,
-    joinDate: user?.joined_at
+    joinDate: user?.joined_at,
+    dob: user?.dob
   };
 
   const stats = {
@@ -204,8 +205,8 @@ const MerchantDashboard = () => {
           <div className="flex items-center space-x-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary"></div>
             <div>
-              <h3 className="font-semibold text-foreground">Loading KYC Status...</h3>
-              <p className="text-muted-foreground">Checking your verification status</p>
+              <h3 className="font-semibold text-foreground">{t("dashboard.loadingStatus")}</h3>
+              <p className="text-muted-foreground">{t("dashboard.loadingMessage")}</p>
             </div>
           </div>
         </Card>
@@ -220,14 +221,14 @@ const MerchantDashboard = () => {
             <div className="flex items-center space-x-4">
               <AlertCircle className="w-8 h-8 text-secondary" />
               <div>
-                <h3 className="font-semibold text-foreground">KYC Verification Required</h3>
+                <h3 className="font-semibold text-foreground">{t("dashboard.kycRequired")}</h3>
                 <p className="text-muted-foreground">
-                  You need to complete KYC verification to start accepting payments.
+                  {t("dashboard.kycRequiredDesc")}
                 </p>
               </div>
             </div>
             <Button onClick={handleStartOnboarding}>
-              Start Onboarding
+              {t("dashboard.startOnboarding")}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
@@ -245,16 +246,16 @@ const MerchantDashboard = () => {
             <div className="flex items-center space-x-4">
               <AlertCircle className="w-8 h-8 text-warning" />
               <div>
-                <h3 className="font-semibold text-foreground">KYC Verification In Progress</h3>
+                <h3 className="font-semibold text-foreground">{t("dashboard.kycInProgress")}</h3>
                 <p className="text-muted-foreground">
                   {hasRequirements 
-                    ? "Additional information required to complete your verification."
-                    : "Your verification is being processed. We'll notify you once completed."
+                    ? t("dashboard.kycAdditional")
+                    : t("dashboard.kycInProgressDesc")
                   }
                 </p>
                 {hasRequirements && (
                   <p className="text-sm text-warning mt-1">
-                    Requirements Pending
+                    {t("dashboard.reqPending")}
                   </p>
                 )}
               </div>
@@ -265,14 +266,14 @@ const MerchantDashboard = () => {
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <Eye className="w-4 h-4 mr-2" />
-                      View Details
+                      {t("dashboard.checkStatus")}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle>Verification Requirements</DialogTitle>
+                      <DialogTitle>{t("dashboard.kycRequirement")}</DialogTitle>
                       <div className="text-sm text-muted-foreground mt-2">
-                        Please provide the following information to complete your verification. If added, please wait for sometime.
+                        {t("dashboard.kycRequirementDesc")}
                       </div>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -281,7 +282,7 @@ const MerchantDashboard = () => {
                         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
                           <div className="flex items-center space-x-2 text-destructive">
                             <AlertCircle className="w-4 h-4" />
-                            <span className="font-medium">Action Required</span>
+                            <span className="font-medium">{t("dashboard.actionReq")}</span>
                           </div>
                           <p className="text-sm mt-1 text-destructive">
                             {Array.isArray(kycData.message)
@@ -319,10 +320,10 @@ const MerchantDashboard = () => {
 
                     <div className="flex justify-end space-x-2 pt-4">
                       <Button variant="outline" onClick={() => setKycDialogOpen(false)}>
-                        Close
+                        {t("dashboard.close")}
                       </Button>
                       <Button onClick={handleStartOnboarding}>
-                        Update Information
+                        {t("dashboard.updateInfo")}
                         <ExternalLink className="w-4 h-4 ml-2" />
                       </Button>
                     </div>
@@ -330,7 +331,7 @@ const MerchantDashboard = () => {
                 </Dialog>
               )}
               <Button onClick={handleStartOnboarding} variant="default">
-                Update KYC
+                {t("dashboard.kycUpdate")}
                 <ExternalLink className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -346,9 +347,9 @@ const MerchantDashboard = () => {
             <div className="flex items-center space-x-4">
               <CheckCircle className="w-8 h-8 text-success" />
               <div>
-                <h3 className="font-semibold text-foreground">KYC Verification Complete</h3>
+                <h3 className="font-semibold text-foreground">{t("dashboard.kycComplete")}</h3>
                 <p className="text-muted-foreground">
-                  Your account is fully verified and ready to accept payments.
+                  {t("dashboard.kycApprovedDesc")}
                 </p>
               </div>
             </div>
@@ -356,14 +357,14 @@ const MerchantDashboard = () => {
               <DialogTrigger asChild>
                 <Button variant="outline">
                   <Eye className="w-4 h-4 mr-2" />
-                  View Status
+                  {t("dashboard.checkStatus")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Verification Status</DialogTitle>
+                  <DialogTitle>{t("dashboard.verificationStatus")}</DialogTitle>
                   <div className="text-sm text-muted-foreground mt-2">
-                    Your account is fully verified and all capabilities are active.
+                  {t("dashboard.kycApprovedDesc")}
                   </div>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -371,19 +372,19 @@ const MerchantDashboard = () => {
                   <div className="bg-success/10 border border-success/20 rounded-lg p-4">
                     <div className="flex items-center space-x-2 text-success">
                       <CheckCircle className="w-4 h-4" />
-                      <span className="font-medium">Account Status: Active</span>
+                      <span className="font-medium">{t("dashboard.accountStatus")}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Charges:</span>
+                        <span className="text-muted-foreground">{t("dashboard.charges")}:</span>
                         <Badge className="ml-2 bg-success/20 text-success">
                           {kycData?.data?.account_info?.charges_enabled ? "Enabled" : "Disabled"}
                         </Badge>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Payouts:</span>
+                        <span className="text-muted-foreground">{t("dashboard.payouts")}:</span>
                         <Badge className="ml-2 bg-success/20 text-success">
-                          {kycData?.data?.account_info?.payouts_enabled ? "Enabled" : "Disabled"}
+                          {kycData?.data?.account_info?.payouts_enabled ? t("dashboard.enabled") : t("dashboard.disabled")}
                         </Badge>
                       </div>
                     </div>
@@ -392,7 +393,7 @@ const MerchantDashboard = () => {
                   {/* Capabilities */}
                   {kycData?.data?.account_info?.capabilities && (
                     <div className="space-y-2">
-                      <h4 className="font-medium text-foreground">Active Capabilities:</h4>
+                      <h4 className="font-medium text-foreground">{t("dashboard.capabilities")}:</h4>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         {Object.entries(kycData.data.account_info.capabilities)
                           .filter(([_, value]) => value === "active")
@@ -574,9 +575,9 @@ const MerchantDashboard = () => {
                       <User className="w-5 h-5 mr-2 text-primary" />
                       {t("dashboard.personalInfo")}
                     </h3>
-                    <Button variant="ghost" size="sm">
+                    {/* <Button variant="ghost" size="sm">
                       <Settings className="w-4 h-4" />
-                    </Button>
+                    </Button> */}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -586,6 +587,14 @@ const MerchantDashboard = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">{t("dashboard.email")}</p>
                       <p className="font-medium text-foreground">{merchantData.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">{t("dashboard.phone")}</p>
+                      <p className="font-medium text-foreground">{merchantData.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">{t("dashboard.dob")}</p>
+                      <p className="font-medium text-foreground">{merchantData.dob}</p>
                     </div>
                   </div>
                 </Card>
@@ -597,9 +606,9 @@ const MerchantDashboard = () => {
                       <Building className="w-5 h-5 mr-2 text-primary" />
                       {t("dashboard.businessInfo")}
                     </h3>
-                    <Button variant="ghost" size="sm">
+                    {/* <Button variant="ghost" size="sm">
                       <Settings className="w-4 h-4" />
-                    </Button>
+                    </Button> */}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
